@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.mobileproject">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".App"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplicationTest4"
+        android:allowBackup="true"
+        android:fullBackupContent="false">
+
+        <meta-data android:name="android.max_aspect" android:value="2.4" />
+
+        <activity
+            android:name="com.example.mobileproject.MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.mobileproject.NovelDetailsActivity"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
+        </activity>
+        <activity
+            android:name="com.example.mobileproject.VisitSourceActivity"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar" />
+        <activity
+            android:name="com.example.mobileproject.VisitAllSourcesActivity"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar" />
+        <activity
+            android:name="com.example.mobileproject.ReaderActivity"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
+        </activity>
+        
+        <service android:name=".model.DownloaderService" />
+    </application>
+
+</manifest>

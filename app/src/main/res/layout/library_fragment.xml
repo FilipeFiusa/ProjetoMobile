@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/library_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    tools:context=".ui.library.LibraryFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/secodary_dark_theme"
+            >
+
+            <TextView
+                android:layout_weight="1"
+                android:text="Biblioteca"
+                android:layout_gravity="start"
+                android:textSize="24sp"
+                android:layout_marginStart="15dp"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:layout_height="match_parent"
+                android:layout_width="0dp" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_gravity="right"
+                app:icon="@drawable/ic_baseline_reorder_64"
+                app:iconGravity="top"
+                android:layout_height="match_parent"
+                android:layout_width="60dp"
+                android:backgroundTint="@color/secodary_dark_theme"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_gravity="right"
+                app:icon="@drawable/ic_baseline_search_40"
+                app:iconGravity="top"
+                android:gravity="left"
+                android:layout_height="match_parent"
+                android:layout_width="60dp"
+                android:backgroundTint="@color/secodary_dark_theme"/>
+
+        </LinearLayout>
+
+
+        <GridView
+            android:id="@+id/novelsGrid"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:numColumns="2"
+            android:padding="15dp"
+            android:verticalSpacing="15dp"
+            android:horizontalSpacing="15dp"
+            android:background="@color/main_dark_theme"/>
+
+    </LinearLayout>
+
+
+
+</FrameLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_library"
+        android:icon="@drawable/ic_baseline_library_books_40"
+        android:title="Biblioteca"/>
+
+    <item
+        android:id="@+id/nav_download_list"
+        android:icon="@drawable/download"
+        android:title="Downloads"/>
+
+    <item
+        android:id="@+id/nav_navigate"
+        android:icon="@drawable/ic_action_name"
+        android:title="Navegar"/>
+
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_outline_more_horiz_40"
+        android:title="Mais"/>
+</menu>
