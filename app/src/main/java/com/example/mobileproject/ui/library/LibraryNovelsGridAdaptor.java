@@ -68,6 +68,7 @@ public class LibraryNovelsGridAdaptor extends BaseAdapter {
                     Intent intent = new Intent(ctx, NovelDetailsActivity.class);
 
                     intent.putExtra("NovelDetails_name", getItem(position).getNovelName());
+                    intent.putExtra("isFavorite", "yes");
                     intent.putExtra("NovelDetails_source", getItem(position).getSource());
 
                     ctx.startActivity(intent);

@@ -8,9 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterInDownload;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.DownloaderClass;
 import com.example.mobileproject.model.NovelDetails;
 
 import java.io.File;
@@ -158,7 +160,6 @@ public class DBController {
         return novel;
     }
 
-
     public ArrayList<ChapterContent> getAllChaptersFromNovel(String novelName, String novelSource){
         Cursor result;
         ArrayList<ChapterContent> chapterIndexes = new ArrayList<>();
@@ -215,7 +216,7 @@ public class DBController {
         return chapterIndexes;
     }
 
-    public ArrayList<ChapterInDownload>  getDownloadingChapters(String novelName, String novelSource){
+    public ArrayList<ChapterInDownload>  getDownloadingChapters(){
         Cursor result;
         ArrayList<ChapterInDownload> chapterIndexes = new ArrayList<>();
 
@@ -225,9 +226,9 @@ public class DBController {
                 "Chapters.id, Chapters.chapter_name,Chapters.novel_name, Novels.novel_image " +
                 "FROM Chapters " +
                 "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
-                "WHERE Chapters.novel_name=? AND Chapters.novel_source=?";
+                "WHERE Chapters.downloaded=?";
 
-        result = db.rawQuery(query, new String[]{novelName, novelSource});
+        result = db.rawQuery(query, new String[]{"downloading"});
 
         if(result.getCount() > 0){
             result.moveToFirst();
@@ -254,6 +255,90 @@ public class DBController {
         return chapterIndexes;
     }
 
+    public boolean putChapterOnDownload(int id){
+        long result;
+        ContentValues values = new ContentValues();;
+
+        db = database.getReadableDatabase();
+
+        values.put("downloaded", "downloading");
+
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        if(result ==  -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public boolean putChapterOnDownload(String novelName, String novelSource, int id){
+        long result;
+        ContentValues values = new ContentValues();;
+
+        db = database.getReadableDatabase();
+
+        values.put("downloaded", "downloading");
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        if(result ==  -1){
+            return false;
+        }
+
+        values = new ContentValues();
+
+        values.put("novel_name", novelName);
+        values.put("novel_source", novelSource);
+        values.put("chapter_id", id);
+
+        result = db.insert("DownloadQueue", null, values);
+
+        db.close();
+
+        if(result ==  -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public ArrayList<DownloaderClass> getDownloadingNovels(){
+        Cursor result;
+        ArrayList<DownloaderClass> downloaderClasses = new ArrayList<>();
+        ArrayList<NovelDetails> novels = selectAllNovels();
+        db = database.getReadableDatabase();
+
+        for(NovelDetails n : novels){
+            ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
+
+            String query = "" +
+                    "SELECT " +
+                    "Chapters.id, Chapters.chapter_name,Chapters.chapter_link " +
+                    "FROM Chapters " +
+                    "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
+                    "WHERE Chapters.downloaded=? AND Chapters.novel_name=? AND Chapters.novel_source=?";
+
+            result = db.rawQuery(query, new String[]{"downloading", n.getNovelName(), n.getSource()});
+
+            if(result.getCount() > 0){
+                result.moveToFirst();
+
+                do {
+                    ChapterIndex c = new ChapterIndex();
+
+                    c.setId(result.getInt(result.getColumnIndexOrThrow("id")));
+                    c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
+                    c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
+                    c.setDownloaded("downloading");
+
+                    downloaderClasses.add(new DownloaderClass(n.getNovelName(), n.getSource(), c));
+
+                }while (result.moveToNext());
+            }
+        }
+
+        return downloaderClasses;
+    }
 
     public ChapterContent getChapter(int id){
         Cursor result;
@@ -281,13 +366,20 @@ public class DBController {
 
     public boolean setChapterContent(int id, String chapterContent){
         long result;
-        ContentValues values = new ContentValues();;
-
         db = database.getReadableDatabase();
 
+        ContentValues values = new ContentValues();;
         values.put("chapter_content", chapterContent);
+        values.put("downloaded", "yes");
 
-        result = db.update("Chapters", values, "id", new String[]{String.valueOf(id)});
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        if(result ==  -1){
+            return false;
+        }
+
+        result = db.delete("DownloadQueue", "chapter_id=?", new String[]{String.valueOf(id)});
+
         db.close();
 
         if(result ==  -1){

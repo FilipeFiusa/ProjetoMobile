@@ -10,6 +10,7 @@ public class CreateDB extends SQLiteOpenHelper {
     private static final String db_name = "reader_db";
     private static final String Table1 = "Novels";
     private static final String Table2 = "Chapters";
+    private static final String Table3 = "DownloadQueue";
 
     private static CreateDB sInstance;
 
@@ -52,12 +53,25 @@ public class CreateDB extends SQLiteOpenHelper {
                 +")";
 
         db.execSQL(sql);
+
+        sql = "CREATE TABLE "+ Table3 +" ("
+                + "id" + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                + "novel_name text,"
+                + "novel_source text,"
+                + "chapter_id" + " INTEGER,"
+                + "FOREIGN KEY(novel_name) REFERENCES Novels(novel_name),"
+                + "FOREIGN KEY(novel_source) REFERENCES Novels(novel_source),"
+                + "FOREIGN KEY(chapter_id) REFERENCES Chapters(id)"
+                +");";
+
+        db.execSQL(sql);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS " + Table1);
         db.execSQL("DROP TABLE IF EXISTS " + Table2);
+        db.execSQL("DROP TABLE IF EXISTS " + Table3);
 
         onCreate(db);
     }

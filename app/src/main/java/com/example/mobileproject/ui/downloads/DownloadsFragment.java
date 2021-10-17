@@ -55,7 +55,7 @@ public class DownloadsFragment extends Fragment {
             ArrayList<ChapterInDownload>  novelDetailsArr;
 
             DBController db = new DBController(requireActivity().getApplicationContext());
-            novelDetailsArr = db.getDownloadingChapters("Supreme Magus", "NovelFull");
+            novelDetailsArr = db.getDownloadingChapters();
 
             return novelDetailsArr;
         }

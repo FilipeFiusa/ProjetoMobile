@@ -10,14 +10,14 @@ public class DownloaderClass implements Serializable {
     private String novelName;
     private String novelSource;
 
-    private ArrayList<ChapterIndex> chapterToDownload;
+    private ChapterIndex chapterToDownload;
 
     public DownloaderClass(String novelName, String novelSource) {
         this.novelName = novelName;
         this.novelSource = novelSource;
     }
 
-    public DownloaderClass(String novelName, String novelSource, ArrayList<ChapterIndex> chapterToDownload) {
+    public DownloaderClass(String novelName, String novelSource, ChapterIndex chapterToDownload) {
         this.novelName = novelName;
         this.novelSource = novelSource;
         this.chapterToDownload = chapterToDownload;
@@ -39,16 +39,12 @@ public class DownloaderClass implements Serializable {
         this.novelSource = novelSource;
     }
 
-    public ArrayList<ChapterIndex> getChapterToDownload() {
+    public ChapterIndex getChapterToDownload() {
         return chapterToDownload;
     }
 
-    public void setChapterToDownload(ArrayList<ChapterIndex> chapterToDownload) {
+    public void setChapterToDownload(ChapterIndex chapterToDownload) {
         this.chapterToDownload = chapterToDownload;
     }
 
-    public void AddOnQueue(ChapterIndex chapter){
-        chapterToDownload.add(chapter);
-        Collections.sort(chapterToDownload);
-    }
 }
