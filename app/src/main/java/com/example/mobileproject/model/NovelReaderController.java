@@ -11,7 +11,7 @@ public class NovelReaderController implements Serializable {
         this.chapterIndices = chapterIndices;
     }
 
-    public ChapterIndex getCurrentPosition(String chapterLink){
+    public ChapterIndex setStartedChapter(String chapterLink){
         for (int i = 0; i < chapterIndices.size(); i++) {
             ChapterIndex c = chapterIndices.get(i);
 
@@ -21,6 +21,10 @@ public class NovelReaderController implements Serializable {
             }
         }
         return null;
+    }
+
+    public ChapterIndex getCurrentChapter(){
+        return chapterIndices.get(position);
     }
 
     public ChapterIndex getPreviousChapter(){
@@ -41,4 +45,20 @@ public class NovelReaderController implements Serializable {
         return null;
     }
 
+    public ChapterIndex goToChapter(int newPosition){
+        position = newPosition;
+        return chapterIndices.get(newPosition);
+    }
+
+    public ArrayList<ChapterIndex> getChapterIndices(){
+        return chapterIndices;
+    }
+
+    public int getSize(){
+        return chapterIndices.size();
+    }
+
+    public int getPosition(){
+        return position + 1;
+    }
 }

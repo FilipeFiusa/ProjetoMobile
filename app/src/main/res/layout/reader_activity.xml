@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:resizeableActivity="true"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:orientation="vertical"
@@ -18,12 +19,13 @@
                 android:id="@+id/reader_scroll_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:descendantFocusability="beforeDescendants"
                 >
                 <LinearLayout
                     android:id="@+id/chapter_container"
                     android:clickable="true"
                     android:focusable="true"
-
+                    android:focusableInTouchMode="true"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -56,6 +58,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
                         android:textColor="@color/white"
+                        android:text="@string/test"
                         />
 
                     <LinearLayout
@@ -131,10 +134,177 @@
     <FrameLayout
         android:id="@+id/reader_top_menu"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
         android:visibility="gone"
-        android:background="@color/white">
+        android:background="@color/secodary_dark_theme">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/reader_return"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:padding="0dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_baseline_keyboard_arrow_left_40"
+                app:tint="@color/white"/>
+
+            <TextView
+                android:id="@+id/reader_novel_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome da Novel"
+                android:textSize="22sp"
+                android:maxLines="1"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
 
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/reader_bottom_menu"
+        android:layout_width="match_parent"
+        android:layout_height="165dp"
+        android:visibility="gone"
+        android:paddingBottom="45dp"
+        android:background="@color/secodary_dark_theme"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/reader_menu_previous"
+                    android:layout_width="25dp"
+                    android:layout_height="40dp"
+                    android:padding="0dp"
+                    android:layout_margin="0dp"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_left_15"
+                    android:background="@color/secodary_dark_theme" />
+                <SeekBar
+                    android:id="@+id/novel_progress"
+                    android:max="100"
+                    android:progress="50"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:progressBackgroundTint="@color/white"
+                    />
+
+                <TextView
+                    android:id="@+id/reader_seekbar_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="1/2000"
+                    android:textColor="@color/white"
+                    android:textAlignment="center"
+                    android:gravity="center"/>
+
+                <ImageButton
+                    android:id="@+id/reader_menu_next"
+                    android:layout_width="25dp"
+                    android:layout_height="40dp"
+                    android:padding="0dp"
+                    android:layout_margin="0dp"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_15"
+                    android:background="@color/secodary_dark_theme" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="5dp"
+                android:layout_marginBottom="5dp">
+
+                <ImageButton
+                    android:id="@+id/open_chapter_side_menu"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:src="@drawable/ic_baseline_chapters"
+                    tools:ignore="NestedWeights"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:background="@color/secodary_dark_theme"/>
+                <ImageButton
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:foregroundTint="@color/white"
+                    android:background="@color/secodary_dark_theme"/>
+                <ImageButton
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:foregroundTint="@color/white"
+                    android:background="@color/secodary_dark_theme"/>
+                <ImageButton
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:foregroundTint="@color/white"
+                    android:background="@color/secodary_dark_theme"/>
+                <ImageButton
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:foregroundTint="@color/white"
+                    android:src="@drawable/ic_outline_more_horiz_40"
+                    android:background="@color/secodary_dark_theme"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/reader_side_menu"
+        android:layout_width="300dp"
+        android:visibility="gone"
+        android:layout_height="match_parent"
+        android:background="@color/secodary_dark_theme">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+                <TextView
+                    android:id="@+id/reader_side_menu_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Nome da Novel"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/reader_menu_recycle_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
 </RelativeLayout>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingHorizontal="20dp"
+    android:theme="@style/Theme.MyApplicationTest4.MyRipple">
+
+    <TextView
+        android:id="@+id/reader_menu_chapter_name"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_height="50dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        android:gravity="center_vertical"
+        android:text="Capitulo 1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:clickable="false"
+        android:focusable="false"
+        android:background="@null"/>
+
+    <ImageView
+        android:id="@+id/is_downloaded"
+        android:layout_gravity="center"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:src="@drawable/ic_round_check_circle_15"/>
+
+</LinearLayout>

@@ -50,12 +50,14 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static class ChapterViewHolder extends RecyclerView.ViewHolder{
         public ImageButton mImageButton;
         public TextView mTextView1;
+        public View mButton;
 
         public ChapterViewHolder(@NonNull View itemView) {
             super(itemView);
 
             mImageButton = itemView.findViewById(R.id.downloadButton);
             mTextView1 = itemView.findViewById(R.id.chapter_name);
+            mButton = itemView;
         }
     }
 
@@ -159,6 +161,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onClick(View view) {
                         PutChapterOnDownloadList p = new PutChapterOnDownloadList(chapterViewHolder.mImageButton);
+                        currentItem.setDownloaded("downloading");
                         p.execute(currentItem.getId());
                     }
                 });
@@ -168,6 +171,18 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }else{
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_round_check_circle_40);
             }
+
+            chapterViewHolder.mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // ADD your action here
+                    Intent intent = new Intent(ctx, ReaderActivity.class);
+                    intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
+                    intent.putExtra("chapterLink", currentItem.getChapterLink());
+                    intent.putExtra("novelName", currentNovel.getNovelName());
+                    ctx.startActivity(intent);
+                }
+            });
 
         } else if (itemType == 1) {
             NovelDetailsHolder novelDetailsHolder = (NovelDetailsHolder) holder;

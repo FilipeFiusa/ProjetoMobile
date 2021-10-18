@@ -69,8 +69,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.novel_details_recycle_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setNestedScrollingEnabled(false);
-        //mRecyclerView.setItemAnimator(null);
 
         mLayoutManager = new LinearLayoutManager(ctx);
         mAdapter = new ChaptersAdapter(new ArrayList<>(), ctx);
