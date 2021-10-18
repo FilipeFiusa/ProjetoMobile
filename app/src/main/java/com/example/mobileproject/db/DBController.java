@@ -308,34 +308,39 @@ public class DBController {
         ArrayList<NovelDetails> novels = selectAllNovels();
         db = database.getReadableDatabase();
 
-        for(NovelDetails n : novels){
-            ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
-            String query = "" +
-                    "SELECT " +
-                    "Chapters.id, Chapters.chapter_name,Chapters.chapter_link " +
-                    "FROM Chapters " +
-                    "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
-                    "WHERE Chapters.downloaded=? AND Chapters.novel_name=? AND Chapters.novel_source=?";
+        ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
-            result = db.rawQuery(query, new String[]{"downloading", n.getNovelName(), n.getSource()});
+        String query = "" +
+                "SELECT " +
+                "Chapters.id, Chapters.chapter_name,Chapters.chapter_link, Novels.novel_name, Novels.novel_source " +
+                "FROM Chapters " +
+                "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
+                "INNER JOIN DownloadQueue on DownloadQueue.chapter_id = Chapters.id " +
+                "WHERE Chapters.downloaded=?" +
+                "ORDER BY DownloadQueue.id ASC";
 
-            if(result.getCount() > 0){
-                result.moveToFirst();
+        result = db.rawQuery(query, new String[]{"downloading"});
 
-                do {
-                    ChapterIndex c = new ChapterIndex();
+        if(result.getCount() > 0){
+            result.moveToFirst();
 
-                    c.setId(result.getInt(result.getColumnIndexOrThrow("id")));
-                    c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
-                    c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
-                    c.setDownloaded("downloading");
+            do {
+                ChapterIndex c = new ChapterIndex();
 
-                    downloaderClasses.add(new DownloaderClass(n.getNovelName(), n.getSource(), c));
+                c.setId(result.getInt(result.getColumnIndexOrThrow("id")));
+                c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
+                c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
+                c.setDownloaded("downloading");
 
-                }while (result.moveToNext());
-            }
+                String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
+                String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
+
+                downloaderClasses.add(new DownloaderClass(novelName, novelSource, c));
+
+            }while (result.moveToNext());
         }
+
 
         return downloaderClasses;
     }

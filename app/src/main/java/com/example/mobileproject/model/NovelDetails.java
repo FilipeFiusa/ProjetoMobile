@@ -16,6 +16,10 @@ public class NovelDetails implements Serializable {
 
     private String source;
 
+    private String isFavorite;
+
+    private int chapterQuantity = 0;
+
     private ArrayList<ChapterIndex> chapterIndexes = null;
 
     public NovelDetails(){
@@ -34,6 +38,14 @@ public class NovelDetails implements Serializable {
         this.novelDescription = novel_description;
         this.novelAuthor = novel_author;
         this.db_id = id;
+    }
+
+    public String getIsFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(String isFavorite) {
+        this.isFavorite = isFavorite;
     }
 
     public Bitmap getNovelImage() {
@@ -75,6 +87,15 @@ public class NovelDetails implements Serializable {
     public void setChapterIndexes(ArrayList<ChapterIndex> chapterIndexes) {
         this.chapterIndexes = chapterIndexes;
     }
+
+    public int getChapterQuantity() {
+        return chapterQuantity;
+    }
+
+    public void setChapterQuantity(int chapterQuantity) {
+        this.chapterQuantity = chapterQuantity;
+    }
+
 
     public String getSource() {
         return source;

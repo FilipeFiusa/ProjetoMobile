@@ -5,9 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginVertical="10dp"
     android:clickable="true"
     android:focusable="true"
+    android:paddingHorizontal="20dp"
     android:theme="@style/Theme.MyApplicationTest4.MyRipple">
 
     <TextView

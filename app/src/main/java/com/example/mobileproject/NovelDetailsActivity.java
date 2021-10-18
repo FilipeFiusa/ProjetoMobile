@@ -67,7 +67,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.novel_details);
 
-        mRecyclerView = findViewById(R.id.chapters_container);
+        mRecyclerView = findViewById(R.id.novel_details_recycle_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setNestedScrollingEnabled(false);
         //mRecyclerView.setItemAnimator(null);
@@ -75,11 +75,10 @@ public class NovelDetailsActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(ctx);
         mAdapter = new ChaptersAdapter(new ArrayList<>(), ctx);
         downloadReceiver = new DownloadReceiver(new Handler(), mAdapter);
+        mAdapter.setDownloadReceiver(downloadReceiver);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        SetUpFavoriteButtons();
 
         Button simpleButton1 = (Button) findViewById(R.id.font_button_id);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
@@ -94,23 +93,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 downloadAll();
-            }
-        });
-
-        TextView t1 = (TextView) findViewById(R.id.novel_description);
-        t1.setMaxLines(3);
-        t1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isTextViewClicked){
-                    //This will shrink textview to 2 lines if it is expanded.
-                    t1.setMaxLines(3);
-                    isTextViewClicked = false;
-                } else {
-                    //This will expand the textview if it is of 2 lines
-                    t1.setMaxLines(Integer.MAX_VALUE);
-                    isTextViewClicked = true;
-                }
             }
         });
 
@@ -129,32 +111,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     }
 
-    private void SetUpFavoriteButtons(){
-        Intent i = getIntent();
-        String isFavorite = (String) i.getStringExtra("isFavorite");
-        Button simpleButton2 = (Button) findViewById(R.id.add_favorite);
-
-        if(isFavorite == null || isFavorite.equals("no")){
-            simpleButton2.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setFavorite();
-                }
-            });
-            return;
-        }
-
-        simpleButton2.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_baseline_favorite_64, 0,0);
-
-        simpleButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                unsetFavorite();
-            }
-        });
-
-    }
-
     private void downloadAll(){
         if(currentNovel == null || currentNovel.getChapterIndexes() == null){
             return;
@@ -169,56 +125,16 @@ public class NovelDetailsActivity extends AppCompatActivity {
         Toast.makeText(this, "Downloading All", Toast.LENGTH_SHORT).show();
     }
 
-    private void setFavorite(){
-        if(currentNovel == null || addNovelOnFavorite.getStatus() == AsyncTask.Status.RUNNING){
-            return;
-        }
-        Button simpleButton2 = (Button) findViewById(R.id.add_favorite);
-        simpleButton2.setCompoundDrawablesWithIntrinsicBounds(
-                0,
-                R.drawable.ic_baseline_favorite_64,
-                0,
-                0);
 
-        simpleButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                unsetFavorite();
-            }
-        });
-
-
-        addNovelOnFavorite = new AddNovelOnFavorite();
-        addNovelOnFavorite.execute();
-    }
-
-    private void unsetFavorite() {
-        return;
-    }
-
-    private class getNovelDetails extends AsyncTask<String, NovelDetails, NovelDetails> {
-        private TextView title;
-        private TextView author;
-        private TextView description;
-        private ImageView image;
-        private LinearLayout chapterContainer;
-        private TextView chapterQuantity;
-        private NotificationCompat.Builder notificationProgress;
+    private class getNovelDetails extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            title = (TextView) findViewById(R.id.novel_name);
-            author = (TextView) findViewById(R.id.novel_author);
-            description = (TextView) findViewById(R.id.novel_description);
-            image = (ImageView) findViewById(R.id.novel_image);
-            chapterContainer = (LinearLayout) findViewById(R.id.novel_container);
-            chapterQuantity = (TextView) findViewById(R.id.chapter_quantity);
         }
 
         @Override
-        protected NovelDetails doInBackground(String... novelLink) {
+        protected ArrayList<ChapterIndex> doInBackground(String... novelLink) {
             NovelDetails novelDetails;
 
             Parser parser = new NovelFullParser();
@@ -226,173 +142,56 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             publishProgress(novelDetails);
 
-            novelDetails.setChapterIndexes(parser.getAllChaptersIndex(novelLink[0]));
+            ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelLink[0]);
 
-            return novelDetails;
+            return c;
         }
 
         @Override
         protected void onProgressUpdate(NovelDetails... novelDetails){
-            title.setText(novelDetails[0].getNovelName());
-            description.setText(novelDetails[0].getNovelDescription());
-            author.setText(novelDetails[0].getNovelAuthor());
-            image.setImageBitmap(novelDetails[0].getNovelImage());
-
+            mAdapter.addNovelDetails(novelDetails[0]);
         }
 
         @Override
-        protected void onPostExecute(NovelDetails novelDetails) {
-            super.onPostExecute(novelDetails);
-            ArrayList<ChapterIndex> chapterIndices;
+        protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
+            super.onPostExecute(chapterIndexes);
 
-            if(novelDetails == null){
-                return;
-            }
-
-            title.setText(novelDetails.getNovelName());
-            description.setText(novelDetails.getNovelDescription());
-            author.setText(novelDetails.getNovelAuthor());
-            image.setImageBitmap(novelDetails.getNovelImage());
-
-            chapterIndices = novelDetails.getChapterIndexes();
-
-            chapterQuantity.setText(new StringBuilder().append(chapterIndices.size()).append(" Capitulos").toString());
-
-            for(ChapterIndex chapter : chapterIndices ){
-                View chapterView = LayoutInflater.from(NovelDetailsActivity.this).inflate(
-                        R.layout.chapter_grid_button, null);
-
-                TextView chapterName = (TextView) chapterView.findViewById(R.id.chapter_name);
-                chapterName.setText(chapter.getChapterName());
-
-                chapterView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // ADD your action here
-                        Intent intent = new Intent(ctx, ReaderActivity.class);
-                        intent.putExtra("NovelReaderController", new NovelReaderController(chapterIndices));
-                        intent.putExtra("chapterLink", chapter.getChapterLink());
-                        ctx.startActivity(intent);
-                    }
-                });
-
-                chapterContainer.addView(chapterView);
-            }
-
-            currentNovel = novelDetails;
+            mAdapter.addChapterIndexes(chapterIndexes);
         }
     }
 
-    private class getNovelDetailsFromDB extends AsyncTask<String, NovelDetails, NovelDetails> {
-        private TextView title;
-        private TextView author;
-        private TextView description;
-        private ImageView image;
-        private LinearLayout chapterContainer;
-        private TextView chapterQuantity;
+    private class getNovelDetailsFromDB extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            title = (TextView) findViewById(R.id.novel_name);
-            author = (TextView) findViewById(R.id.novel_author);
-            description = (TextView) findViewById(R.id.novel_description);
-            image = (ImageView) findViewById(R.id.novel_image);
-            chapterContainer = (LinearLayout) findViewById(R.id.novel_container);
-            chapterQuantity = (TextView) findViewById(R.id.chapter_quantity);
-
         }
 
         @Override
-        protected NovelDetails doInBackground(String... novelDetails) {
+        protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
             DBController db = new DBController(NovelDetailsActivity.this);
             NovelDetails novel = db.getNovel(novelDetails[0], novelDetails[1]);
+            novel.setIsFavorite("yes");
 
             publishProgress(novel);
 
-            novel.setChapterIndexes(db.getChaptersFromANovel(novel.getNovelName(), "NovelFull"));
+            ArrayList<ChapterIndex> c = db.getChaptersFromANovel(novel.getNovelName(), "NovelFull");
 
-            return novel;
+            return c;
         }
 
 
         @Override
         protected void onProgressUpdate(NovelDetails... novelDetails){
-            title.setText(novelDetails[0].getNovelName());
-            description.setText(novelDetails[0].getNovelDescription());
-            author.setText(novelDetails[0].getNovelAuthor());
-            image.setImageBitmap(novelDetails[0].getNovelImage());
+            mAdapter.addNovelDetails(novelDetails[0]);
         }
 
         @Override
-        protected void onPostExecute(NovelDetails novelDetails) {
-            super.onPostExecute(novelDetails);
-            ArrayList<ChapterIndex> chapterIndices;
+        protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
+            super.onPostExecute(chapterIndexes);
 
-            if(novelDetails == null){
-                return;
-            }
-
-            title.setText(novelDetails.getNovelName());
-            description.setText(novelDetails.getNovelDescription());
-            author.setText(novelDetails.getNovelAuthor());
-            image.setImageBitmap(novelDetails.getNovelImage());
-
-            chapterIndices = novelDetails.getChapterIndexes();
-
-            chapterQuantity.setText(new StringBuilder().append(chapterIndices.size()).append(" Capitulos").toString());
-
-            mAdapter.updateList(novelDetails.getChapterIndexes(), novelDetails);
-            mAdapter.notifyDataSetChanged();
-
-            /*
-            for(ChapterIndex chapter : chapterIndices ){
-                View chapterView = LayoutInflater.from(NovelDetailsActivity.this).inflate(
-                        R.layout.chapter_grid_button, null);
-
-                TextView chapterName = (TextView) chapterView.findViewById(R.id.chapter_name);
-                chapterName.setText(chapter.getChapterName());
-
-                ImageButton imageButton = (ImageButton) chapterView.findViewById(R.id.downloadButton);
-
-                if(chapter.getDownloaded().equals("no")){
-                    imageButton.setImageResource(R.drawable.ic_outline_arrow_circle_down_40);
-                }else if(chapter.getDownloaded().equals("downloading")){
-                    imageButton.setImageResource(R.drawable.ic_outline_cancel_40);
-                }else{
-                    imageButton.setImageResource(R.drawable.ic_round_check_circle_40);
-                }
-
-                chapterView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // ADD your action here
-                        Intent intent = new Intent(ctx, ReaderActivity.class);
-                        intent.putExtra("NovelReaderController", new NovelReaderController(chapterIndices));
-                        intent.putExtra("chapterLink", chapter.getChapterLink());
-                        ctx.startActivity(intent);
-                    }
-                });
-
-                imageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(chapter.getDownloaded().equals("downloading") || chapter.getDownloaded().equals("yes") ){
-                            return;
-                        }
-                        Log.i("Clicou em ", String.valueOf(chapter.getId()));
-
-                        PutChapterOnDownloadList p = new PutChapterOnDownloadList(imageButton);
-                        p.execute(chapter.getId());
-                    }
-                });
-
-                chapterContainer.addView(chapterView);
-            }
-            */
-
-            currentNovel = novelDetails;
+            mAdapter.addChapterIndexes(chapterIndexes);
         }
     }
 

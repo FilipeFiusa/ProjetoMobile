@@ -70,6 +70,7 @@ public class DownloaderService extends Service {
                 while (isCheckingDB){
                     SystemClock.sleep(1000);
                 }
+                CheckDownloadQueueOnDB();
             }
 
             notification
@@ -188,7 +189,10 @@ public class DownloaderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        downloadReceiver = (ResultReceiver) intent.getParcelableExtra("receiver");
+        ResultReceiver test = (ResultReceiver) intent.getParcelableExtra("receiver");
+        if(test != null){
+            downloadReceiver = (ResultReceiver) intent.getParcelableExtra("receiver");
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -201,7 +205,7 @@ public class DownloaderService extends Service {
             }
         });
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -235,7 +239,7 @@ public class DownloaderService extends Service {
 
         ChapterContent chapterContent = p.getChapterContent(chapterIndex.getChapterLink());
 
-        //boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent());
+        boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent());
 
         Bundle resultData = new Bundle();
         resultData.putInt("chapter_id" ,(int) chapterIndex.getId());
