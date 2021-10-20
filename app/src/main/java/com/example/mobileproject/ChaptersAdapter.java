@@ -1,12 +1,15 @@
 package com.example.mobileproject;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
@@ -34,6 +39,7 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsAdapterObject;
 import com.example.mobileproject.model.NovelReaderController;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -41,7 +47,11 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private NovelDetails currentNovel;
     private ArrayList<NovelDetailsAdapterObject> mChapterList;
     private DownloadReceiver downloadReceiver;
-    private Context ctx;
+    private AppCompatActivity ctx;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private boolean exist = true;
 
     private AddNovelOnFavorite addNovelOnFavorite = new AddNovelOnFavorite();
 
@@ -83,15 +93,33 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public ChaptersAdapter(ArrayList<NovelDetailsAdapterObject> chapterList, Context ctx){
+    public ChaptersAdapter() {
+        this.exist = false;
+    }
+
+    public ChaptersAdapter(ArrayList<NovelDetailsAdapterObject> chapterList, AppCompatActivity ctx){
         this.mChapterList = chapterList;
+
+        mChapterList.add(new NovelDetailsAdapterObject(new NovelDetails()));
+
         this.ctx = ctx;
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) ctx.findViewById(R.id.swipeRefresh);
+
+        ctx.findViewById(R.id.read_next_chapter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ReadNextChapter();
+            }
+        });
     }
 
     public void addNovelDetails(NovelDetails n){
-        mChapterList.add(new NovelDetailsAdapterObject(n));
+        mChapterList.set(0, new NovelDetailsAdapterObject(n));
+
         currentNovel = n;
-        notifyDataSetChanged();
+
+        notifyItemChanged(0);
     }
 
     public void addChapterIndexes(ArrayList<ChapterIndex> c){
@@ -105,6 +133,18 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    public void updateChapterIndexes(ArrayList<ChapterIndex> c){
+        NovelDetails n = mChapterList.get(0).getNovelDetails();
+        n.setIsFavorite("yes");
+
+
+        for (int i = 1; i < mChapterList.size(); i++) {
+            mChapterList.set(i, new NovelDetailsAdapterObject(c.get(i-1)));
+        }
+
+        notifyDataSetChanged();
+    }
+
     public void setDownloadReceiver(DownloadReceiver d){
         this.downloadReceiver = d;
 
@@ -113,8 +153,25 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         Intent serviceIntent = new Intent(ctx, DownloaderService.class);
-        serviceIntent.putExtra("receiver", downloadReceiver);
+        serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
         ctx.startService(serviceIntent);
+    }
+
+    public void putChapterAsReadied(ArrayList<Integer> chaptersReadied){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            for (Integer id : chaptersReadied) {
+                String chapter_id = String.valueOf(c.getId());
+                String idReadied = String.valueOf(id);
+
+                if(chapter_id.equals(idReadied)) {
+                    c.setReaded("yes");
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -154,14 +211,25 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ChapterIndex currentItem = mChapterList.get(position).getChapterIndex();
 
             chapterViewHolder.mTextView1.setText(currentItem.getChapterName());
+            if(currentItem.getReaded().equals("yes")){
+                chapterViewHolder.mTextView1.setTextColor(Color.GRAY);
+            }else {
+                chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
+            }
 
             if(currentItem.getDownloaded().equals("no")){
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_outline_arrow_circle_down_40);
                 chapterViewHolder.mImageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        PutChapterOnDownloadList p = new PutChapterOnDownloadList(chapterViewHolder.mImageButton);
+                        if(!currentNovel.getIsFavorite().equals("yes")){
+                            Toast.makeText(ctx, "Adicione Novel no Favoritos", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         currentItem.setDownloaded("downloading");
+                        notifyItemChanged(chapterViewHolder.getAdapterPosition());
+                        PutChapterOnDownloadList p = new PutChapterOnDownloadList(chapterViewHolder.mImageButton);
                         p.execute(currentItem.getId());
                     }
                 });
@@ -180,7 +248,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
                     intent.putExtra("novelName", currentNovel.getNovelName());
-                    ctx.startActivity(intent);
+                    ctx.startActivityForResult(intent, 1);
                 }
             });
 
@@ -199,7 +267,10 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void SetUpNovelDetailsHeader(NovelDetailsHolder novelDetailsHolder, NovelDetails currentNovel){
-        novelDetailsHolder.mImageView.setImageBitmap(currentNovel.getNovelImage());
+        if(currentNovel.getNovelImage() != null){
+            novelDetailsHolder.mImageView.setImageBitmap(currentNovel.getNovelImage());
+        }
+
         novelDetailsHolder.mTextView1.setText(currentNovel.getNovelName());
         novelDetailsHolder.mTextView2.setText(currentNovel.getNovelAuthor());
         novelDetailsHolder.mTextView3.setText(currentNovel.getNovelDescription());
@@ -251,10 +322,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return;
         }
 
-
-        currentNovel.setIsFavorite("yes");
-        notifyItemChanged(0);
-
+        mSwipeRefreshLayout.setRefreshing(true);
 
         addNovelOnFavorite = new AddNovelOnFavorite();
         addNovelOnFavorite.execute();
@@ -264,56 +332,27 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return;
     }
 
-    /*
-    @Override
-    public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
-        ChapterIndex currentItem = mChapterList.get(position);
+    private void ReadNextChapter(){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex currentItem = mChapterList.get(i).getChapterIndex();
 
-        holder.mTextView1.setText(currentItem.getChapterName());
-
-        if(currentItem.getDownloaded().equals("no")){
-            holder.mImageButton.setImageResource(R.drawable.ic_outline_arrow_circle_down_40);
-        }else if(currentItem.getDownloaded().equals("downloading")){
-            holder.mImageButton.setImageResource(R.drawable.ic_outline_cancel_40);
-        }else{
-            holder.mImageButton.setImageResource(R.drawable.ic_round_check_circle_40);
-        }
-
-        holder.mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // ADD your action here
+            if(currentItem.getReaded().equals("no")){
                 Intent intent = new Intent(ctx, ReaderActivity.class);
-                intent.putExtra("NovelReaderController", new NovelReaderController(mChapterList));
+                intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                 intent.putExtra("chapterLink", currentItem.getChapterLink());
-                ctx.startActivity(intent);
+                intent.putExtra("novelName", currentNovel.getNovelName());
+                ctx.startActivityForResult(intent, 1);
+
+                return;
             }
-        });
-
-
-
-        holder.mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(currentItem.getDownloaded().equals("downloading") || currentItem.getDownloaded().equals("yes") ){
-                    return;
-                }
-                Log.i("Clicou em ", String.valueOf(currentItem.getId()));
-
-                PutChapterOnDownloadList p = new PutChapterOnDownloadList(holder.mImageButton);
-                p.execute(currentItem.getId());
-            }
-        });
-    }*/
-
-    /*
-    public void updateList(ArrayList<ChapterIndex> list, NovelDetails novelDetails){
-        this.mChapterList = list;
-        this.currentNovel = novelDetails;
+        }
     }
-    */
 
     public void ChapterDownloaded(int id){
+        if(!exist){
+            return;
+        }
+
         Log.d("------ ", "ChapterDownloaded - Id: " + id);
 
         for (int i = 1; i < mChapterList.size(); i++) {
@@ -362,16 +401,16 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Intent serviceIntent = new Intent(ctx, DownloaderService.class);
                 serviceIntent.putExtra("NovelName", currentNovel.getNovelName());
                 serviceIntent.putExtra("Source", currentNovel.getSource());
-                serviceIntent.putExtra("receiver", downloadReceiver);
+                serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
                 ctx.startService(serviceIntent);
             }
         }
     }
 
-    private class AddNovelOnFavorite extends AsyncTask<Void, Void, Void> {
+    private class AddNovelOnFavorite extends AsyncTask<Void, Void, ArrayList<ChapterIndex>> {
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected ArrayList<ChapterIndex> doInBackground(Void... params) {
             DBController db = new DBController(ctx);
             db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), "NovelFull",  currentNovel.getNovelImage());
             ArrayList<ChapterIndex> chapterIndices = currentNovel.getChapterIndexes();
@@ -379,12 +418,20 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 db.insertChapters(currentNovel.getNovelName(), "NovelFull", c);
             }
 
-            return null;
+            return db.getChaptersFromANovel(currentNovel.getNovelName(),
+                    currentNovel.getSource());
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
+        protected void onPostExecute(ArrayList<ChapterIndex> newChapterIndexes) {
+            super.onPostExecute(newChapterIndexes);
+
+
+            currentNovel.setIsFavorite("yes");
+            notifyItemChanged(0);
+            updateChapterIndexes(newChapterIndexes);
+
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

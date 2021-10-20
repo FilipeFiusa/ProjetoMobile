@@ -61,6 +61,8 @@ public class NovelsGridAdaptor extends BaseAdapter {
                 public void onClick(View v) {
                     Intent intent = new Intent(ctx, NovelDetailsActivity.class);
                     intent.putExtra("novelLink", getItem(position).getNovelLink());
+                    intent.putExtra("novelName", getItem(position).getNovelName());
+                    intent.putExtra("novelSource", "NovelFull");
                     ctx.startActivity(intent);
                 }
             });

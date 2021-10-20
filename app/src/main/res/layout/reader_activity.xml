@@ -6,9 +6,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -19,73 +20,73 @@
                 android:id="@+id/reader_scroll_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:descendantFocusability="beforeDescendants"
-                >
+                android:descendantFocusability="beforeDescendants">
+
                 <LinearLayout
                     android:id="@+id/chapter_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="true"
+                    android:orientation="vertical"
+                    android:descendantFocusability="beforeDescendants"
                     android:focusableInTouchMode="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    >
 
                     <TextView
-                        android:clickable="false"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
                         android:id="@+id/chapter_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="30dp"
+                        android:clickable="false"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
                         android:textAlignment="center"
                         android:textColor="@color/white"
-                        android:textSize="35sp"
-                        android:layout_marginTop="30dp"
-                        />
+                        android:textSize="35sp" />
 
 
                     <TextView
-                        android:clickable="true"
-                        android:enabled="true"
-                        android:textIsSelectable="true"
-                        android:focusable="true"
-                        android:longClickable="true"
-                        android:layout_marginTop="40dp"
                         android:id="@+id/chapter_content"
-                        android:paddingStart="20dp"
-                        android:paddingEnd="20dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        android:text="@string/test"
-                        />
-
-                    <LinearLayout
+                        android:layout_marginTop="40dp"
+                        android:clickable="true"
+                        android:enabled="true"
+                        android:focusable="true"
+                        android:longClickable="true"
                         android:paddingStart="20dp"
                         android:paddingEnd="20dp"
-                        android:paddingBottom="30dp"
-                        android:paddingTop="30dp"
+                        android:text="@string/test"
+                        android:textColor="@color/white"
+                        android:textIsSelectable="true"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:paddingStart="20dp"
+                        android:paddingTop="30dp"
+                        android:paddingEnd="20dp"
+                        android:paddingBottom="30dp">
 
                         <Button
                             android:id="@+id/reader_previous"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="100dp"
                             android:layout_marginEnd="30dp"
-                            android:text="Anterior"
-                            android:backgroundTint="@color/secodary_dark_theme"/>
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/secodary_dark_theme"
+                            android:text="Anterior" />
 
                         <Button
                             android:id="@+id/reader_next"
                             android:layout_width="0dp"
-                            android:layout_weight="1"
                             android:layout_height="100dp"
                             android:layout_marginStart="30dp"
-                            android:text="Proximo"
-                            android:backgroundTint="@color/secodary_dark_theme"/>
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/secodary_dark_theme"
+                            android:text="Proximo" />
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>
@@ -93,42 +94,35 @@
         </LinearLayout>
 
         <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:orientation="horizontal"
-        android:background="@color/secodary_dark_theme"
-        android:gravity="center_vertical"
-        android:paddingTop="5dp">
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@color/secodary_dark_theme"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="5dp">
 
-        <TextClock
-            android:id="@+id/textClock"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            />
+            <TextClock
+                android:id="@+id/textClock"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+
+                android:textColor="@color/white"
+                android:textSize="15sp" />
 
 
-        <TextView
-            android:id="@+id/chapter_name_bottom"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:text="Capitulo 1"/>
+            <TextView
+                android:id="@+id/chapter_name_bottom"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="Capitulo 1"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="12dp"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:text="1/12"/>
-
-    </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <FrameLayout

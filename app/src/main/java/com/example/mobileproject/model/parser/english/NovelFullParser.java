@@ -64,6 +64,7 @@ public class NovelFullParser implements Parser {
 
             // Instantiating a novelDetails object to return
             novelDetails = new NovelDetails(bitmap, title, description, author);
+            novelDetails.setSource("NovelFull");
 
             return novelDetails;
         } catch (IOException e) {

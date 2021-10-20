@@ -153,6 +153,9 @@ public class DBController {
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
 
             novel.setNovelImage(bitmap);
+        }else{
+            db.close();
+            return null;
         }
 
         db.close();
@@ -302,10 +305,27 @@ public class DBController {
         }
     }
 
+    public boolean setChapterAsReaded(int id){
+        long result;
+        ContentValues values = new ContentValues();;
+
+        db = database.getReadableDatabase();
+
+        values.put("readed", "yes");
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        if(result ==  -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     public ArrayList<DownloaderClass> getDownloadingNovels(){
         Cursor result;
         ArrayList<DownloaderClass> downloaderClasses = new ArrayList<>();
-        ArrayList<NovelDetails> novels = selectAllNovels();
         db = database.getReadableDatabase();
 
 

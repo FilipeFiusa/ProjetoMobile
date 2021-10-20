@@ -3,7 +3,7 @@ package com.example.mobileproject.model;
 import java.io.Serializable;
 
 public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
-    private int id;
+    private int id = -1;
     private String chapterName;
     private String chapterLink;
 

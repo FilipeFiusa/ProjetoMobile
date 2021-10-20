@@ -1,6 +1,10 @@
 package com.example.mobileproject;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.DownloadReceiver;
+import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.ReaderMenuItem;
 
@@ -23,6 +29,12 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private ArrayList<ReaderMenuItem> mList = new ArrayList<>();
     private NovelReaderController nrc;
+
+    private boolean exist = true;
+
+    private Context ctx;
+
+    private DownloadReceiver downloadReceiver;
 
     public int currentReadingPosition;
 
@@ -40,9 +52,15 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+    public ReaderChaptersAdapter() {
+        this.exist = false;
+    }
+
     public ReaderChaptersAdapter(NovelReaderController nrc, String chapterLink, ReaderActivity readerActivity) {
         this.nrc = nrc;
         this.readerActivity = readerActivity;
+        this.ctx = readerActivity;
+
         ArrayList<ChapterIndex> mList = nrc.getChapterIndices();
         int i = 0;
 
@@ -54,6 +72,46 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 this.mList.add(new ReaderMenuItem(c, false));
             }
             i++;
+        }
+    }
+
+    public void setDownloadReceiver(DownloadReceiver d){
+        this.downloadReceiver = d;
+
+        if(!isMyServiceRunning(DownloaderService.class)){
+            return;
+        }
+
+        Intent serviceIntent = new Intent(ctx, DownloaderService.class);
+        serviceIntent.putExtra("receiver2", (Parcelable) downloadReceiver);
+        ctx.startService(serviceIntent);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void ChapterDownloaded(int id){
+        if(!exist){
+            return;
+        }
+
+        Log.d("------ ", "ChapterDownloaded - Id: " + id);
+
+        for (int i = 1; i < mList.size(); i++) {
+            ChapterIndex c = mList.get(i).getChapterIndex();
+
+            if(id == c.getId()){
+                c.setDownloaded("yes");
+                Log.d("------ ", "ID achado na lista");
+                notifyItemChanged(i);
+            }
         }
     }
 

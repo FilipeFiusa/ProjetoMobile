@@ -9,17 +9,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.ChaptersAdapter;
 import com.example.mobileproject.R;
+import com.example.mobileproject.ReaderChaptersAdapter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class DownloadReceiver extends ResultReceiver {
 
-    private ChaptersAdapter mAdapter;
+    private ChaptersAdapter mAdapter = new ChaptersAdapter();
+    private ReaderChaptersAdapter mReaderAdapter = new ReaderChaptersAdapter();
     private ArrayList<ChapterAdapterReference> referenceArrayList = new ArrayList<>();
 
     public DownloadReceiver(Handler handler, ChaptersAdapter adapter) {
         super(handler);
         mAdapter = adapter;
+    }
+
+    public DownloadReceiver(Handler handler, ReaderChaptersAdapter adapter) {
+        super(handler);
+        mReaderAdapter = adapter;
     }
 
     @Override
@@ -28,6 +36,9 @@ public class DownloadReceiver extends ResultReceiver {
 
         int chapter_id = resultData.getInt("chapter_id");
 
+
         mAdapter.ChapterDownloaded(chapter_id);
+        mReaderAdapter.ChapterDownloaded(chapter_id);
+
     }
 }

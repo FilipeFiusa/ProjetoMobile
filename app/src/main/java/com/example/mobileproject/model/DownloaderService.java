@@ -33,8 +33,8 @@ public class DownloaderService extends Service {
     public static final String TAG = "DownloaderService";
 
     private ResultReceiver downloadReceiver;
+    private ResultReceiver downloadReceiver2;
 
-    private IBinder mBinder = new MyBinder();
     private Handler mHandler;
     private final ArrayList<DownloaderClass> justRemoved = new ArrayList<>();
 
@@ -79,81 +79,16 @@ public class DownloaderService extends Service {
                     .setProgress(0, 0, false);
             notificationManager.notify(1, notification.build());
 
+            stopForeground(false);
+            notificationManager.cancel(1);
             stopSelf();
         }
     };
 
-    /*
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        notificationManager = NotificationManagerCompat.from(this);
-
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, flags);
-
-        notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Downloading")
-                .setContentText("Downloading this")
-                .setSmallIcon(R.drawable.ic_baseline_android)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(pendingIntent)
-                .setProgress(100, 0, false);
-
-        notificationManager.notify(2, notification.build());
-
-        new Thread(runnable).start();
-
-        return START_STICKY;
-    }
-    */
-
-    /*
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-    
-    public DownloaderService() {
-        super("DownloaderService");
-        setIntentRedelivery(false);
-    }*/
-
-    /*
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d(TAG, "onHandleIntent");
-
-        String novelName = intent.getStringExtra("NovelName");
-        String source =  intent.getStringExtra("Source");
-
-
-        for (int i = 0; i < 100; i++) {
-
-            notification
-                    .setContentTitle(novelName)
-                    .setContentText(i + "/" + 100)
-                    .setProgress(100, i, false);
-            notificationManager.notify(1, notification.build());
-            SystemClock.sleep(500);
-
-            Log.d(TAG, novelName + " - " + i);
-        }
-    } */
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    public class MyBinder extends Binder{
-        DownloaderService getService(){
-            return DownloaderService.this;
-        }
     }
 
     @Override
@@ -192,6 +127,11 @@ public class DownloaderService extends Service {
         ResultReceiver test = (ResultReceiver) intent.getParcelableExtra("receiver");
         if(test != null){
             downloadReceiver = (ResultReceiver) intent.getParcelableExtra("receiver");
+        }
+
+        ResultReceiver test2 = (ResultReceiver) intent.getParcelableExtra("receiver2");
+        if(test2 != null){
+            downloadReceiver2 = (ResultReceiver) intent.getParcelableExtra("receiver2");
         }
 
         new Thread(new Runnable() {
@@ -241,11 +181,25 @@ public class DownloaderService extends Service {
 
         boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent());
 
+        if(!result){
+            return;
+        }
+
         Bundle resultData = new Bundle();
         resultData.putInt("chapter_id" ,(int) chapterIndex.getId());
+
         if(downloadReceiver != null){
             downloadReceiver.send(0, resultData);
         }
+
+        Bundle resultData2 = new Bundle();
+        resultData2.putInt("chapter_id" ,(int) chapterIndex.getId());
+
+
+        if(downloadReceiver2 != null){
+            downloadReceiver2.send(0, resultData2);
+        }
+
     }
 
     public ArrayList<DownloaderClass> getJustRemoved() {

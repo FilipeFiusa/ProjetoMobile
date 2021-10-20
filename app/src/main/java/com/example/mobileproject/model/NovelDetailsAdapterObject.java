@@ -25,6 +25,10 @@ public class NovelDetailsAdapterObject {
         return novelDetails;
     }
 
+    public void setNovelDetails(NovelDetails novelDetails) {
+        this.novelDetails = novelDetails;
+    }
+
     public ChapterIndex getChapterIndex() {
         return chapterIndex;
     }

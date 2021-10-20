@@ -3,6 +3,8 @@ package com.example.mobileproject;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -20,13 +22,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
+
+import java.util.ArrayList;
 
 
 public class ReaderActivity extends AppCompatActivity {
@@ -38,6 +44,8 @@ public class ReaderActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private ReaderChaptersAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private ArrayList<Integer> chaptersReadied = new ArrayList<>();
 
     Animation animTranslateIn;
     Animation animTranslateOut;
@@ -65,6 +73,7 @@ public class ReaderActivity extends AppCompatActivity {
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
         Log.i("--", nrc.setStartedChapter(chapterLink).getChapterLink());
 
+
         mRecyclerView = findViewById(R.id.reader_menu_recycle_view);
         mRecyclerView.setHasFixedSize(true);
 
@@ -73,6 +82,10 @@ public class ReaderActivity extends AppCompatActivity {
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        DownloadReceiver downloadReceiver = new DownloadReceiver(new Handler(), mAdapter);
+        mAdapter.setDownloadReceiver(downloadReceiver);
+
 
         previousButton = (Button) findViewById(R.id.reader_previous);
         previousButton.setOnClickListener(new View.OnClickListener() {
@@ -161,6 +174,10 @@ public class ReaderActivity extends AppCompatActivity {
         returnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent data = new Intent();
+                data.putExtra("readiedChapters", chaptersReadied);
+                setResult(RESULT_OK,data);
+
                 finish();
             }
         });
@@ -263,12 +280,20 @@ public class ReaderActivity extends AppCompatActivity {
         if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
             return;
         }
+        int currentChapter = nrc.getCurrentChapter().getId();
 
         ChapterIndex next = nrc.getNextChapter();
 
         if(next == null){
             Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+
+        if(currentChapter != -1 && !chaptersReadied.contains(currentChapter)){
+            chaptersReadied.add(currentChapter);
+            DBController db = new DBController(this);
+            db.setChapterAsReaded(currentChapter);
         }
 
         getChapterContent = new GetChapterContent();
@@ -285,6 +310,15 @@ public class ReaderActivity extends AppCompatActivity {
 
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(c);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent data = new Intent();
+        data.putExtra("readiedChapters", chaptersReadied);
+        setResult(RESULT_OK,data);
+
+        finish();
     }
 
     private void hideSystemUI() {

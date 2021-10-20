@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,12 +27,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
@@ -55,23 +58,30 @@ public class NovelDetailsActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private DownloadReceiver downloadReceiver;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
     Context ctx = this;
 
     NovelDetails currentNovel = null;
     AddNovelOnFavorite addNovelOnFavorite = new AddNovelOnFavorite();
 
     boolean isTextViewClicked = false;
+    boolean isFavorite = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.novel_details);
 
+
+        mSwipeRefreshLayout = findViewById(R.id.swipeRefresh);
+        mSwipeRefreshLayout.setRefreshing(true);
+
         mRecyclerView = findViewById(R.id.novel_details_recycle_view);
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(ctx);
-        mAdapter = new ChaptersAdapter(new ArrayList<>(), ctx);
+        mAdapter = new ChaptersAdapter(new ArrayList<>(), this);
         downloadReceiver = new DownloadReceiver(new Handler(), mAdapter);
         mAdapter.setDownloadReceiver(downloadReceiver);
 
@@ -103,8 +113,26 @@ public class NovelDetailsActivity extends AppCompatActivity {
             content.execute(novel_name, novel_source);
         }else{
             String novelLink = i.getStringExtra("novelLink");
+            String novelName = i.getStringExtra("novelName");
+            String novelSource = i.getStringExtra("novelSource");
             getNovelDetails content = new getNovelDetails();
-            content.execute(novelLink);
+            content.execute(novelLink, novelName, novelSource);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data != null){
+            ArrayList<Integer> readiedChapters = data.getIntegerArrayListExtra("readiedChapters");
+
+            for(int id : readiedChapters){
+                Log.i("id lidos", String.valueOf(id));
+            }
+
+            mAdapter.putChapterAsReadied(readiedChapters);
+
         }
 
     }
@@ -117,7 +145,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, DownloaderService.class);
         serviceIntent.putExtra("NovelName", currentNovel.getNovelName());
         serviceIntent.putExtra("Source", currentNovel.getSource());
-        serviceIntent.putExtra("receiver", downloadReceiver);
+        serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
         startService(serviceIntent);
 
         Toast.makeText(this, "Downloading All", Toast.LENGTH_SHORT).show();
@@ -126,21 +154,32 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     private class getNovelDetails extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
 
+        private String novelName, novelSource;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
 
         @Override
-        protected ArrayList<ChapterIndex> doInBackground(String... novelLink) {
-            NovelDetails novelDetails;
+        protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
+            NovelDetails n;
+            DBController db = new DBController(ctx);
+            n = db.getNovel(novelDetails[1], novelDetails[2]);
+
+            if(n != null){
+                novelName = novelDetails[1];
+                novelSource = novelDetails[2];
+
+                return null;
+            }
 
             Parser parser = new NovelFullParser();
-            novelDetails = parser.getNovelDetails(novelLink[0]);
+            n = parser.getNovelDetails(novelDetails[0]);
 
-            publishProgress(novelDetails);
+            publishProgress(n);
 
-            ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelLink[0]);
+            ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelDetails[0]);
 
             return c;
         }
@@ -154,7 +193,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
             super.onPostExecute(chapterIndexes);
 
+            if(chapterIndexes == null){
+                new getNovelDetailsFromDB().execute(novelName, novelSource);
+                return;
+            }
+
             mAdapter.addChapterIndexes(chapterIndexes);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -170,6 +215,10 @@ public class NovelDetailsActivity extends AppCompatActivity {
         protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
             DBController db = new DBController(NovelDetailsActivity.this);
             NovelDetails novel = db.getNovel(novelDetails[0], novelDetails[1]);
+            if(novel == null){
+                return null;
+            }
+
             novel.setIsFavorite("yes");
 
             publishProgress(novel);
@@ -189,7 +238,12 @@ public class NovelDetailsActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
             super.onPostExecute(chapterIndexes);
 
+            if(chapterIndexes == null){
+                return;
+            }
+
             mAdapter.addChapterIndexes(chapterIndexes);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

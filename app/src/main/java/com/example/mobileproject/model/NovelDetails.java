@@ -16,7 +16,7 @@ public class NovelDetails implements Serializable {
 
     private String source;
 
-    private String isFavorite;
+    private String isFavorite = "no";
 
     private int chapterQuantity = 0;
 
