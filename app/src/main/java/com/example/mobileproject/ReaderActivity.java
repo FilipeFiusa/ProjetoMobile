@@ -1,6 +1,8 @@
 package com.example.mobileproject;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,19 +13,25 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.azeesoft.lib.colorpicker.ColorPickerDialog;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
@@ -46,6 +54,9 @@ public class ReaderActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ArrayList<Integer> chaptersReadied = new ArrayList<>();
+
+    private SeekBar mSeekBar;
+    private TextView chapterProgress;
 
     Animation animTranslateIn;
     Animation animTranslateOut;
@@ -104,28 +115,6 @@ public class ReaderActivity extends AppCompatActivity {
         });
 
         setUpMenu();
-        /*
-        LinearLayout container = (LinearLayout) findViewById(R.id.chapter_container);
-        container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
-                topMenu.startAnimation(animTranslateIn);
-                /*
-                if (topMenu.getVisibility() == View.GONE){
-                    topMenu.setVisibility(View.VISIBLE);
-                    topMenu.startAnimation(animTranslateIn);
-
-                }else{
-                    topMenu.startAnimation(animTranslateOut);
-
-                    topMenu.setVisibility(View.GONE);
-                }
-
-
-            }
-        });
-        */
 
         TextView textView = (TextView) findViewById(R.id.chapter_content);
         textView.setOnClickListener(new View.OnClickListener() {
@@ -204,20 +193,20 @@ public class ReaderActivity extends AppCompatActivity {
         TextView sideMenuNovelName = (TextView) findViewById(R.id.reader_side_menu_name);
         sideMenuNovelName.setText(novelName);
 
-        TextView textProgress = (TextView) findViewById(R.id.reader_seekbar_progress);
-        textProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
+        chapterProgress = (TextView) findViewById(R.id.reader_seekbar_progress);
+        chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
-        SeekBar seekBar = (SeekBar) findViewById(R.id.novel_progress);
-        seekBar.setProgress(0);
-        seekBar.setMax(nrc.getSize() - 1);
-        seekBar.setProgress(nrc.getPosition());
+        mSeekBar = (SeekBar) findViewById(R.id.novel_progress);
+        mSeekBar.setProgress(0);
+        mSeekBar.setMax(nrc.getSize() - 1);
+        mSeekBar.setProgress(nrc.getPosition());
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             private int progress;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textProgress.setText(new StringBuilder().append(i + 1).append("/").append(nrc.getSize()).toString());
+                chapterProgress.setText(new StringBuilder().append(i + 1).append("/").append(nrc.getSize()).toString());
                 progress = i;
             }
 
@@ -258,6 +247,101 @@ public class ReaderActivity extends AppCompatActivity {
                 sideMenu.startAnimation(animTranslateSideIn);
             }
         });
+
+        SetUpReaderConfigMenu();
+    }
+
+    private void SetUpReaderConfigMenu(){
+        TextView textPreview = (TextView) findViewById(R.id.text_preview);
+        LinearLayout bgPreview = (LinearLayout) findViewById(R.id.background_preview);
+
+        //reader_font_size_selector
+        Spinner dropdown = findViewById(R.id.reader_font_size_selector);
+        String[] items = new String[]{"16", "17","18","19","20","21","22","23","24","25","26","27","28","29","30"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        dropdown.setAdapter(adapter);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                Log.v("item", (String) parent.getItemAtPosition(position));
+                textPreview.setTextSize((Float) Float.parseFloat((String) parent.getItemAtPosition(position)));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        Spinner dropdown2 = findViewById(R.id.reader_font_family_selector);
+        String[] items2 = new String[]{"Acme", "Alice", "Coming_soon", "Roboto"};
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items2);
+        dropdown2.setAdapter(adapter2);
+        dropdown2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                Typeface font = null;
+
+                Log.i("item: ", (String) parent.getItemAtPosition(position));
+
+                String font_name = (String) parent.getItemAtPosition(position);
+
+                if(font_name.equals("Acme")){
+                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.acme);
+                    textPreview.setTypeface(font);
+                }else if(font_name.equals("Alice")){
+                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.alice);
+                    textPreview.setTypeface(font);
+                }else if(font_name.equals("Coming_soon")){
+                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.coming_soon);
+                    textPreview.setTypeface(font);
+                }else if(font_name.equals("Roboto")){
+                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.roboto);
+                    textPreview.setTypeface(font);
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        LinearLayout mColorChanger = findViewById(R.id.reader_font_color_selector);
+        mColorChanger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorPickerDialog colorPickerDialog= ColorPickerDialog.createColorPickerDialog(ReaderActivity.this,ColorPickerDialog.DARK_THEME);
+                colorPickerDialog.setOnColorPickedListener(new ColorPickerDialog.OnColorPickedListener() {
+                    @Override
+                    public void onColorPicked(int color, String hexVal) {
+                        textPreview.setTextColor(Color.parseColor(hexVal));
+                        mColorChanger.setBackgroundColor(Color.parseColor(hexVal));
+                    }
+                });
+                colorPickerDialog.show();
+            }
+        });
+
+        LinearLayout mBgChanger = findViewById(R.id.reader_bg_color_selector);
+        bgPreview.setBackgroundColor(getResources().getColor(R.color.main_dark_theme));
+        mBgChanger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ColorPickerDialog colorPickerDialog= ColorPickerDialog.createColorPickerDialog(ReaderActivity.this,ColorPickerDialog.DARK_THEME);
+                colorPickerDialog.setOnColorPickedListener(new ColorPickerDialog.OnColorPickedListener() {
+                    @Override
+                    public void onColorPicked(int color, String hexVal) {
+                        bgPreview.setBackgroundColor(Color.parseColor(hexVal));
+                        mBgChanger.setBackgroundColor(Color.parseColor(hexVal));
+                    }
+                });
+                colorPickerDialog.show();
+            }
+        });
     }
 
     private void getPreviousChapter(){
@@ -271,6 +355,10 @@ public class ReaderActivity extends AppCompatActivity {
             Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        mSeekBar.setProgress(nrc.getPosition());
+        chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
+
 
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(previous);
@@ -296,17 +384,24 @@ public class ReaderActivity extends AppCompatActivity {
             db.setChapterAsReaded(currentChapter);
         }
 
+        mSeekBar.setProgress(nrc.getPosition());
+        chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
+
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(next);
     }
 
     public void goTo(ChapterIndex c){
         FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
+        int currentPosition = nrc.getPosition();
 
         if(sideMenu.getVisibility() == View.VISIBLE){
             sideMenu.startAnimation(animTranslateSideOut);
             sideMenu.setVisibility(View.GONE);
         }
+
+        mSeekBar.setProgress(currentPosition);
+        chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(c);

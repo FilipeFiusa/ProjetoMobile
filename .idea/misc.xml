@@ -6,6 +6,7 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/button.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/eclipse_100s_200px.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_chapters.xml" value="0.10989583333333333" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.1787037037037037" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_favorite_64.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_favorite_border_64.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_keyboard_arrow_left_15.xml" value="0.10989583333333333" />
@@ -23,8 +24,14 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_round_check_circle_40.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ripple_effect.xml" value="0.17962962962962964" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/roundcorner.xml" value="0.21614583333333334" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/spinner_bg.xml" value="0.1787037037037037" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/state_pressed_ripple.xml" value="0.17962962962962964" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/tab_color.xml" value="0.21614583333333334" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/acme.xml" value="0.20092592592592592" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/alice.xml" value="0.1787037037037037" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/coming_soon.xml" value="0.1787037037037037" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/roboto.xml" value="0.1787037037037037" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/roboto_medium.xml" value="0.20092592592592592" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout-v24/activity_main.xml" value="0.18840579710144928" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/activity_main.xml" value="0.18840579710144928" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/chapter_grid_button.xml" value="0.33" />
@@ -38,7 +45,7 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/novel_details.xml" value="0.15010141987829614" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/novel_details_header.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/novel_grid_button.xml" value="0.18840579710144928" />
-        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_activity.xml" value="0.14" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_activity.xml" value="0.2" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_menu_button_item.xml" value="0.25" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/search_in_all_sources.xml" value="0.18840579710144928" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/visit_source.xml" value="0.18840579710144928" />
