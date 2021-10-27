@@ -1,5 +1,7 @@
 package com.example.mobileproject.model;
 
+import androidx.annotation.NonNull;
+
 public class NovelDetailsAdapterObject {
     private int viewType;
 
@@ -31,5 +33,11 @@ public class NovelDetailsAdapterObject {
 
     public ChapterIndex getChapterIndex() {
         return chapterIndex;
+    }
+
+    @NonNull
+    @Override
+    public NovelDetailsAdapterObject clone() throws CloneNotSupportedException {
+        return (NovelDetailsAdapterObject) super.clone();
     }
 }

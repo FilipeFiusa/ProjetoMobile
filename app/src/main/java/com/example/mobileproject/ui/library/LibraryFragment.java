@@ -1,12 +1,15 @@
 package com.example.mobileproject.ui.library;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
@@ -16,16 +19,29 @@ import androidx.fragment.app.Fragment;
 import com.example.mobileproject.R;
 import com.example.mobileproject.VisitSourceActivity;
 import com.example.mobileproject.db.DBController;
+import com.example.mobileproject.model.CheckUpdateService;
 import com.example.mobileproject.model.NovelDetails;
 
 import java.util.ArrayList;
 
 public class LibraryFragment extends Fragment {
     View root;
+    Activity ctx;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.library_fragment, container, false);
+        ctx = this.requireActivity();
+
+        Button mButton1 = root.findViewById(R.id.sort_novels);
+        mButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("Apertou");
+                Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
+                ctx.startService(serviceIntent);
+            }
+        });
 
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();

@@ -32,6 +32,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "novel_name" + " text,"
                 + "novel_author" + " text,"
                 + "novel_description" + " text,"
+                + "novel_link" + " text,"
                 + "novel_source" + " text,"
                 + "novel_image" + " text,"
                 + "UNIQUE(novel_name, novel_source)"
@@ -41,6 +42,7 @@ public class CreateDB extends SQLiteOpenHelper {
 
         sql = "CREATE TABLE "+ Table2 + " ("
                 + "id integer primary key autoincrement,"
+                + "source_id integer,"
                 + "novel_name text,"
                 + "novel_source text,"
                 + "chapter_name" + " text,"

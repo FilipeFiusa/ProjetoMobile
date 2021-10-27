@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class DBController {
     private Context ctx;
-    private SQLiteDatabase db;
+    private SQLiteDatabase db = null;
     private CreateDB database;
 
     public DBController(Context ctx){
@@ -31,7 +31,7 @@ public class DBController {
         this.ctx = ctx;
     }
 
-    public String insertNovel(String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage){
+    public String insertNovel(String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink){
         ContentValues values;
         long result;
 
@@ -42,6 +42,7 @@ public class DBController {
         values.put("novel_author", novelAuthor);
         values.put("novel_description", novelDescription);
         values.put("novel_source", source);
+        values.put("novel_link", novelLink);
 
         try (FileOutputStream fos = ctx.openFileOutput(novelName + "_" + source + "_" + "image.png", Context.MODE_PRIVATE)) {
             novelImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -71,11 +72,15 @@ public class DBController {
         ContentValues values;
         long result;
 
-        db = database.getWritableDatabase();
+        if(db == null){
+            db = database.getWritableDatabase();
+        }
+
         values = new ContentValues();
 
         values.put("novel_name", novelName);
         values.put("novel_source", novelSource);
+        values.put("source_id", index.getSourceId());
         values.put("chapter_name", index.getChapterName());
         values.put("chapter_link", index.getChapterLink());
         values.put("chapter_content", "");
@@ -91,6 +96,40 @@ public class DBController {
             return "Sucess";
         }
 
+    }
+
+    public void updateChapters(String novelName, String novelSource, ArrayList<ChapterIndex> c){
+        Cursor result;
+        long result2;
+
+        for (int i = 0; i < c.size(); i++) {
+            db = database.getReadableDatabase();
+
+            ContentValues values = new ContentValues();
+            Cursor cursor;
+
+            String sql = "SELECT * FROM Chapters WHERE id=?";
+            if(c.get(i).getId() == -1){
+                cursor = null;
+            }else{
+                cursor = db.rawQuery(sql, new String[]{String.valueOf(c.get(i).getId())});
+            }
+
+
+            if (cursor == null || !cursor.moveToFirst()) {
+                //Insert new
+                System.out.println("Inserting");
+
+                insertChapters(novelName, novelSource, c.get(i));
+            } else {
+                //Update
+                System.out.println("Updating");
+
+                values.put("source_id", c.get(i).getSourceId());
+                db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.get(i).getId())});
+            }
+            db.close();
+        }
     }
 
     public ArrayList<NovelDetails> selectAllNovels(){
@@ -111,9 +150,8 @@ public class DBController {
                 novelDetails.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
                 novelDetails.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
                 novelDetails.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
+                novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
 
-                Log.i("Nome", novelDetails.getNovelName());
-                Log.i("Author", novelDetails.getNovelAuthor());
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
@@ -122,6 +160,13 @@ public class DBController {
 
                 novelDetails.setNovelImage(bitmap);
 
+                query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+                Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
+                if(result2.getCount() > 0) {
+                    result2.moveToFirst();
+
+                    novelDetails.setChapterToReadQuantity(result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+                }
 
                 novelDetailsArr.add(novelDetails);
             }while (result.moveToNext());
@@ -146,6 +191,7 @@ public class DBController {
             novel.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
             novel.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
             novel.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
+            novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
 
             String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
             File mSaveBit = new File(ctx.getFilesDir(), filePath);;
@@ -163,38 +209,12 @@ public class DBController {
         return novel;
     }
 
-    public ArrayList<ChapterContent> getAllChaptersFromNovel(String novelName, String novelSource){
-        Cursor result;
-        ArrayList<ChapterContent> chapterIndexes = new ArrayList<>();
-
-        db = database.getReadableDatabase();
-        String query = "SELECT * FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=?";
-        result = db.rawQuery(query, new String[]{novelName, novelSource});
-
-        if(result.getCount() > 0){
-            result.moveToFirst();
-
-            do {
-                ChapterContent c = new ChapterContent();
-
-                c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
-                c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
-
-                chapterIndexes.add(c);
-            }while (result.moveToNext());
-        }
-
-        db.close();
-
-        return chapterIndexes;
-    }
-
     public ArrayList<ChapterIndex> getChaptersFromANovel(String novelName, String novelSource){
         Cursor result;
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
         db = database.getReadableDatabase();
-        String query = "SELECT id, chapter_link, chapter_name, downloaded, readed FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=?";
+        String query = "SELECT id, chapter_link, chapter_name, downloaded, readed FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
 
         if(result.getCount() > 0){

@@ -65,6 +65,7 @@ public class NovelFullParser implements Parser {
             // Instantiating a novelDetails object to return
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource("NovelFull");
+            novelDetails.setNovelLink(novelLink);
 
             return novelDetails;
         } catch (IOException e) {
@@ -92,7 +93,7 @@ public class NovelFullParser implements Parser {
                 Elements allLinks = d.select("#list-chapter .row a");
 
                 for(Element e : allLinks){
-                    ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"));
+                    ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"), chapterIndices.size());
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);
                 }

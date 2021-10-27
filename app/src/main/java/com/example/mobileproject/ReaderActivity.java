@@ -82,8 +82,7 @@ public class ReaderActivity extends AppCompatActivity {
         Intent i = getIntent();
         String chapterLink = i.getStringExtra("chapterLink");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
-        Log.i("--", nrc.setStartedChapter(chapterLink).getChapterLink());
-
+        nrc.setStartedChapter(chapterLink);
 
         mRecyclerView = findViewById(R.id.reader_menu_recycle_view);
         mRecyclerView.setHasFixedSize(true);

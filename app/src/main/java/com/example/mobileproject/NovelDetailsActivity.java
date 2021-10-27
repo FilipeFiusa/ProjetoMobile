@@ -63,7 +63,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
     Context ctx = this;
 
     NovelDetails currentNovel = null;
-    AddNovelOnFavorite addNovelOnFavorite = new AddNovelOnFavorite();
 
     boolean isTextViewClicked = false;
     boolean isFavorite = true;
@@ -76,6 +75,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         mSwipeRefreshLayout = findViewById(R.id.swipeRefresh);
         mSwipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                UpdateChapterList u = new UpdateChapterList();
+                u.execute(currentNovel.getNovelLink());
+            }
+        });
 
         mRecyclerView = findViewById(R.id.novel_details_recycle_view);
         mRecyclerView.setHasFixedSize(true);
@@ -100,7 +106,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
         simpleButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                downloadAll();
+                //downloadAll();
             }
         });
 
@@ -163,9 +169,12 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
-            NovelDetails n;
+            NovelDetails n = null;
             DBController db = new DBController(ctx);
-            n = db.getNovel(novelDetails[1], novelDetails[2]);
+
+            if(novelDetails.length > 1){
+                n = db.getNovel(novelDetails[1], novelDetails[2]);
+            }
 
             if(n != null){
                 novelName = novelDetails[1];
@@ -186,6 +195,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(NovelDetails... novelDetails){
+            if(currentNovel != null && currentNovel.equals(novelDetails[0])){
+                return;
+            }
             mAdapter.addNovelDetails(novelDetails[0]);
         }
 
@@ -200,6 +212,33 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             mAdapter.addChapterIndexes(chapterIndexes);
             mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private class UpdateChapterList extends AsyncTask<String, Void, ArrayList<ChapterIndex>> {
+
+        private String novelName, novelSource;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<ChapterIndex> doInBackground(String... novelLink) {
+            Parser parser = new NovelFullParser();
+            ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelLink[0]);
+
+            return c;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
+            super.onPostExecute(chapterIndexes);
+
+            mAdapter.addNewChapterIndexes(chapterIndexes);
+
+            //mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -231,6 +270,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(NovelDetails... novelDetails){
+            currentNovel = novelDetails[0];
             mAdapter.addNovelDetails(novelDetails[0]);
         }
 
@@ -247,50 +287,5 @@ public class NovelDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private class AddNovelOnFavorite extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            DBController db = new DBController(getApplicationContext());
-            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), "NovelFull",  currentNovel.getNovelImage());
-            ArrayList<ChapterIndex> chapterIndices = currentNovel.getChapterIndexes();
-            for(ChapterIndex c : chapterIndices){
-                db.insertChapters(currentNovel.getNovelName(), "NovelFull", c);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            super.onPostExecute(unused);
-        }
-    }
-
-    private class PutChapterOnDownloadList extends AsyncTask<Integer, Void, Boolean> {
-
-        ImageButton imageButton;
-
-        public PutChapterOnDownloadList(ImageButton imageButton){
-            this.imageButton = imageButton;
-        }
-
-        @Override
-        protected Boolean doInBackground(Integer... integers) {
-            DBController db = new DBController(getApplicationContext());
-
-            return db.putChapterOnDownload(currentNovel.getNovelName(),
-                    currentNovel.getSource(), integers[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-
-            if(aBoolean){
-                Toast.makeText(NovelDetailsActivity.this, "Baixando", Toast.LENGTH_SHORT).show();
-                imageButton.setImageResource(R.drawable.ic_outline_cancel_40);
-            }
-        }
-    }
 }

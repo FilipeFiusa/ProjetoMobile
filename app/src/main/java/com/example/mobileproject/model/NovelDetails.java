@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class NovelDetails implements Serializable {
     private int db_id;
@@ -15,6 +17,9 @@ public class NovelDetails implements Serializable {
     private String novelAuthor;
 
     private String source;
+    private String novelLink;
+
+    private int chapterToReadQuantity = 0;
 
     private String isFavorite = "no";
 
@@ -88,6 +93,13 @@ public class NovelDetails implements Serializable {
         this.chapterIndexes = chapterIndexes;
     }
 
+    public void setChapterIndexes(List<NovelDetailsAdapterObject> chapterIndexes) {
+        this.chapterIndexes = new ArrayList<>();
+        for (int i = 0; i < chapterIndexes.size(); i++) {
+            this.chapterIndexes.add(chapterIndexes.get(i).getChapterIndex());
+        }
+    }
+
     public int getChapterQuantity() {
         return chapterQuantity;
     }
@@ -103,5 +115,34 @@ public class NovelDetails implements Serializable {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getNovelLink() {
+        return novelLink;
+    }
+
+    public void setNovelLink(String novelLink) {
+        this.novelLink = novelLink;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NovelDetails that = (NovelDetails) o;
+        return Objects.equals(novelName, that.novelName) && Objects.equals(novelDescription, that.novelDescription) && Objects.equals(novelAuthor, that.novelAuthor) && Objects.equals(source, that.source) && Objects.equals(novelLink, that.novelLink);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(novelName, novelDescription, novelAuthor, source, novelLink);
+    }
+
+    public int getChapterToReadQuantity() {
+        return chapterToReadQuantity;
+    }
+
+    public void setChapterToReadQuantity(int chapterToReadQuantity) {
+        this.chapterToReadQuantity = chapterToReadQuantity;
     }
 }

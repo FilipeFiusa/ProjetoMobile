@@ -41,6 +41,9 @@ import com.example.mobileproject.model.NovelReaderController;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -52,6 +55,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean exist = true;
+
+    private String orderType = "DSC";
 
     private AddNovelOnFavorite addNovelOnFavorite = new AddNovelOnFavorite();
 
@@ -79,6 +84,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public TextView mTextView4;
 
         public Button mButton;
+        public Button mButton2;
 
         public NovelDetailsHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,6 +96,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mTextView4 = itemView.findViewById(R.id.chapter_quantity);
 
             mButton = itemView.findViewById(R.id.add_favorite);
+            mButton2 = itemView.findViewById(R.id.sort_chapters);
         }
     }
 
@@ -130,7 +137,86 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         n.setChapterIndexes(c);
         n.setChapterQuantity(c.size());
 
+        sortList();
+
         notifyDataSetChanged();
+    }
+
+    public void addNewChapterIndexes(ArrayList<ChapterIndex> c) {
+        String order = orderType;
+
+        orderType = "ASC2";
+        sortList();
+
+        List<NovelDetailsAdapterObject> tempList = mChapterList.subList(1, mChapterList.size());
+
+        for (int i = 0; i < c.size(); i++) {
+            boolean updated = false;
+            ChapterIndex currentItem = c.get(i);
+
+            for(NovelDetailsAdapterObject o : tempList){
+                ChapterIndex aux = o.getChapterIndex();
+                if(currentItem.equals(aux)){
+                    currentItem.updateSelf(aux);
+                    updated = true;
+                    System.out.println(currentItem.getId());
+                    break;
+                }
+            }
+
+            if(!updated){
+                System.out.println(currentItem.getId());
+                currentItem.setId(-1);
+            }
+
+            /*
+            try {
+                ChapterIndex current = mChapterList.get(i).getChapterIndex();
+                ChapterIndex aux = c.get(i);
+
+                if(current.getChapterLink().equals(aux.getChapterLink())
+                        && current.getChapterName().equals(aux.getChapterName())
+                ){
+                    continue;
+                }
+            }catch (IndexOutOfBoundsException e){
+                mChapterList.add(new NovelDetailsAdapterObject(c.get(i)));
+            }
+
+             */
+        }
+
+        if(order.equals("DSC") && orderType.equals("ASC2")){
+            orderType = "DSC";
+        }else if(orderType.equals("ASC2")){
+            orderType = "ASC";
+        }
+
+        NovelDetailsAdapterObject o = mChapterList.remove(0);
+        mChapterList.clear();
+        mChapterList.add(o);
+
+        UpdateChapterList updateChapterList = new UpdateChapterList();
+        updateChapterList.execute(c);
+
+    }
+
+    public void sortList(){
+        Collections.sort(mChapterList.subList(1, mChapterList.size()), new Comparator<NovelDetailsAdapterObject>() {
+            @Override
+            public int compare(NovelDetailsAdapterObject novelDetailsAdapterObject, NovelDetailsAdapterObject t1) {
+                return Integer.compare(novelDetailsAdapterObject.getChapterIndex().getSourceId(), t1.getChapterIndex().getSourceId());
+            }
+        });
+        if(orderType.equals("ASC2")){
+            return;
+        }
+
+        if(orderType.equals("DSC")){
+            Collections.reverse(mChapterList.subList(1, mChapterList.size()));
+        }
+
+        notifyItemRangeChanged(1, mChapterList.size());
     }
 
     public void updateChapterIndexes(ArrayList<ChapterIndex> c){
@@ -141,6 +227,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         for (int i = 1; i < mChapterList.size(); i++) {
             mChapterList.set(i, new NovelDetailsAdapterObject(c.get(i-1)));
         }
+
+        sortList();
 
         notifyDataSetChanged();
     }
@@ -244,6 +332,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public void onClick(View v) {
                     // ADD your action here
+                    ChapterIndex currentItem = mChapterList.get(chapterViewHolder.getAdapterPosition()).getChapterIndex();
                     Intent intent = new Intent(ctx, ReaderActivity.class);
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
@@ -290,6 +379,21 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //This will expand the textview if it is of 2 lines
                     novelDetailsHolder.mTextView3.setMaxLines(Integer.MAX_VALUE);
                     isTextViewClicked = true;
+                }
+            }
+        });
+
+        novelDetailsHolder.mButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mChapterList.size() > 1){
+                    sortList();
+                    System.out.println(orderType);
+                    if(orderType.equals("ASC")){
+                        orderType = "DSC";
+                    }else{
+                        orderType = "ASC";
+                    }
                 }
             }
         });
@@ -366,9 +470,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-
-
-
     @Override
     public int getItemCount() {
         return mChapterList.size();
@@ -412,7 +513,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         protected ArrayList<ChapterIndex> doInBackground(Void... params) {
             DBController db = new DBController(ctx);
-            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), "NovelFull",  currentNovel.getNovelImage());
+            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), "NovelFull",  currentNovel.getNovelImage(), currentNovel.getNovelLink());
             ArrayList<ChapterIndex> chapterIndices = currentNovel.getChapterIndexes();
             for(ChapterIndex c : chapterIndices){
                 db.insertChapters(currentNovel.getNovelName(), "NovelFull", c);
@@ -435,4 +536,16 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    private class UpdateChapterList extends  AsyncTask<ArrayList<ChapterIndex>, Void, Void>{
+        @Override
+        protected Void doInBackground(ArrayList<ChapterIndex>... arrayLists) {
+            DBController db = new DBController(ctx);
+            db.updateChapters(currentNovel.getNovelName(), currentNovel.getSource(), arrayLists[0]);
+
+            mSwipeRefreshLayout.setRefreshing(false);
+            addChapterIndexes(arrayLists[0]);
+
+            return null;
+        }
+    }
 }

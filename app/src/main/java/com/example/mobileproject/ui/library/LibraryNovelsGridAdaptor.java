@@ -61,7 +61,7 @@ public class LibraryNovelsGridAdaptor extends BaseAdapter {
 
             novelTitle.setText(getItem(position).getNovelName());
             novelImage.setImageBitmap(getItem(position).getNovelImage());
-            chapterCount.setVisibility(View.INVISIBLE);
+            chapterCount.setText(String.valueOf(getItem(position).getChapterToReadQuantity()));
 
             novelImage.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) {

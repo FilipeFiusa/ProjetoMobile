@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name="com.example.mobileproject.NovelDetailsActivity"
             android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
         </activity>
@@ -40,8 +41,9 @@
             android:name="com.example.mobileproject.ReaderActivity"
             android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
         </activity>
-        
+
         <service android:name=".model.DownloaderService" />
+        <service android:name=".model.CheckUpdateService" />
     </application>
 
 </manifest>
