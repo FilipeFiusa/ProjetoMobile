@@ -30,7 +30,7 @@ public class NovelFullParser implements Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).get();
+            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
             String title = document.select(".title").first().text();
@@ -82,13 +82,13 @@ public class NovelFullParser implements Parser {
         Document d;
 
         try {
-            Document document = Jsoup.connect(URL_BASE + novelLink).get();
+            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
             String data_page = document.select(".last a").first().attr("data-page");
 
             Thread.sleep(1000);
 
             for(int i = 1; i <= (Integer.parseInt(data_page) + 1); i++){
-                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + i).get();
+                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + i).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select("#list-chapter .row a");
 
@@ -113,11 +113,14 @@ public class NovelFullParser implements Parser {
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(url).get();
+            Document document = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .get();
             Elements novels = document.select(".archive .row h3 a");
 
             for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).get();
+                Document getImage = Jsoup.connect(URL_BASE + e.attr("href"))
+                        .userAgent("Mozilla/5.0").get();
                 novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
             }
 
@@ -136,11 +139,12 @@ public class NovelFullParser implements Parser {
 
         try{
             url = url + searchValue;
-            Document document = Jsoup.connect(url).get();
+            Document document = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0").get();
             Elements novels = document.select(".archive .row h3 a");
 
             for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).get();
+                Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).userAgent("Mozilla/5.0").get();
                 novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
             }
 
@@ -156,9 +160,8 @@ public class NovelFullParser implements Parser {
         String URL = URL_BASE + chapterUrl;
 
         try {
-            Document document = Jsoup.connect(URL).get();
+            Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
 
-            //Get the novel name
             String title = document.select(".chapter-text").first().text();
 
             document.select("script").remove();
@@ -176,26 +179,52 @@ public class NovelFullParser implements Parser {
             document.select("[align]").remove();
             removeComments(document);
 
-            // Get novel description
             String chapterContent = document.select("#chapter-content")
                     .first()
                     .html()
-                    .replaceAll("<p>", "")
-                    .replaceAll("&nbsp;", " ")
+                    .replaceAll("  ", "")
+                    .replaceAll("\r", "\n")
+                    .replaceAll("\n", "\n")
+                    .replaceAll("\n\n", "\n")
+                    .replaceAll("\n\n\n", "\n")
+                    .replaceAll("<p></p>\n", "")
+                    .replaceAll("<p></p>\r", "")
                     .replaceAll("<p></p>", "")
-                    .replaceAll(" \"", "\"")
-                    .replaceAll("\n ", "\n")
-                    .replaceAll("<p>", "\n")
+                    .replaceAll("<p>", "")
+                    .replaceAll("</p>\n", "\n\n")
+                    .replaceAll("</p>\r", "\n\n")
+                    .replaceAll("</p>", "\n\n")
+                    .replaceAll("<em>", "")
+                    .replaceAll("</em>", "")
+                    .replaceAll("&nbsp;", " ")
+                    .replaceAll("&ZeroWidthSpace;", " ")
+                    .replaceAll("&zeroWidthSpace;", " ")
                     .replaceAll("<br>", "")
                     .replaceAll("<i>", "")
                     .replaceAll("</i>", "")
-                    .replaceAll("<div>", "")
-                    .replaceAll("</div>", "")
                     .replaceAll("<strong>", "")
                     .replaceAll("</strong>", "")
-                    .replaceAll("</br>", "\n")
-                    .replaceAll("</p>", "\n")
+                    .replaceAll("</br>", "")
+                    .replaceAll("<div></div>\n", "")
+                    .replaceAll("<div></div>\r", "")
+                    .replaceAll("<div></div>", "")
+                    .replaceAll("<div>\r", "")
+                    .replaceAll("<div>\n", "")
+                    .replaceAll("<div>", "")
+                    .replaceAll("</div>\r", "")
+                    .replaceAll("</div>\n", "")
+                    .replaceAll("</div>", "")
                     .trim();
+
+            //chapterContent = chapterContent
+              //      .replaceAll("\\n\\n", "\n")
+             //       .replaceAll("\\n\\n\\n", "\n")
+              //      .replaceAll("\\n\\n\\n\\n", "\n")
+               //     .replaceAll("\\n\\n\\n\\n\\n", "\n")
+                //    .replaceAll("\\n\\n\\n\\n\\n\\n", "\n")
+                //    .replaceAll("\\n\\n\\n\\n\\n\\n\\n", "\n"); */
+
+            System.out.println(chapterContent);
 
             ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl);
 

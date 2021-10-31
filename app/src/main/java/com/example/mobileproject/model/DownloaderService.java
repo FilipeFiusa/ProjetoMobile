@@ -38,7 +38,7 @@ public class DownloaderService extends Service {
     private Handler mHandler;
     private final ArrayList<DownloaderClass> justRemoved = new ArrayList<>();
 
-    private boolean isCheckingDB = false;
+    private boolean isCheckingDB = true;
     public static ArrayList<DownloaderClass> downloader = new ArrayList<>();
 
     private NotificationManagerCompat notificationManager;
@@ -49,6 +49,7 @@ public class DownloaderService extends Service {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            CheckDownloadQueueOnDB();
             SystemClock.sleep(1000);
 
             while (!downloader.isEmpty()){
@@ -140,8 +141,6 @@ public class DownloaderService extends Service {
                 isCheckingDB = true;
 
                 CheckDownloadQueueOnDB();
-
-                isCheckingDB = false;
             }
         });
 
@@ -171,6 +170,9 @@ public class DownloaderService extends Service {
     private void CheckDownloadQueueOnDB(){
         DBController d = new DBController(getApplicationContext());
         downloader = d.getDownloadingNovels();
+
+        System.out.println(downloader);
+        isCheckingDB = false;
     }
 
     private void DownloadChapter(ChapterIndex chapterIndex){

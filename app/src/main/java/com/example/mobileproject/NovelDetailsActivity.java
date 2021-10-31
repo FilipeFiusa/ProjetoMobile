@@ -157,6 +157,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
         Toast.makeText(this, "Downloading All", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent data = new Intent();
+        setResult(RESULT_OK,data);
+
+        finish();
+    }
 
     private class getNovelDetails extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
 
@@ -253,6 +260,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
         @Override
         protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
             DBController db = new DBController(NovelDetailsActivity.this);
+            if(novelDetails[0] == null || novelDetails[1] == null){
+                return null;
+            }
             NovelDetails novel = db.getNovel(novelDetails[0], novelDetails[1]);
             if(novel == null){
                 return null;

@@ -15,6 +15,7 @@
         android:gravity="center_vertical"/>
 
     <TextView
+        android:id="@+id/source_name"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textSize="20sp"

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mobileproject.R;
@@ -51,6 +52,8 @@ public class FontsGridAdaptor extends BaseAdapter {
                 ? LayoutInflater.from(ctx).inflate(R.layout.font_grid_view, parent, false)
                 : convertView);
 
+        TextView textView = (TextView) row.findViewById(R.id.source_name);
+        textView.setText("Novelfull.com");
         Button simpleButton1 = (Button) row.findViewById(R.id.font_button_id);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override

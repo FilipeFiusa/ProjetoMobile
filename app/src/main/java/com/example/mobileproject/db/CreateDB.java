@@ -29,6 +29,7 @@ public class CreateDB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE "+ Table1 +" ("
                 + "id" + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                + "last_readed" + " integer,"
                 + "novel_name" + " text,"
                 + "novel_author" + " text,"
                 + "novel_description" + " text,"

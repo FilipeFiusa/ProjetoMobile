@@ -52,7 +52,26 @@
 
         </LinearLayout>
 
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/librarySwipeRefresh"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:fillViewport="true"
 
+            android:background="@color/main_dark_theme">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/library_recycle_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+        <!--
         <GridView
             android:id="@+id/novelsGrid"
             android:layout_width="match_parent"
@@ -64,6 +83,7 @@
             android:verticalSpacing="15dp"
             android:horizontalSpacing="15dp"
             android:background="@color/main_dark_theme"/>
+            -->
 
     </LinearLayout>
 

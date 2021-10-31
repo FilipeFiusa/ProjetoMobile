@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,34 +15,70 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.mobileproject.ChaptersAdapter;
 import com.example.mobileproject.R;
 import com.example.mobileproject.VisitSourceActivity;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.CheckUpdateService;
+import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelDetails;
 
 import java.util.ArrayList;
 
 public class LibraryFragment extends Fragment {
     View root;
-    Activity ctx;
+    AppCompatActivity ctx;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerView mRecyclerView;
+    private NovelsAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.library_fragment, container, false);
-        ctx = this.requireActivity();
+        ctx = (AppCompatActivity) this.requireActivity();
 
         Button mButton1 = root.findViewById(R.id.sort_novels);
         mButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(true){
+                    return;
+                }
                 System.out.println("Apertou");
                 Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
                 ctx.startService(serviceIntent);
             }
         });
+
+        mSwipeRefreshLayout = root.findViewById(R.id.librarySwipeRefresh);
+        mSwipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
+                novelsOnLibrary.execute();
+            }
+        });
+
+        mRecyclerView = root.findViewById(R.id.library_recycle_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        mLayoutManager = new GridLayoutManager(ctx, 2);
+        mAdapter = new NovelsAdapter(new ArrayList<>(), ctx);
+        mRecyclerView.addItemDecoration(new NovelsLayoutDecoration(10, ctx));
+
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();
@@ -49,6 +86,14 @@ public class LibraryFragment extends Fragment {
         this.root = root;
 
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
+        novelsOnLibrary.execute();
     }
 
     public class NovelsOnLibrary extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
@@ -76,8 +121,8 @@ public class LibraryFragment extends Fragment {
             //isLoading.setVisibility(View.INVISIBLE);
             //isLoading.removeAllViews();
 
-            GridView gv = (GridView) root.findViewById(R.id.novelsGrid);
-            gv.setAdapter(new LibraryNovelsGridAdaptor((Context) root.getContext(), novelDetailsArr));
+            mAdapter.updateNovelsList(novelDetailsArr);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 

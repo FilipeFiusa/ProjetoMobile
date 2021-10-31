@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DBController {
     private Context ctx;
@@ -38,6 +39,7 @@ public class DBController {
         db = database.getWritableDatabase();
         values = new ContentValues();
 
+        values.put("last_readed", new Date().getTime());//last_readed
         values.put("novel_name", novelName);
         values.put("novel_author", novelAuthor);
         values.put("novel_description", novelDescription);
@@ -72,9 +74,8 @@ public class DBController {
         ContentValues values;
         long result;
 
-        if(db == null){
-            db = database.getWritableDatabase();
-        }
+        db = database.getWritableDatabase();
+
 
         values = new ContentValues();
 
@@ -120,6 +121,7 @@ public class DBController {
                 //Insert new
                 System.out.println("Inserting");
 
+                db.close();
                 insertChapters(novelName, novelSource, c.get(i));
             } else {
                 //Update
@@ -137,7 +139,7 @@ public class DBController {
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
 
         db = database.getReadableDatabase();
-        String query = "SELECT * FROM Novels";
+        String query = "SELECT * FROM Novels ORDER BY last_readed DESC";
         result = db.rawQuery(query, null);
 
         if(result.getCount() > 0){
@@ -295,6 +297,15 @@ public class DBController {
         }
     }
 
+    public boolean putChapterOnDownload(String novelName, String source, String chapterLink){
+        long result;
+        ContentValues values = new ContentValues();;
+
+        int id = getChapterId(chapterLink);
+
+        return putChapterOnDownload(novelName, source, id);
+    }
+
     public boolean putChapterOnDownload(String novelName, String novelSource, int id){
         long result;
         ContentValues values = new ContentValues();;
@@ -326,17 +337,40 @@ public class DBController {
     }
 
     public boolean setChapterAsReaded(int id){
-        long result;
-        ContentValues values = new ContentValues();;
+        Cursor result;
+        ContentValues values = new ContentValues();
 
         db = database.getReadableDatabase();
 
+        String query = "SELECT * FROM Chapters WHERE Chapters.id=? ";
+        result = db.rawQuery(query, new String[]{String.valueOf(id)});
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
+            String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
+
+            values.put("last_readed", new Date().getTime());//last_readed
+            long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+            if(result2 == -1){
+                db.close();
+                return false;
+            }
+        }else {
+            db.close();
+            return false;
+        }
+
+        values = new ContentValues();
+
         values.put("readed", "yes");
-        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+        long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
         db.close();
 
-        if(result ==  -1){
+        if(result2 ==  -1){
             return false;
         }else{
             return true;
@@ -407,6 +441,25 @@ public class DBController {
 
         db.close();
         return null;
+    }
+
+    public int getChapterId(String chapterLink){
+        Cursor result;
+
+        db = database.getReadableDatabase();
+        String query = "SELECT id FROM Chapters WHERE Chapters.chapter_link=? ";
+        result = db.rawQuery(query, new String[]{chapterLink});
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            db.close();
+            return result.getInt(result.getColumnIndexOrThrow("id"));
+
+        }
+
+        db.close();
+        return -1;
     }
 
     public boolean setChapterContent(int id, String chapterContent){

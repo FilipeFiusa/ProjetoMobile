@@ -28,16 +28,70 @@
         android:background="#2196F3"
         android:padding="7dip"
         android:text="5"
+        android:textSize="16dp"
         android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/grid_novel_name"
-        android:layout_width="wrap_content"
+        android:background="@color/secodary_dark_theme"
+        android:maxLines="3"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:textSize="16sp"
         android:padding="7dip"
         android:text="Versatile Mage"
+        android:textColor="@color/white" />
+
+
+</RelativeLayout>
+
+<!--
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <ImageView
+        android:id="@+id/grid_novel_image"
+        android:layout_width="match_parent"
+        android:layout_height="270dp"
+        android:src="@drawable/vm"
+        android:layout_centerInParent="false"
+        android:scaleType="centerCrop"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:theme="@style/Theme.MyApplicationTest4.MyRipple"
+        />
+
+    <TextView
+        android:id="@+id/grid_chapter_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:background="#2196F3"
+        android:padding="7dip"
+        android:text="5"
+        android:textSize="16dp"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/grid_novel_name"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_below="@id/grid_novel_image"
+        android:textSize="16sp"
+        android:paddingHorizontal="7dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:background="@color/secodary_dark_theme"
+        android:text="Versatile Mage"
+        android:maxLines="3"
         android:textColor="@color/white" />
 
 
