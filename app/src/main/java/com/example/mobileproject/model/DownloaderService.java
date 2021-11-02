@@ -2,10 +2,8 @@ package com.example.mobileproject.model;
 
 import static com.example.mobileproject.App.CHANNEL_ID;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,18 +13,17 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class DownloaderService extends Service {
@@ -64,7 +61,7 @@ public class DownloaderService extends Service {
                 notificationManager.notify(1, notification.build());
                 SystemClock.sleep(2000);
 
-                DownloadChapter(currentNovel.getChapterToDownload());
+                DownloadChapter(currentNovel);
 
                 justRemoved.add(downloader.remove(0));
 
@@ -175,8 +172,14 @@ public class DownloaderService extends Service {
         isCheckingDB = false;
     }
 
-    private void DownloadChapter(ChapterIndex chapterIndex){
-        Parser p = new NovelFullParser();
+    private void DownloadChapter(DownloaderClass current){
+        ChapterIndex chapterIndex = current.getChapterToDownload();
+
+        ParserInterface p = ParserFactory.getParserInstance(current.getNovelSource(), getApplicationContext());
+        if(p == null){
+            Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+        }
+
         DBController db = new DBController(getApplicationContext());
 
         ChapterContent chapterContent = p.getChapterContent(chapterIndex.getChapterLink());
@@ -204,7 +207,4 @@ public class DownloaderService extends Service {
 
     }
 
-    public ArrayList<DownloaderClass> getJustRemoved() {
-        return justRemoved;
-    }
 }

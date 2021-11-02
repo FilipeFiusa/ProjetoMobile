@@ -85,6 +85,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public Button mButton;
         public Button mButton2;
+        public Button mButton3;
 
         public NovelDetailsHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,8 +96,9 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mTextView3 = itemView.findViewById(R.id.novel_description);
             mTextView4 = itemView.findViewById(R.id.chapter_quantity);
 
-            mButton = itemView.findViewById(R.id.add_favorite);
+            mButton = itemView.findViewById(R.id.add_favorite);//
             mButton2 = itemView.findViewById(R.id.sort_chapters);
+            mButton3 = itemView.findViewById(R.id.visit_on_webview);
         }
     }
 
@@ -337,6 +339,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
                     intent.putExtra("novelName", currentNovel.getNovelName());
+                    intent.putExtra("sourceName", currentNovel.getSource());
                     ctx.startActivityForResult(intent, 1);
                 }
             });
@@ -380,6 +383,16 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     novelDetailsHolder.mTextView3.setMaxLines(Integer.MAX_VALUE);
                     isTextViewClicked = true;
                 }
+            }
+        });
+
+        novelDetailsHolder.mButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ctx, VisitSourceWebViewActivity.class);
+                intent.putExtra("SourceName", currentNovel.getSource());
+                intent.putExtra("NovelLink", currentNovel.getNovelLink());
+                ctx.startActivity(intent);
             }
         });
 
@@ -513,10 +526,10 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         protected ArrayList<ChapterIndex> doInBackground(Void... params) {
             DBController db = new DBController(ctx);
-            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), "NovelFull",  currentNovel.getNovelImage(), currentNovel.getNovelLink());
+            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), currentNovel.getSource(),  currentNovel.getNovelImage(), currentNovel.getNovelLink());
             ArrayList<ChapterIndex> chapterIndices = currentNovel.getChapterIndexes();
             for(ChapterIndex c : chapterIndices){
-                db.insertChapters(currentNovel.getNovelName(), "NovelFull", c);
+                db.insertChapters(currentNovel.getNovelName(), currentNovel.getSource(), c);
             }
 
             return db.getChaptersFromANovel(currentNovel.getNovelName(),

@@ -2,7 +2,7 @@ package com.example.mobileproject.model;
 
 import android.os.AsyncTask;
 
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
@@ -51,9 +51,9 @@ public class DownloadQueue {
 
         @Override
         protected Void doInBackground(ChapterIndex... chapterIndices) {
-            Parser parser = new NovelFullParser();
+            //ParserInterface parser = new NovelFullParser();
 
-            ChapterContent c = parser.getChapterContent(chapterIndices[0].getChapterLink());
+            //ChapterContent c = parser.getChapterContent(chapterIndices[0].getChapterLink());
 
             return null;
         }

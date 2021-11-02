@@ -216,6 +216,9 @@ public class DBController {
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
         db = database.getReadableDatabase();
+        System.out.println(novelName);
+        System.out.println(novelSource);
+
         String query = "SELECT id, chapter_link, chapter_name, downloaded, readed FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
 

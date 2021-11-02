@@ -17,10 +17,12 @@ import java.util.ArrayList;
 public class NovelsGridAdaptor extends BaseAdapter {
         private Context ctx;
         private ArrayList<NovelDetailsMinimum> lista;
+        private String novelSource;
 
-        public NovelsGridAdaptor(Context ctx, ArrayList<NovelDetailsMinimum> lista){
+        public NovelsGridAdaptor(Context ctx, ArrayList<NovelDetailsMinimum> lista, String novelSource){
             this.ctx = ctx;
             this.lista = lista;
+            this.novelSource = novelSource;
         }
 
         @Override
@@ -62,7 +64,7 @@ public class NovelsGridAdaptor extends BaseAdapter {
                     Intent intent = new Intent(ctx, NovelDetailsActivity.class);
                     intent.putExtra("novelLink", getItem(position).getNovelLink());
                     intent.putExtra("novelName", getItem(position).getNovelName());
-                    intent.putExtra("novelSource", "NovelFull");
+                    intent.putExtra("novelSource", novelSource);
                     ctx.startActivity(intent);
                 }
             });

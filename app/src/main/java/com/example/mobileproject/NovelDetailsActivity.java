@@ -1,54 +1,31 @@
 package com.example.mobileproject;
 
-import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.drawable.AnimationDrawable;
-import android.media.Image;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.db.DBController;
-import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloadReceiver;
-import com.example.mobileproject.model.DownloaderClass;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelDetails;
-import com.example.mobileproject.model.NovelReaderController;
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
-import com.example.mobileproject.ui.downloads.DownloadAdapter;
 
-import java.nio.channels.Channel;
 import java.util.ArrayList;
 
 public class NovelDetailsActivity extends AppCompatActivity {
@@ -79,7 +56,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 UpdateChapterList u = new UpdateChapterList();
-                u.execute(currentNovel.getNovelLink());
+                u.execute(currentNovel.getNovelLink(), currentNovel.getSource());
             }
         });
 
@@ -190,7 +167,12 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 return null;
             }
 
-            Parser parser = new NovelFullParser();
+            ParserInterface parser = ParserFactory.getParserInstance(novelDetails[2], ctx);
+
+            if (parser == null) {
+                return null;
+            }
+
             n = parser.getNovelDetails(novelDetails[0]);
 
             publishProgress(n);
@@ -211,6 +193,11 @@ public class NovelDetailsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
             super.onPostExecute(chapterIndexes);
+
+            if(chapterIndexes == null && novelName == null){
+                mSwipeRefreshLayout.setRefreshing(false);
+                return;
+            }
 
             if(chapterIndexes == null){
                 new getNovelDetailsFromDB().execute(novelName, novelSource);
@@ -233,7 +220,11 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<ChapterIndex> doInBackground(String... novelLink) {
-            Parser parser = new NovelFullParser();
+            ParserInterface parser = ParserFactory.getParserInstance(novelLink[1], ctx);
+            if(parser == null){
+                return null;
+            }
+
             ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelLink[0]);
 
             return c;
@@ -272,7 +263,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             publishProgress(novel);
 
-            ArrayList<ChapterIndex> c = db.getChaptersFromANovel(novel.getNovelName(), "NovelFull");
+            ArrayList<ChapterIndex> c = db.getChaptersFromANovel(novel.getNovelName(), novel.getSource());
 
             return c;
         }

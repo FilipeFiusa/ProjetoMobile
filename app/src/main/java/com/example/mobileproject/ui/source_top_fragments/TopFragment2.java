@@ -22,14 +22,19 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.mobileproject.NovelsGridAdaptor;
 import com.example.mobileproject.R;
 import com.example.mobileproject.model.NovelDetailsMinimum;
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
-import com.example.mobileproject.ui.library.LibraryNovelsGridAdaptor;
 
 import java.util.ArrayList;
 
 public class TopFragment2 extends Fragment {
     Context currentContext = null;
+    String sourceName;
+
+    public TopFragment2(String sourceName) {
+        this.sourceName = sourceName;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -77,7 +82,7 @@ public class TopFragment2 extends Fragment {
     private void returnToDefault() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.visit_source_top_fragments, new TopFragment1());
+        fragmentTransaction.replace(R.id.visit_source_top_fragments, new TopFragment1(sourceName));
         fragmentTransaction.commit(); // save the changes
     }
 
@@ -103,7 +108,12 @@ public class TopFragment2 extends Fragment {
         protected ArrayList<NovelDetailsMinimum> doInBackground(String... params) {
             ArrayList<NovelDetailsMinimum> novelDetailsArr;
 
-            Parser parser = new NovelFullParser();
+            ParserInterface parser = ParserFactory.getParserInstance(sourceName, getContext());
+
+            if(parser == null){
+                return null;
+            }
+
             novelDetailsArr = parser.searchNovels(params[0]);
 
             return novelDetailsArr;
@@ -113,13 +123,15 @@ public class TopFragment2 extends Fragment {
         protected void onPostExecute(ArrayList<NovelDetailsMinimum> novelDetailsArr) {
             super.onPostExecute(novelDetailsArr);
 
-            Log.i("Quantidade", String.valueOf(novelDetailsArr.size()));
-
             isLoading.setVisibility(View.INVISIBLE);
             isLoading.removeAllViews();
 
+            if(novelDetailsArr == null) {
+                return;
+            }
 
-            gridView.setAdapter(new NovelsGridAdaptor((Context) getActivity(), novelDetailsArr));
+
+            gridView.setAdapter(new NovelsGridAdaptor((Context) getActivity(), novelDetailsArr, sourceName));
         }
     }
 }

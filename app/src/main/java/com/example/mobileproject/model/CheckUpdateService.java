@@ -4,13 +4,9 @@ import static com.example.mobileproject.App.CHANNEL_ID;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.os.PowerManager;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -18,7 +14,8 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
@@ -171,7 +168,7 @@ public class CheckUpdateService extends Service {
             ArrayList<ChapterIndex> newChapters = new ArrayList<>();
 
             DBController db = new DBController(getApplicationContext());
-            Parser parser = new NovelFullParser();
+            ParserInterface parser = ParserFactory.getParserInstance(novelDetails.getSource(), getApplicationContext());
 
             List<ChapterIndex> chapterList = db.getChaptersFromANovel(novelDetails.getNovelName(), novelDetails.getSource());
             ArrayList<ChapterIndex> tempList = parser.getAllChaptersIndex(novelDetails.getNovelLink());

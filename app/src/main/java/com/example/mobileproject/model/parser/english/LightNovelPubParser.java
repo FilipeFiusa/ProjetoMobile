@@ -3,6 +3,7 @@ package com.example.mobileproject.model.parser.english;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.SystemClock;
 
 import androidx.core.content.ContextCompat;
 
@@ -13,24 +14,33 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class NovelFullParser extends Parser {
-    public NovelFullParser(Context ctx) {
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class LightNovelPubParser extends Parser {
+    public LightNovelPubParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://novelfull.com";
-        SourceName = "NovelFull";
-        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_novelfull);
+        URL_BASE = "https://www.lightnovelpub.com";
+        SourceName = "LightNovelPub";
+        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_lightnovelpub);
     }
 
     @Override
@@ -42,30 +52,33 @@ public class NovelFullParser extends Parser {
             Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
-            String title = document.select(".title").first().text();
+            String title = document.select(".novel-info .main-head h1").first().text();
 
             // Get novel description
-            String description = document.select(".desc-text")
+            String description = document.select(".content")
                     .first()
                     .html()
                     .replaceAll("\\\\n", "\n")
-                    .replaceAll("<p>", "\n")
+                    .replaceAll("<p> </p>", "")
+                    .replaceAll("<p></p>", "")
+                    .replaceAll("<strong>", "")
+                    .replaceAll("</strong>", "")
                     .replaceAll("\" ", "")
                     .replaceAll(" \"", "")
                     .replaceAll("\' ", "")
                     .replaceAll(" \'", "")
                     .replaceAll("<p>", "\n")
+                    .replaceAll("</p>", "\n")
                     .replaceAll("<br>", "\n")
                     .replaceAll("</br>", "\n")
-                    .replaceAll("</p>", "\n")
                     .trim();
 
             // Get novel author
-            String author = document.select(".info div").first().text().replace("Author:", "");
+            String author = document.select(".author").first().text().replace("Author:", "");
 
             //Get the novel image
-            Element img = document.select(".book img").first();
-            java.lang.String imgSrc = img.absUrl("src");
+            Element img = document.select(".cover img").first();
+            java.lang.String imgSrc = img.absUrl("data-src");
             InputStream input = new java.net.URL(imgSrc).openStream();
             Bitmap bitmap = BitmapFactory.decodeStream(input);
 
@@ -73,7 +86,7 @@ public class NovelFullParser extends Parser {
 
             // Instantiating a novelDetails object to return
             novelDetails = new NovelDetails(bitmap, title, description, author);
-            novelDetails.setSource("NovelFull");
+            novelDetails.setSource(SourceName);
             novelDetails.setNovelLink(novelLink);
 
             return novelDetails;
@@ -86,30 +99,40 @@ public class NovelFullParser extends Parser {
 
     @Override
     public ArrayList<ChapterIndex> getAllChaptersIndex(String novelLink) {
-        // #list-chapter .row a
         ArrayList<ChapterIndex> chapterIndices = new ArrayList<>();
         Document d;
 
         try {
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
-            String data_page = document.select(".last a").first().attr("data-page");
+            for(int i = 1; i <= 1000; i++){
+                System.out.println(URL_BASE + novelLink + "/chapters/page-" + i);
 
-            Thread.sleep(1000);
+                d = Jsoup.connect(URL_BASE + novelLink + "/chapters/page-" + i).userAgent("Mozilla/5.0").get();
 
-            for(int i = 1; i <= (Integer.parseInt(data_page) + 1); i++){
-                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + i).userAgent("Mozilla/5.0").get();
+                Elements allLinks = d.select(".chapter-list li a");
 
-                Elements allLinks = d.select("#list-chapter .row a");
+                if(allLinks.isEmpty()){
+                    return chapterIndices;
+                }
 
                 for(Element e : allLinks){
-                    ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"), chapterIndices.size());
+                    if(e.select(".chapter-title").first().text().contains("(empty)")){
+                        continue;
+                    }
+
+                    ChapterIndex c = new ChapterIndex(
+                            Objects.requireNonNull(e.select(".chapter-title").first()).text(),
+                            e.attr("href"),
+                            chapterIndices.size());
+
+                    System.out.println(Objects.requireNonNull(e.select(".chapter-title").first()).text());
+
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);
                 }
             }
 
             return chapterIndices;
-        }catch (IOException | InterruptedException e){
+        }catch (IOException e){
             e.printStackTrace();
         }
 
@@ -118,19 +141,20 @@ public class NovelFullParser extends Parser {
 
     @Override
     public ArrayList<NovelDetailsMinimum> getHotNovels() {
-        java.lang.String url = "https://novelfull.com/hot-novel";
+        java.lang.String url = "/genre";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(url)
+            Document document = Jsoup.connect(URL_BASE + url)
                     .userAgent("Mozilla/5.0")
                     .get();
-            Elements novels = document.select(".archive .row h3 a");
+            Elements novels = document.select(".novel-item");
 
             for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href"))
-                        .userAgent("Mozilla/5.0").get();
-                novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
+                novelsArr.add(new NovelDetailsMinimum(
+                        getNovelImage(e),
+                        Objects.requireNonNull(e.select(".novel-title a").first()).text(),
+                        Objects.requireNonNull(e.select(".novel-title a").first()).attr("href")));
             }
 
         }catch (IOException e){
@@ -141,24 +165,40 @@ public class NovelFullParser extends Parser {
     }
 
     @Override
-    public ArrayList<NovelDetailsMinimum> searchNovels(String _searchValue) {
-        String searchValue = removeSpaces(_searchValue);
-        String url = "https://novelfull.com/search?keyword=";
+    public ArrayList<NovelDetailsMinimum> searchNovels(String searchValue) {
+        String html = "";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient();
+        String url = URL_BASE + "/lnwsearchlive?inputContent=" + searchValue.replace(" ", "%20");
 
-        try{
-            url = url + searchValue;
-            Document document = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0").get();
-            Elements novels = document.select(".archive .row h3 a");
+        Request request = new Request.Builder()
+                .header("User-Agent", "Mozilla/5.0")
+                .url(url)
+                .build();
 
-            for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).userAgent("Mozilla/5.0").get();
-                novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
-            }
 
-        }catch (IOException e){
+        try (Response response = client.newCall(request).execute()) {
+            String temp = response.body().string();
+            JsonObject jsonObject = new JsonParser().parse(temp).getAsJsonObject();
+            html = jsonObject.get("resultview").getAsString();
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if(html.equals("")){
+            return novelsArr;
+        }
+
+        Document document = Jsoup.parse(html);
+        Elements novels = document.select("li");
+
+        for (Element e : novels){
+            novelsArr.add(new NovelDetailsMinimum(getNovelImage2(e),
+                    e.select("h4").first().text()
+                            .replace("&#x27;", "'")
+                            .replace("&#x2019;", "'"),
+                    e.select("a").attr("href").replace("\\&quot;", "")
+            ));
         }
 
         return novelsArr;
@@ -171,7 +211,7 @@ public class NovelFullParser extends Parser {
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
 
-            String title = document.select(".chapter-text").first().text();
+            String title = document.select(".chapter-title").first().text();
 
             document.select("script").remove();
             document.select("ins").remove();
@@ -188,7 +228,7 @@ public class NovelFullParser extends Parser {
             document.select("[align]").remove();
             removeComments(document);
 
-            String chapterContent = document.select("#chapter-content")
+            String chapterContent = document.select("#chapter-container")
                     .first()
                     .html()
                     .replaceAll("  ", "")
@@ -226,12 +266,12 @@ public class NovelFullParser extends Parser {
                     .trim();
 
             //chapterContent = chapterContent
-              //      .replaceAll("\\n\\n", "\n")
-             //       .replaceAll("\\n\\n\\n", "\n")
-              //      .replaceAll("\\n\\n\\n\\n", "\n")
-               //     .replaceAll("\\n\\n\\n\\n\\n", "\n")
-                //    .replaceAll("\\n\\n\\n\\n\\n\\n", "\n")
-                //    .replaceAll("\\n\\n\\n\\n\\n\\n\\n", "\n"); */
+            //      .replaceAll("\\n\\n", "\n")
+            //       .replaceAll("\\n\\n\\n", "\n")
+            //      .replaceAll("\\n\\n\\n\\n", "\n")
+            //     .replaceAll("\\n\\n\\n\\n\\n", "\n")
+            //    .replaceAll("\\n\\n\\n\\n\\n\\n", "\n")
+            //    .replaceAll("\\n\\n\\n\\n\\n\\n\\n", "\n"); */
 
             System.out.println(chapterContent);
 
@@ -247,19 +287,32 @@ public class NovelFullParser extends Parser {
 
     @Override
     public ParserInterface getParserInstance() {
-        return new NovelFullParser(ctx);
+        return new LightNovelPubParser(ctx);
     }
 
-    private String removeSpaces(String searchValue) {
-        return searchValue.replaceAll(" ", "+");
-    }
-
-    private Bitmap getNovelImage(Document document) {
+    private Bitmap getNovelImage(Element element) {
         Bitmap bitmap;
 
         try {
-            Element img = document.select(".book img").first();
-            java.lang.String imgSrc = img.absUrl("src");
+            Element img = element.select("img").first();
+            String imgSrc = img.absUrl("data-src");
+            InputStream input = new java.net.URL(imgSrc).openStream();
+            bitmap = BitmapFactory.decodeStream(input);
+
+            return bitmap;
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Bitmap getNovelImage2(Element element) {
+        Bitmap bitmap;
+
+        try {
+            Element img = element.select("img").first();
+            String imgSrc = img.absUrl("src");
             InputStream input = new java.net.URL(imgSrc).openStream();
             bitmap = BitmapFactory.decodeStream(input);
 

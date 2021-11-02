@@ -6,8 +6,6 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ResultReceiver;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -29,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azeesoft.lib.colorpicker.ColorPickerDialog;
 import com.example.mobileproject.db.DBController;
@@ -37,7 +34,8 @@ import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelReaderController;
-import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
@@ -65,6 +63,8 @@ public class ReaderActivity extends AppCompatActivity {
     Animation animTranslateSideIn;
     Animation animTranslateSideOut;
 
+    private String sourceName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         hideSystemUI();
@@ -81,6 +81,7 @@ public class ReaderActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         String chapterLink = i.getStringExtra("chapterLink");
+        sourceName = i.getStringExtra("sourceName");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
         nrc.setStartedChapter(chapterLink);
 
@@ -474,7 +475,11 @@ public class ReaderActivity extends AppCompatActivity {
                 }
             }
 
-            Parser parser = new NovelFullParser();
+            ParserInterface parser = ParserFactory.getParserInstance(sourceName,ReaderActivity.this);
+            if(parser == null){
+                return null;
+            }
+
             chapterContent = parser.getChapterContent(chapter[0].getChapterLink());
 
             return chapterContent;

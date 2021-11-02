@@ -13,6 +13,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mobileproject.R;
+import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
+import com.example.mobileproject.model.parser.english.NovelFullParser;
 import com.example.mobileproject.ui.top_fragment.TopFragment1;
 
 public class NavigateFragment extends Fragment {
@@ -23,7 +26,7 @@ public class NavigateFragment extends Fragment {
         View root = inflater.inflate(R.layout.navigate_fragment, container, false);
 
 
-        int[] lista = new int[]{R.layout.font_grid_view};
+        Parser[] lista = ParserFactory.getAllParsers(currentContext).toArray(new Parser[0]);
         GridView gv = (GridView) root.findViewById(R.id.fontsGrid);
         gv.setAdapter(new FontsGridAdaptor(currentContext, lista));
 

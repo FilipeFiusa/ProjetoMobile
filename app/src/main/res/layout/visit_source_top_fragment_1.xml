@@ -22,6 +22,7 @@
             android:backgroundTint="@color/secodary_dark_theme"/>
 
         <TextView
+            android:id="@+id/source_name"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="30dp"
