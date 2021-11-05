@@ -175,9 +175,24 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             n = parser.getNovelDetails(novelDetails[0]);
 
+            long id = db.insertNovel(
+                    n.getNovelName(),
+                    n.getNovelAuthor(),
+                    n.getNovelDescription(),
+                    n.getSource(),
+                    n.getNovelImage(),
+                    n.getNovelLink()
+            );
+
+            n.setDb_id((int) id);
+
             publishProgress(n);
 
             ArrayList<ChapterIndex> c = parser.getAllChaptersIndex(novelDetails[0]);
+
+            for(ChapterIndex _c : c){
+                db.insertChapters(n.getNovelName(), n.getSource(), _c);
+            }
 
             return c;
         }
@@ -258,8 +273,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
             if(novel == null){
                 return null;
             }
-
-            novel.setIsFavorite("yes");
 
             publishProgress(novel);
 

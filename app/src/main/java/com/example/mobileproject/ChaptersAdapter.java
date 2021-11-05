@@ -56,7 +56,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private boolean exist = true;
 
-    private String orderType = "DSC";
+    private String orderType = "ASC";
 
     private AddNovelOnFavorite addNovelOnFavorite = new AddNovelOnFavorite();
 
@@ -526,11 +526,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         protected ArrayList<ChapterIndex> doInBackground(Void... params) {
             DBController db = new DBController(ctx);
-            db.insertNovel(currentNovel.getNovelName(), currentNovel.getNovelAuthor(), currentNovel.getNovelDescription(), currentNovel.getSource(),  currentNovel.getNovelImage(), currentNovel.getNovelLink());
-            ArrayList<ChapterIndex> chapterIndices = currentNovel.getChapterIndexes();
-            for(ChapterIndex c : chapterIndices){
-                db.insertChapters(currentNovel.getNovelName(), currentNovel.getSource(), c);
-            }
+            db.putOnLibrary(currentNovel.getNovelName(), currentNovel.getSource());
 
             return db.getChaptersFromANovel(currentNovel.getNovelName(),
                     currentNovel.getSource());

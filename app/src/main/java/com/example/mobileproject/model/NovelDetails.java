@@ -145,4 +145,12 @@ public class NovelDetails implements Serializable {
     public void setChapterToReadQuantity(int chapterToReadQuantity) {
         this.chapterToReadQuantity = chapterToReadQuantity;
     }
+
+    public int getDb_id() {
+        return db_id;
+    }
+
+    public void setDb_id(int db_id) {
+        this.db_id = db_id;
+    }
 }

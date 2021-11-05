@@ -32,7 +32,7 @@ public class DBController {
         this.ctx = ctx;
     }
 
-    public String insertNovel(String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink){
+    public long insertNovel(String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink){
         ContentValues values;
         long result;
 
@@ -40,6 +40,7 @@ public class DBController {
         values = new ContentValues();
 
         values.put("last_readed", new Date().getTime());//last_readed
+        values.put("on_library", 0);//last_readed
         values.put("novel_name", novelName);
         values.put("novel_author", novelAuthor);
         values.put("novel_description", novelDescription);
@@ -63,11 +64,22 @@ public class DBController {
             Log.i("-------", f);
         }
 
-        if(result ==  -1){
-            return "Error on insert";
-        }else{
-            return "Sucess";
-        }
+        return result;
+    }
+
+    public long putOnLibrary(String novelName, String novelSource){
+        ContentValues values = new ContentValues();
+        long result;
+
+        db = database.getWritableDatabase();
+
+
+        values.put("on_library", 1);
+        result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
+
+        db.close();
+
+        return result;
     }
 
     public String insertChapters(String novelName, String novelSource, ChapterIndex index) {
@@ -139,7 +151,7 @@ public class DBController {
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
 
         db = database.getReadableDatabase();
-        String query = "SELECT * FROM Novels ORDER BY last_readed DESC";
+        String query = "SELECT * FROM Novels WHERE on_library=1 ORDER BY last_readed DESC";
         result = db.rawQuery(query, null);
 
         if(result.getCount() > 0){
@@ -194,6 +206,14 @@ public class DBController {
             novel.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
             novel.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
             novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+
+            int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
+
+            if(is_favorite == 0){
+                novel.setIsFavorite("no");
+            }else{
+                novel.setIsFavorite("yes");
+            }
 
             String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
             File mSaveBit = new File(ctx.getFilesDir(), filePath);;

@@ -6,26 +6,29 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="5dp"
     android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:theme="@style/Theme.MyApplicationTest4.MyRipple"
     >
 
     <ImageView
-        android:id="@+id/novelImage"
+        android:id="@+id/novel_image"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:src="@drawable/vm"
-        android:scaleType="centerCrop"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:theme="@style/Theme.MyApplicationTest4.MyRipple"
-        tools:ignore="InvalidId"
-        />
+        android:clickable="false"
+        android:focusable="false"
+         />
 
     <TextView
+        android:id="@id/novel_name"
+        android:maxLines="2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/novelImage"
-        android:textSize="14sp"
+        android:layout_below="@id/novel_image"
+        android:textSize="12sp"
+        android:clickable="false"
+        android:focusable="false"
         android:padding="7dip"
         android:text="Versatile Mage"
         android:textColor="@color/white" />
