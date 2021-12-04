@@ -1,12 +1,10 @@
 package com.example.mobileproject.ui.downloads;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -17,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterInDownload;
-import com.example.mobileproject.model.NovelDetails;
-import com.example.mobileproject.ui.library.LibraryNovelsGridAdaptor;
 
 import java.util.ArrayList;
 

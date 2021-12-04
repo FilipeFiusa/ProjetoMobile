@@ -9,6 +9,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -22,11 +23,13 @@ import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelDetails;
+import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class NovelDetailsActivity extends AppCompatActivity {
 
@@ -102,6 +105,30 @@ public class NovelDetailsActivity extends AppCompatActivity {
             content.execute(novelLink, novelName, novelSource);
         }
 
+        ImageButton imageButton = findViewById(R.id.shareButton);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(currentNovel == null){
+                    return;
+                }
+
+                System.out.println("Apertou");
+                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                String shareBody = "Resumo: ";
+                StringBuilder stringBuilder = new StringBuilder().append("Resumo: ")
+                        .append(currentNovel.getNovelDescription()).append("\n\n")
+                        .append("Acesse já esse novel pelo link: ")
+                        .append( ( (Parser) Objects.requireNonNull(ParserFactory.getParserInstance(novel_source, NovelDetailsActivity.this))).getURL_BASE())
+                        .append("/").append(currentNovel.getNovelLink());
+
+                String shareTitle = "Leia a Novel " + currentNovel.getNovelName();
+                intent.setType("text/plain");
+                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareTitle);
+                intent.putExtra(android.content.Intent.EXTRA_TEXT, stringBuilder.toString());
+                startActivity(Intent.createChooser(intent, "Share via"));
+            }
+        });
     }
 
     @Override

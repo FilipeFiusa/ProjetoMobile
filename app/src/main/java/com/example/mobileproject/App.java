@@ -6,7 +6,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 
 public class App extends Application {
-    public static final String CHANNEL_ID = "mobileProjectNotification";
+    public static final String CHANNEL_ID = "App Downloader";
 
     @Override
     public void onCreate() {
@@ -19,8 +19,8 @@ public class App extends Application {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel serviceChanel = new NotificationChannel(
                     CHANNEL_ID,
-                    "Mobile Project Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    "App Downloader Channel",
+                    NotificationManager.IMPORTANCE_LOW
             );
 
             NotificationManager manager = getSystemService(NotificationManager.class);

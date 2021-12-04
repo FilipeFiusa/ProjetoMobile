@@ -45,7 +45,13 @@
             android:paddingEnd="20dp"
             app:icon="@drawable/download" />
 
-
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/secodary_dark_theme"
+            android:src="@drawable/ic_baseline_share_24"
+            />
     </LinearLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

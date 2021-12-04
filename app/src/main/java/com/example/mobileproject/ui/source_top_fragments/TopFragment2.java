@@ -114,6 +114,8 @@ public class TopFragment2 extends Fragment {
                 return null;
             }
 
+            System.out.println("Chegou aq");
+
             novelDetailsArr = parser.searchNovels(params[0]);
 
             return novelDetailsArr;

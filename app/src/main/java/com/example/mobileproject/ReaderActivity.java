@@ -1,6 +1,8 @@
 package com.example.mobileproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -37,6 +40,8 @@ import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
+import com.example.mobileproject.ui.reader_settings.ReaderSettings;
+import com.example.mobileproject.util.FontFactory;
 
 import java.util.ArrayList;
 
@@ -63,6 +68,8 @@ public class ReaderActivity extends AppCompatActivity {
     Animation animTranslateSideIn;
     Animation animTranslateSideOut;
 
+    public ReaderSettings readerSettings;
+
     private String sourceName;
 
     @Override
@@ -70,6 +77,8 @@ public class ReaderActivity extends AppCompatActivity {
         hideSystemUI();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reader_activity);
+
+        setReaderUserPreferences();
 
         animTranslateIn = AnimationUtils.loadAnimation(this, R.anim.translate_in);
         animTranslateOut = AnimationUtils.loadAnimation(this, R.anim.translate_out);
@@ -81,6 +90,7 @@ public class ReaderActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         String chapterLink = i.getStringExtra("chapterLink");
+        System.out.println(chapterLink);
         sourceName = i.getStringExtra("sourceName");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
         nrc.setStartedChapter(chapterLink);
@@ -123,6 +133,15 @@ public class ReaderActivity extends AppCompatActivity {
                 FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
                 FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
                 FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
+
+                if(readerSettings != null){
+                    FrameLayout temp = readerSettings.getFrameLayout();
+                    RelativeLayout container = (RelativeLayout) findViewById(R.id.reader_activity);
+                    container.removeView(temp);
+                    readerSettings = null;
+
+                    return;
+                }
 
                 if(sideMenu.getVisibility() == View.VISIBLE){
                     sideMenu.startAnimation(animTranslateSideOut);
@@ -248,9 +267,92 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
-        SetUpReaderConfigMenu();
+        ImageButton openReaderSettings = (ImageButton) findViewById(R.id.open_reader_settings);
+        openReaderSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
+                FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
+
+                topMenu.startAnimation(animTranslateOut);
+                bottomMenu.startAnimation(animTranslateBottomOut);
+                topMenu.setVisibility(View.GONE);
+                bottomMenu.setVisibility(View.GONE);
+
+                RelativeLayout container = (RelativeLayout) findViewById(R.id.reader_activity);
+                FrameLayout inflatedLayout= (FrameLayout) getLayoutInflater()
+                        .inflate(R.layout.reader_settings, container, false);
+                readerSettings = new ReaderSettings(inflatedLayout, ReaderActivity.this);
+                container.addView(inflatedLayout);
+
+                /*
+
+                FrameLayout readerSettings = (FrameLayout) findViewById(R.id.reader_settings);
+                readerSettings.setVisibility(View.VISIBLE);
+
+                 */
+            }
+        });
+
+        //SetUpReaderConfigMenu();
     }
 
+    private void setReaderUserPreferences(){
+        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
+
+        LinearLayout container = findViewById(R.id.reader_container);
+        container.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#302D2D")));
+
+        TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
+        chapterContentView.setTextSize(preferences.getFloat("font_size", 20));
+        chapterContentView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
+        chapterContentView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+        TextView chapterTitleView = (TextView) findViewById(R.id.chapter_name);
+        chapterTitleView.setTextSize(preferences.getFloat("font_size", 20) + 15);
+        chapterTitleView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
+        chapterTitleView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+
+
+        System.out.println(preferences.getFloat("font_size", 20));//	#FFFFFF
+        System.out.println(preferences.getString("font_name", "Roboto"));//	#FFFFFF
+        System.out.println(preferences.getString("font_color", "#FFFFFF"));//	#FFFFFF
+        System.out.println(preferences.getString("background_color", "#1F1B1B"));//	#FFFFFF
+    }
+
+    public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
+        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        if(background_color != null){
+            LinearLayout container = findViewById(R.id.reader_container);
+            container.setBackgroundColor(Color.parseColor(background_color));
+            editor.putString("background_color", background_color);
+        }
+        TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
+        TextView chapterTitleView = (TextView) findViewById(R.id.chapter_name);
+
+        if(font_size != 0){
+            chapterContentView.setTextSize(font_size);
+            chapterTitleView.setTextSize(font_size + 15);
+            editor.putFloat("font_size", font_size);
+        }
+
+        if(font_name != null){
+            chapterContentView.setTypeface(new FontFactory().GetFont(font_name, this));
+            chapterTitleView.setTypeface(new FontFactory().GetFont(font_name, this));
+            editor.putString("font_name", font_name);
+        }
+
+        if(font_color != null) {
+            chapterContentView.setTextColor(Color.parseColor(font_color));
+            chapterTitleView.setTextColor(Color.parseColor(font_color));
+            editor.putString("font_color", font_color);
+        }
+
+        editor.apply();
+    }
+
+    /*
     private void SetUpReaderConfigMenu(){
         TextView textPreview = (TextView) findViewById(R.id.text_preview);
         LinearLayout bgPreview = (LinearLayout) findViewById(R.id.background_preview);
@@ -343,7 +445,7 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
     }
-
+*/
     private void getPreviousChapter(){
         if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
             return;

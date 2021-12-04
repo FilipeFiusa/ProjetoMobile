@@ -88,10 +88,7 @@ public class LibraryFragment extends Fragment {
         return root;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
+    public void UpdateNovels(){
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();
     }

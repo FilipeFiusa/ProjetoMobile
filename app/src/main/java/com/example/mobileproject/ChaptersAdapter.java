@@ -453,10 +453,13 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         for (int i = 1; i < mChapterList.size(); i++) {
             ChapterIndex currentItem = mChapterList.get(i).getChapterIndex();
 
+            System.out.println(currentItem.getChapterName());
+
             if(currentItem.getReaded().equals("no")){
                 Intent intent = new Intent(ctx, ReaderActivity.class);
                 intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                 intent.putExtra("chapterLink", currentItem.getChapterLink());
+                intent.putExtra("sourceName", currentNovel.getSource());
                 intent.putExtra("novelName", currentNovel.getNovelName());
                 ctx.startActivityForResult(intent, 1);
 

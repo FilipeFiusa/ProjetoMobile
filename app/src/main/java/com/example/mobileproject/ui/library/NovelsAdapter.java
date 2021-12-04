@@ -88,7 +88,6 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
                 intent.putExtra("isFavorite", "yes");
                 intent.putExtra("NovelDetails_source", currentItem.getSource());
 
-                ctx.startActivity(intent);
                 ctx.startActivityForResult(intent, 1);
             }
         });
