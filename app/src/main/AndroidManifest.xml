@@ -3,6 +3,7 @@
     package="com.example.mobileproject">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -48,6 +49,9 @@
 
         <service android:name=".model.DownloaderService" />
         <service android:name=".model.CheckUpdateService" />
+        <service
+            android:name=".services.CheckNovelUpdatesService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>

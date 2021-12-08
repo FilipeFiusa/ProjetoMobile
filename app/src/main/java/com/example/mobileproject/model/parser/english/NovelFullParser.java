@@ -105,6 +105,8 @@ public class NovelFullParser extends Parser {
                     ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"), chapterIndices.size());
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);
+
+                    Thread.sleep(1000);
                 }
             }
 
@@ -209,6 +211,7 @@ public class NovelFullParser extends Parser {
                     .replaceAll("&ZeroWidthSpace;", " ")
                     .replaceAll("&zeroWidthSpace;", " ")
                     .replaceAll("<br>", "")
+                    .replaceAll("<hr>", "")
                     .replaceAll("<i>", "")
                     .replaceAll("</i>", "")
                     .replaceAll("<strong>", "")
