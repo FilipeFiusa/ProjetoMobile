@@ -301,7 +301,7 @@ public class ReaderActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
 
         LinearLayout container = findViewById(R.id.reader_container);
-        container.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#302D2D")));
+        container.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#1F1B1B")));
 
         TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
         chapterContentView.setTextSize(preferences.getFloat("font_size", 20));
