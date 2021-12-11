@@ -27,6 +27,8 @@ public class NovelDetails implements Serializable {
 
     private ArrayList<ChapterIndex> chapterIndexes = null;
 
+    private String orderType = "DSC";
+
     public NovelDetails(){
     }
 
@@ -152,5 +154,13 @@ public class NovelDetails implements Serializable {
 
     public void setDb_id(int db_id) {
         this.db_id = db_id;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
     }
 }

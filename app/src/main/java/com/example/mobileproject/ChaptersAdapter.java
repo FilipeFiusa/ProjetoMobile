@@ -129,6 +129,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         mChapterList.set(0, new NovelDetailsAdapterObject(n));
 
         currentNovel = n;
+        orderType = currentNovel.getOrderType();
 
         notifyItemChanged(0);
     }
@@ -172,22 +173,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 System.out.println(currentItem.getId());
                 currentItem.setId(-1);
             }
-
-            /*
-            try {
-                ChapterIndex current = mChapterList.get(i).getChapterIndex();
-                ChapterIndex aux = c.get(i);
-
-                if(current.getChapterLink().equals(aux.getChapterLink())
-                        && current.getChapterName().equals(aux.getChapterName())
-                ){
-                    continue;
-                }
-            }catch (IndexOutOfBoundsException e){
-                mChapterList.add(new NovelDetailsAdapterObject(c.get(i)));
-            }
-
-             */
         }
 
         if(order.equals("DSC") && orderType.equals("ASC2")){
@@ -406,7 +391,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             ChapterIndex currentItem = mChapterList.get(position).getChapterIndex();
             currentItem.position = chapterViewHolder.getAdapterPosition();
-            currentItem.attachedHolder = chapterViewHolder;
 
 
             chapterViewHolder.mTextView1.setText(currentItem.getChapterName());
@@ -623,6 +607,9 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         orderType = "ASC";
                     }
                     sortList();
+
+                    UpdateOrderType updateOrderType = new UpdateOrderType();
+                    updateOrderType.execute();
                 }
             }
         });
@@ -787,6 +774,17 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             mSwipeRefreshLayout.setRefreshing(false);
             addChapterIndexes(arrayLists[0]);
+
+            return null;
+        }
+    }
+
+    private class UpdateOrderType extends  AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DBController db = new DBController(ctx);
+            db.UpdateOrderType(currentNovel.getNovelName(), currentNovel.getSource(),
+                orderType);
 
             return null;
         }

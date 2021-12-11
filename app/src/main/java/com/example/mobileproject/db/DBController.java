@@ -45,6 +45,7 @@ public class DBController {
         values.put("novel_author", novelAuthor);
         values.put("novel_description", novelDescription);
         values.put("novel_source", source);
+        values.put("order_type", "DSC");
         values.put("novel_link", novelLink);
 
         try (FileOutputStream fos = ctx.openFileOutput(novelName + "_" + source + "_" + "image.png", Context.MODE_PRIVATE)) {
@@ -165,6 +166,7 @@ public class DBController {
                 novelDetails.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
                 novelDetails.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
                 novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+                novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -206,6 +208,8 @@ public class DBController {
             novel.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
             novel.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
             novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+            novel.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
 
@@ -623,4 +627,19 @@ public class DBController {
 
         return true;
     }
+
+    public void UpdateOrderType(String novelName, String novelSource, String orderType){
+        long result;
+        db = database.getReadableDatabase();
+
+        ContentValues values = new ContentValues();;
+        values.put("order_type", orderType);
+
+        result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
+
+        System.out.println(result);
+
+        db.close();
+    }
+
 }

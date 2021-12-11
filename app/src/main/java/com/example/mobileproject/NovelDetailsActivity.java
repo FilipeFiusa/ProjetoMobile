@@ -47,6 +47,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     private boolean CanUnRead = false;
 
+    private getNovelDetailsFromDB contentDB;
+    private getNovelDetails content;
+
     Context ctx = this;
 
     NovelDetails currentNovel = null;
@@ -85,6 +88,16 @@ public class NovelDetailsActivity extends AppCompatActivity {
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent data = new Intent();
+                setResult(RESULT_OK,data);
+
+                if(content != null && content.getStatus() == AsyncTask.Status.RUNNING){
+                    content.cancel(true);
+                }
+                if(contentDB != null && contentDB.getStatus() == AsyncTask.Status.RUNNING){
+                    contentDB.cancel(true);
+                }
+
                 finish();
             }
         });
@@ -102,13 +115,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
         String novel_source = (String) i.getStringExtra("NovelDetails_source");
 
         if(novel_name != null && novel_source != null){
-            getNovelDetailsFromDB content = new getNovelDetailsFromDB();
-            content.execute(novel_name, novel_source);
+            contentDB = new getNovelDetailsFromDB();
+            contentDB.execute(novel_name, novel_source);
         }else{
             String novelLink = i.getStringExtra("novelLink");
             String novelName = i.getStringExtra("novelName");
             String novelSource = i.getStringExtra("novelSource");
-            getNovelDetails content = new getNovelDetails();
+            content = new getNovelDetails();
             content.execute(novelLink, novelName, novelSource);
         }
 
@@ -321,6 +334,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
         Intent data = new Intent();
         setResult(RESULT_OK,data);
 
+        if(content.getStatus() == AsyncTask.Status.RUNNING){
+            content.cancel(true);
+        }
+        if(contentDB.getStatus() == AsyncTask.Status.RUNNING){
+            contentDB.cancel(true);
+        }
+
         finish();
     }
 
@@ -397,7 +417,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
 
             if(chapterIndexes == null){
-                new getNovelDetailsFromDB().execute(novelName, novelSource);
+                contentDB = new getNovelDetailsFromDB();
+                contentDB.execute(novelName, novelSource);
                 return;
             }
 

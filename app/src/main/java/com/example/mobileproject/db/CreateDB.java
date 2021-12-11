@@ -22,7 +22,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 1);
+        super(context, db_name, null, 2);
     }
 
     @Override
@@ -37,6 +37,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "novel_link" + " text,"
                 + "novel_source" + " text,"
                 + "novel_image" + " text,"
+                + "order_type " + " text,"
                 + "UNIQUE(novel_name, novel_source)"
                 +");";
 

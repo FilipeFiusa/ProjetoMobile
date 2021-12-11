@@ -120,7 +120,7 @@ public class LightNovelPubParser extends Parser {
                     }
 
                     ChapterIndex c = new ChapterIndex(
-                            Objects.requireNonNull(e.select(".chapter-title").first()).text(),
+                            e.attr("title"),
                             e.attr("href"),
                             chapterIndices.size());
 
