@@ -334,10 +334,10 @@ public class NovelDetailsActivity extends AppCompatActivity {
         Intent data = new Intent();
         setResult(RESULT_OK,data);
 
-        if(content.getStatus() == AsyncTask.Status.RUNNING){
+        if(content != null && content.getStatus() == AsyncTask.Status.RUNNING){
             content.cancel(true);
         }
-        if(contentDB.getStatus() == AsyncTask.Status.RUNNING){
+        if(contentDB != null && contentDB.getStatus() == AsyncTask.Status.RUNNING){
             contentDB.cancel(true);
         }
 

@@ -94,8 +94,6 @@ public class NovelFullParser extends Parser {
             Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
             String data_page = document.select(".last a").first().attr("data-page");
 
-            Thread.sleep(1000);
-
             for(int i = 1; i <= (Integer.parseInt(data_page) + 1); i++){
                 d = Jsoup.connect(URL_BASE + novelLink + "?page=" + i).userAgent("Mozilla/5.0").get();
 
@@ -106,8 +104,9 @@ public class NovelFullParser extends Parser {
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);
 
-                    Thread.sleep(1000);
                 }
+
+                Thread.sleep(500);
             }
 
             return chapterIndices;
