@@ -34,14 +34,14 @@ public class NovelDetails implements Serializable {
 
     public NovelDetails(Bitmap novel_image, String novel_name, String novel_description, String novel_author) {
         this.novelImage = novel_image;
-        this.novelName = novel_name;
+        this.novelName = novel_name.replace("'", "");
         this.novelDescription = novel_description;
         this.novelAuthor = novel_author;
     }
 
     public NovelDetails(Bitmap novel_image, String novel_name, String novel_description, String novel_author, int id) {
         this.novelImage = novel_image;
-        this.novelName = novel_name;
+        this.novelName = novel_name.replace("'", "");
         this.novelDescription = novel_description;
         this.novelAuthor = novel_author;
         this.db_id = id;
@@ -68,7 +68,7 @@ public class NovelDetails implements Serializable {
     }
 
     public void setNovelName(String novelName) {
-        this.novelName = novelName;
+        this.novelName = novelName.replace("'", "");
     }
 
     public String getNovelDescription() {
