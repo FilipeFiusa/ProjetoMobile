@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -49,8 +50,9 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private NovelDetails currentNovel;
     private ArrayList<NovelDetailsAdapterObject> mChapterList;
+    private ArrayList<ChapterIndex> selectedChapters = new ArrayList<>();
     private DownloadReceiver downloadReceiver;
-    private AppCompatActivity ctx;
+    private NovelDetailsActivity ctx;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -106,7 +108,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.exist = false;
     }
 
-    public ChaptersAdapter(ArrayList<NovelDetailsAdapterObject> chapterList, AppCompatActivity ctx){
+    public ChaptersAdapter(ArrayList<NovelDetailsAdapterObject> chapterList, NovelDetailsActivity ctx){
         this.mChapterList = chapterList;
 
         mChapterList.add(new NovelDetailsAdapterObject(new NovelDetails()));
@@ -235,6 +237,110 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    public void resetSelectedList(){
+        for(ChapterIndex c : selectedChapters){
+            c.selected = false;
+        }
+
+        selectedChapters = new ArrayList<>();
+        notifyItemRangeChanged(1, mChapterList.size());
+    }
+
+    public void readSelectedItems(){
+        for(ChapterIndex c : selectedChapters){
+            c.selected = false;
+            c.setReaded("yes");
+            notifyItemChanged(c.position);
+        }
+
+        selectedChapters = new ArrayList<>();
+    }
+
+    public void unreadSelectedItems(){
+        for(ChapterIndex c : selectedChapters){
+            c.selected = false;
+            c.setReaded("no");
+            notifyItemChanged(c.position);
+        }
+
+        selectedChapters = new ArrayList<>();
+    }
+
+    public void readAllAntecedents(int lowerPosition){
+        System.out.println(orderType);
+
+        if(orderType.equals("DSC")){
+            for(int i = mChapterList.size() - 1; i > lowerPosition; i--){
+                ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+                if(c.getReaded().equals("no")){
+                    c.selected = false;
+                    c.setReaded("yes");
+                    notifyItemChanged(i);
+                }
+            }
+        }else{
+            for(int i = 1; i < lowerPosition; i++){
+                ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+                if(c.getReaded().equals("no")){
+                    c.selected = false;
+                    c.setReaded("yes");
+                    notifyItemChanged(i);
+                }
+            }
+        }
+    }
+
+    public void selectAll(){
+        if(mChapterList.size() - 1 == selectedChapters.size()) return;
+
+        for(int i = 1; i < mChapterList.size(); i++){
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            if(!c.selected){
+                c.selected = true;
+                selectedChapters.add(c);
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public void invertSelection(){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            if(selectedChapters.contains(c)){
+                c.selected = false;
+                selectedChapters.remove(c);
+                notifyItemChanged(i);
+                continue;
+            }
+
+            c.selected = true;
+            selectedChapters.add(c);
+            notifyItemChanged(i);
+        }
+
+        ctx.update();
+    }
+
+    public void downloadSelectedItems(){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            if(selectedChapters.contains(c) && c.getDownloaded().equals("no")){
+                c.selected = false;
+                c.setDownloaded("downloading");
+                notifyItemChanged(i);
+            }
+        }
+
+        selectedChapters = new ArrayList<>();
+        ctx.update();
+    }
+
+
     public void setDownloadReceiver(DownloadReceiver d){
         this.downloadReceiver = d;
 
@@ -299,12 +405,21 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ChapterViewHolder chapterViewHolder = (ChapterViewHolder) holder;
 
             ChapterIndex currentItem = mChapterList.get(position).getChapterIndex();
+            currentItem.position = chapterViewHolder.getAdapterPosition();
+            currentItem.attachedHolder = chapterViewHolder;
+
 
             chapterViewHolder.mTextView1.setText(currentItem.getChapterName());
             if(currentItem.getReaded().equals("yes")){
                 chapterViewHolder.mTextView1.setTextColor(Color.GRAY);
             }else {
                 chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
+            }
+
+            if(currentItem.selected){
+                chapterViewHolder.mButton.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+            }else{
+                chapterViewHolder.mButton.setBackground(ContextCompat.getDrawable(ctx, R.drawable.ripple_effect));
             }
 
             if(currentItem.getDownloaded().equals("no")){
@@ -330,11 +445,113 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_round_check_circle_40);
             }
 
+
+            chapterViewHolder.mButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ChapterIndex currentItem = mChapterList.get(chapterViewHolder.getAdapterPosition()).getChapterIndex();
+                    int highestValue = -1, lowestValue = -1;
+
+                    if(selectedChapters.size() == 0){
+                        currentItem.selected = true;
+                        v.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                        selectedChapters.add(currentItem);
+
+                        ctx.openSelectMenu(selectedChapters);
+
+                        return true;
+                    }
+
+                    if(currentItem.selected){
+                        return false;
+                    }
+
+                    for(ChapterIndex c : selectedChapters){
+                        if(c.getSourceId() > highestValue && c.getSourceId() < currentItem.getSourceId()){
+                            highestValue = c.getSourceId();
+                        }
+
+                        if(c.getSourceId() < lowestValue || lowestValue == -1){
+                            lowestValue = c.getSourceId();
+                        }
+                    }
+
+                    if(currentItem.getSourceId() > highestValue){
+                        int highestValuePosition = -1;
+
+                        for(int i = 1; i < mChapterList.size(); i++){
+                            ChapterIndex currentForItem = mChapterList.get(i).getChapterIndex();
+
+                            if(currentForItem.getSourceId() == highestValue){
+                                highestValuePosition = i;
+                                break;
+                            }
+                        }
+
+                        for(int i = 0; i <= currentItem.getSourceId() - highestValue; i++){
+                            mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex().selected = true;
+                            if(selectedChapters.contains(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex())){
+                                continue;
+                            }
+                            selectedChapters.add(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex());
+                        }
+                        ctx.update();
+                        notifyItemRangeChanged(highestValuePosition, chapterViewHolder.getAdapterPosition());
+                    }
+
+                    if(currentItem.getSourceId() < lowestValue){
+                        int lowestValuePosition = -1;
+
+                        for(int i = 1; i < mChapterList.size(); i++){
+                            ChapterIndex currentForItem = mChapterList.get(i).getChapterIndex();
+
+                            if(currentForItem.getSourceId() == lowestValue){
+                                lowestValuePosition = i;
+                                break;
+                            }
+                        }
+
+                        for(int i = 0; i <= lowestValue - currentItem.getSourceId(); i++){
+                            mChapterList.get(lowestValuePosition - i).getChapterIndex().selected = true;
+                            if(selectedChapters.contains(mChapterList.get(lowestValuePosition - i).getChapterIndex())){
+                                continue;
+                            }
+                            selectedChapters.add(mChapterList.get(lowestValuePosition - i).getChapterIndex());
+                        }
+                        ctx.update();
+                        notifyItemRangeChanged(chapterViewHolder.getAdapterPosition(), lowestValuePosition);
+                    }
+
+                    return true;
+                }
+            });
+
             chapterViewHolder.mButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // ADD your action here
                     ChapterIndex currentItem = mChapterList.get(chapterViewHolder.getAdapterPosition()).getChapterIndex();
+
+                    if(!selectedChapters.isEmpty() && !currentItem.selected){
+                        currentItem.selected = true;
+                        chapterViewHolder.mButton.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                        if(selectedChapters.contains(currentItem)){
+                            return;
+                        }
+                        selectedChapters.add(currentItem);
+
+                        ctx.update();
+                        return;
+                    }else if(!selectedChapters.isEmpty()){
+                        currentItem.selected = false;
+                        notifyItemChanged(chapterViewHolder.getAdapterPosition());
+                        selectedChapters.remove(currentItem);
+
+                        ctx.update();
+                        return;
+                    }
+
+
+
                     Intent intent = new Intent(ctx, ReaderActivity.class);
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
@@ -400,13 +617,12 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onClick(View view) {
                 if(mChapterList.size() > 1){
-                    sortList();
-                    System.out.println(orderType);
                     if(orderType.equals("ASC")){
                         orderType = "DSC";
                     }else{
                         orderType = "ASC";
                     }
+                    sortList();
                 }
             }
         });
@@ -450,20 +666,35 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void ReadNextChapter(){
-        for (int i = 1; i < mChapterList.size(); i++) {
-            ChapterIndex currentItem = mChapterList.get(i).getChapterIndex();
+        if(orderType.equals("DSC")){
+            for (int i = mChapterList.size() - 1; i >= 1; i--) {
+                ChapterIndex currentItem = mChapterList.get(i).getChapterIndex();
 
-            System.out.println(currentItem.getChapterName());
+                if(currentItem.getReaded().equals("no")){
+                    Intent intent = new Intent(ctx, ReaderActivity.class);
+                    intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
+                    intent.putExtra("chapterLink", currentItem.getChapterLink());
+                    intent.putExtra("sourceName", currentNovel.getSource());
+                    intent.putExtra("novelName", currentNovel.getNovelName());
+                    ctx.startActivityForResult(intent, 1);
 
-            if(currentItem.getReaded().equals("no")){
-                Intent intent = new Intent(ctx, ReaderActivity.class);
-                intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
-                intent.putExtra("chapterLink", currentItem.getChapterLink());
-                intent.putExtra("sourceName", currentNovel.getSource());
-                intent.putExtra("novelName", currentNovel.getNovelName());
-                ctx.startActivityForResult(intent, 1);
+                    return;
+                }
+            }
+        }else{
+            for (int i = 1; i < mChapterList.size(); i++) {
+                ChapterIndex currentItem = mChapterList.get(i).getChapterIndex();
 
-                return;
+                if(currentItem.getReaded().equals("no")){
+                    Intent intent = new Intent(ctx, ReaderActivity.class);
+                    intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
+                    intent.putExtra("chapterLink", currentItem.getChapterLink());
+                    intent.putExtra("sourceName", currentNovel.getSource());
+                    intent.putExtra("novelName", currentNovel.getNovelName());
+                    ctx.startActivityForResult(intent, 1);
+
+                    return;
+                }
             }
         }
     }

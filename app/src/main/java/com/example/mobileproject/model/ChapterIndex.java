@@ -1,5 +1,7 @@
 package com.example.mobileproject.model;
 
+import com.example.mobileproject.ChaptersAdapter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -13,6 +15,9 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
 
     private String downloaded = "no";
     private String readed = "no";
+
+    public boolean selected = false;
+    public int position = -1;
 
     public ChapterIndex() {
     }

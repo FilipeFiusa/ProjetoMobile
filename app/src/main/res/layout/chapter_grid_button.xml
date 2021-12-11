@@ -8,7 +8,8 @@
     android:clickable="true"
     android:focusable="true"
     android:paddingHorizontal="20dp"
-    android:theme="@style/Theme.MyApplicationTest4.MyRipple">
+    android:background="@drawable/ripple_effect">
+   <!-- android:theme="@style/Theme.MyApplicationTest4.MyRipple" -->
 
     <TextView
         android:id="@+id/chapter_name"

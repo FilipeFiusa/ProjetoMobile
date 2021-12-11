@@ -15,44 +15,101 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/secodary_dark_theme"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/font_button_id"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/secodary_dark_theme"
-            android:padding="0dp"
-            android:paddingStart="5dp"
-            app:icon="@drawable/ic_baseline_keyboard_arrow_left_40" />
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent" />
+            android:id="@+id/normal_menu"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/secodary_dark_theme"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/downloadAll"
-            android:layout_width="60dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/secodary_dark_theme"
-            android:padding="0dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            app:icon="@drawable/download" />
 
-        <ImageButton
-            android:id="@+id/shareButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/secodary_dark_theme"
-            android:src="@drawable/ic_baseline_share_24"
+            <ImageButton
+                android:id="@+id/font_button_id"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:src="@drawable/ic_baseline_keyboard_arrow_left_40"
+                />
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/downloadAll"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:padding="0dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:icon="@drawable/download" />
+
+            <ImageButton
+                android:id="@+id/shareButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:src="@drawable/ic_baseline_share_24"
             />
-    </LinearLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/select_menu"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/secodary_dark_theme"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/cancel_selection"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:src="@drawable/ic_baseline_close_30"
+                />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/selected_quantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="1"
+                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:paddingStart="10dp"
+                    android:gravity="center_vertical"
+                    />
+
+            </LinearLayout>
+
+
+            <ImageButton
+                android:id="@+id/select_all"
+                android:layout_width="60dp"
+                android:layout_marginEnd="5dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:src="@drawable/ic_baseline_select_all_30"
+                />
+            <ImageButton
+                android:id="@+id/invert_selection"
+                android:layout_width="60dp"
+                android:layout_marginEnd="5dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/secodary_dark_theme"
+                android:src="@drawable/invert_selection"
+                />
+        </LinearLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
@@ -204,6 +261,7 @@
         <!--</androidx.recyclerview.widget.RecyclerView> -->
     </LinearLayout>
     <FrameLayout
+        android:id="@+id/bottom_normal_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -221,6 +279,67 @@
             android:layout_height="60dp"
             android:src="@drawable/ic_baseline_play_arrow_24"
             />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/bottom_select_menu"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <LinearLayout
+            android:layout_margin="10dp"
+            android:padding="0dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/layout_bg"
+            android:backgroundTint="@color/secodary_dark_theme"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <ImageButton
+                android:id="@+id/download_selected"
+                android:padding="0dp"
+                android:background="@drawable/ripple_effect"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:src="@drawable/download"
+                />
+            <ImageButton
+                android:id="@+id/bookmark_selected"
+                android:padding="0dp"
+                android:background="@drawable/ripple_effect"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:src="@drawable/ic_baseline_bookmark_border_30"
+                />
+            <ImageButton
+                android:id="@+id/read_selected"
+                android:padding="0dp"
+                android:background="@drawable/ripple_effect"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:src="@drawable/ic_baseline_done_20"
+                />
+            <ImageButton
+                android:id="@+id/read_bellow_selected"
+                android:padding="0dp"
+                android:background="@drawable/ripple_effect"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:src="@drawable/done_white_36dp_"
+                />
+
+        </LinearLayout>
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

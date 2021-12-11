@@ -239,7 +239,7 @@ public class DBController {
         System.out.println(novelName);
         System.out.println(novelSource);
 
-        String query = "SELECT id, chapter_link, chapter_name, downloaded, readed FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
+        String query = "SELECT id, chapter_link, chapter_name, downloaded, readed, source_id FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
 
         if(result.getCount() > 0){
@@ -254,6 +254,8 @@ public class DBController {
 
                 c.setDownloaded(result.getString(result.getColumnIndexOrThrow("downloaded")));
                 c.setReaded(result.getString(result.getColumnIndexOrThrow("readed")));
+
+                c.setSourceId(result.getInt(result.getColumnIndexOrThrow("source_id")));
 
                 chapterIndexes.add(c);
             }while (result.moveToNext());
@@ -359,6 +361,32 @@ public class DBController {
         }
     }
 
+    public boolean PutMultipleChaptersToDownload(String novelName, String novelSource, ArrayList<ChapterIndex> chapters){
+        boolean haveAnChapterToDownload = false;
+
+        for(ChapterIndex c : chapters){
+            db = database.getReadableDatabase();
+            String query = "SELECT downloaded FROM Chapters WHERE id=" + c.getId() + " ";
+            Cursor result = db.rawQuery(query, new String[]{});
+
+            if(result.getCount() > 0) {
+                result.moveToFirst();
+
+                String isDownloaded = result.getString(result.getColumnIndexOrThrow("downloaded"));
+
+                if(isDownloaded.equals("no")){
+                   putChapterOnDownload(novelName, novelSource, c.getChapterLink());
+
+                   haveAnChapterToDownload = true;
+                }
+            }
+
+            db.close();
+        }
+
+        return haveAnChapterToDownload;
+    }
+
     public boolean setChapterAsReaded(int id){
         Cursor result;
         ContentValues values = new ContentValues();
@@ -389,6 +417,47 @@ public class DBController {
         values = new ContentValues();
 
         values.put("readed", "yes");
+        long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        if(result2 ==  -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public boolean setChapterAsUnReaded(int id){
+        Cursor result;
+        ContentValues values = new ContentValues();
+
+        db = database.getReadableDatabase();
+
+        String query = "SELECT * FROM Chapters WHERE Chapters.id=? ";
+        result = db.rawQuery(query, new String[]{String.valueOf(id)});
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
+            String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
+
+            values.put("last_readed", new Date().getTime());//last_readed
+            long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+            if(result2 == -1){
+                db.close();
+                return false;
+            }
+        }else {
+            db.close();
+            return false;
+        }
+
+        values = new ContentValues();
+
+        values.put("readed", "no");
         long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
         db.close();
@@ -508,5 +577,50 @@ public class DBController {
         }else{
             return true;
         }
+    }
+
+
+    public boolean setChaptersReadied(String novelName, String novelSource, String _query){
+        Cursor result;
+
+        db = database.getReadableDatabase();
+
+        String query = "UPDATE Chapters"
+                + " SET readed = 'yes'"
+                + " WHERE  novel_name = '" + novelName + "' "
+                + "AND novel_source = '" + novelSource + "' "
+                + "" + _query + " AND TRUE";
+
+        System.out.println(query);
+
+        result = db.rawQuery(query, new String[]{});
+
+        result.moveToFirst();
+        result.close();
+        db.close();
+
+        return true;
+    }
+
+    public boolean SetAntecedentChaptersAsReadied(String novelName, String novelSource, int lowerSourceId){
+        Cursor result;
+
+        db = database.getReadableDatabase();
+
+        String query = "UPDATE Chapters"
+                + " SET readed = 'yes'"
+                + " WHERE  novel_name = '" + novelName + "' "
+                + "AND novel_source = '" + novelSource + "' "
+                + " AND source_id < " + lowerSourceId;
+
+        System.out.println(query);
+
+        result = db.rawQuery(query, new String[]{});
+
+        result.moveToFirst();
+        result.close();
+        db.close();
+
+        return true;
     }
 }

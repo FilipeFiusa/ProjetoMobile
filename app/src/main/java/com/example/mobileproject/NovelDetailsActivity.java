@@ -9,11 +9,15 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -26,7 +30,6 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.example.mobileproject.model.parser.english.NovelFullParser;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -39,6 +42,10 @@ public class NovelDetailsActivity extends AppCompatActivity {
     private DownloadReceiver downloadReceiver;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private ArrayList<ChapterIndex> selectedChaptersReference;
+
+    private boolean CanUnRead = false;
 
     Context ctx = this;
 
@@ -74,7 +81,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        Button simpleButton1 = (Button) findViewById(R.id.font_button_id);
+        ImageButton simpleButton1 = (ImageButton) findViewById(R.id.font_button_id);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,7 +120,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
                     return;
                 }
 
-                System.out.println("Apertou");
                 Intent intent = new Intent(android.content.Intent.ACTION_SEND);
                 String shareBody = "Resumo: ";
                 StringBuilder stringBuilder = new StringBuilder().append("Resumo: ")
@@ -145,6 +151,155 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    public void openSelectMenu(ArrayList<ChapterIndex> reference){
+        selectedChaptersReference = reference;
+
+        View topView1 = (LinearLayout) findViewById(R.id.normal_menu);
+        topView1.setVisibility(View.GONE);
+
+        View topView2 = (LinearLayout) findViewById(R.id.select_menu);
+        topView2.setVisibility(View.VISIBLE);
+
+        View bottomMenuNormal = (FrameLayout) findViewById(R.id.bottom_normal_menu);
+        bottomMenuNormal.setVisibility(View.GONE);
+
+        View bottomMenuSelect = (FrameLayout) findViewById(R.id.bottom_select_menu);
+        bottomMenuSelect.setVisibility(View.VISIBLE);
+
+        ImageButton cancelSelection = (ImageButton) findViewById(R.id.cancel_selection);
+        cancelSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideSelectMenu();
+
+                mAdapter.resetSelectedList();
+                selectedChaptersReference = null;
+            }
+        });
+
+        ImageButton readSelected = (ImageButton) findViewById(R.id.read_selected);
+        if(checkIfThereIsAnNoReadiedChapter()){
+            readSelected.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_done_20));
+            CanUnRead = false;
+        }else{
+            readSelected.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_done_outline_20));
+            CanUnRead = true;
+        }
+        readSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideSelectMenu();
+
+                if(!CanUnRead){
+                    SetChaptersReadied task = new SetChaptersReadied();
+                    task.execute();
+
+                    mAdapter.readSelectedItems();
+                }else{
+                    SetChaptersUnReadied task = new SetChaptersUnReadied();
+                    task.execute();
+
+                    mAdapter.unreadSelectedItems();
+                }
+            }
+        });
+        ImageButton readBellowSelected = (ImageButton) findViewById(R.id.read_bellow_selected);
+        readBellowSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int lowerSourceId = -1;
+                int lowerPosition = -1;
+
+                for(ChapterIndex c : selectedChaptersReference){
+                    if(c.getSourceId() < lowerSourceId || lowerSourceId == -1){
+                        lowerSourceId = c.getSourceId();
+                        lowerPosition = c.position;
+                    }
+                }
+
+                mAdapter.readAllAntecedents(lowerPosition);
+
+                SetAntecedentChaptersAsReadied setAntecedentChaptersAsReadied = new SetAntecedentChaptersAsReadied();
+                setAntecedentChaptersAsReadied.execute(lowerSourceId);
+            }
+        });
+
+        ImageButton selectAll = (ImageButton) findViewById(R.id.select_all);
+        selectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectAll();
+            }
+        });
+
+        ImageButton invertSelection = (ImageButton) findViewById(R.id.invert_selection);
+        invertSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.invertSelection();
+            }
+        });
+
+        ImageButton bookmarkSelected = (ImageButton) findViewById(R.id.bookmark_selected);
+        bookmarkSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(NovelDetailsActivity.this, "Não Disponivel ainda", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ImageButton downloadSelected = (ImageButton) findViewById(R.id.download_selected);
+        downloadSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PutMultipleChaptersToDownload putMultipleChaptersToDownload = new PutMultipleChaptersToDownload();
+                putMultipleChaptersToDownload.execute();
+            }
+        });
+    }
+
+    public void update(){
+        ImageButton readSelected = (ImageButton) findViewById(R.id.read_selected);
+        if(checkIfThereIsAnNoReadiedChapter()){
+            readSelected.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_done_20));
+            CanUnRead = false;
+        }else{
+            readSelected.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_done_outline_20));
+            CanUnRead = true;
+        }
+
+        TextView selectedQuantity = (TextView) findViewById(R.id.selected_quantity);
+        selectedQuantity.setText(String.valueOf(selectedChaptersReference.size()));
+
+        if(selectedChaptersReference.isEmpty()){
+            hideSelectMenu();
+        }
+
+        System.out.println(selectedChaptersReference.size());
+    }
+
+    private boolean checkIfThereIsAnNoReadiedChapter(){
+        for(ChapterIndex c : selectedChaptersReference){
+            if(c.getReaded().equals("no")){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void hideSelectMenu(){
+        View topView1 = (LinearLayout) findViewById(R.id.normal_menu);
+        View topView2 = (LinearLayout) findViewById(R.id.select_menu);
+        View bottomMenuNormal = (FrameLayout) findViewById(R.id.bottom_normal_menu);
+        View bottomMenuSelect = (FrameLayout) findViewById(R.id.bottom_select_menu);
+
+        topView1.setVisibility(View.VISIBLE);
+        topView2.setVisibility(View.GONE);
+        bottomMenuNormal.setVisibility(View.VISIBLE);
+        bottomMenuSelect.setVisibility(View.GONE);
     }
 
     private void downloadAll(){
@@ -328,5 +483,73 @@ public class NovelDetailsActivity extends AppCompatActivity {
         }
     }
 
+    private class SetChaptersReadied extends AsyncTask<Void, Void, Void> {
 
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DBController db = new DBController(NovelDetailsActivity.this);
+
+            for(ChapterIndex c : selectedChaptersReference){
+                db.setChapterAsReaded(c.getId());
+            }
+
+            return null;
+        }
+    }
+
+    private class SetChaptersUnReadied extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DBController db = new DBController(NovelDetailsActivity.this);
+
+            for(ChapterIndex c : selectedChaptersReference){
+                db.setChapterAsUnReaded(c.getId());
+            }
+
+            return null;
+        }
+    }
+
+    private class SetAntecedentChaptersAsReadied extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            DBController db = new DBController(NovelDetailsActivity.this);
+            int lowerSourceId = integers[0];
+
+            db.SetAntecedentChaptersAsReadied(currentNovel.getNovelName(), currentNovel.getSource(),
+                    lowerSourceId);
+
+            return null;
+        }
+    }
+
+    private class PutMultipleChaptersToDownload extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            DBController db = new DBController(ctx);
+
+            return db.PutMultipleChaptersToDownload(currentNovel.getNovelName(),
+                    currentNovel.getSource(), new ArrayList<>(selectedChaptersReference));
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+
+            selectedChaptersReference = new ArrayList<>();
+
+            mAdapter.downloadSelectedItems();
+
+            if(aBoolean){
+                Intent serviceIntent = new Intent(ctx, DownloaderService.class);
+                serviceIntent.putExtra("NovelName", currentNovel.getNovelName());
+                serviceIntent.putExtra("Source", currentNovel.getSource());
+                serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
+                ctx.startService(serviceIntent);
+            }
+        }
+    }
 }
