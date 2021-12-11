@@ -271,6 +271,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 putMultipleChaptersToDownload.execute();
             }
         });
+
+        update();
     }
 
     public void update(){

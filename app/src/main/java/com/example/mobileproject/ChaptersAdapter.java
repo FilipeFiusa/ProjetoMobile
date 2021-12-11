@@ -435,6 +435,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 public boolean onLongClick(View v) {
                     ChapterIndex currentItem = mChapterList.get(chapterViewHolder.getAdapterPosition()).getChapterIndex();
                     int highestValue = -1, lowestValue = -1;
+                    int highestPosition = -1, lowestPosition = -1;
 
                     if(selectedChapters.size() == 0){
                         currentItem.selected = true;
@@ -451,60 +452,74 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
 
                     for(ChapterIndex c : selectedChapters){
-                        if(c.getSourceId() > highestValue && c.getSourceId() < currentItem.getSourceId()){
-                            highestValue = c.getSourceId();
+                        if(c.position > highestValue && c.position < currentItem.position){
+                            highestValue = c.position;
                         }
 
-                        if(c.getSourceId() < lowestValue || lowestValue == -1){
-                            lowestValue = c.getSourceId();
+                        if(c.position < lowestValue && c.position < currentItem.position || lowestValue == -1){
+                            lowestValue = c.position;
                         }
                     }
 
-                    if(currentItem.getSourceId() > highestValue){
-                        int highestValuePosition = -1;
 
-                        for(int i = 1; i < mChapterList.size(); i++){
-                            ChapterIndex currentForItem = mChapterList.get(i).getChapterIndex();
-
-                            if(currentForItem.getSourceId() == highestValue){
-                                highestValuePosition = i;
-                                break;
-                            }
-                        }
-
-                        for(int i = 0; i <= currentItem.getSourceId() - highestValue; i++){
-                            mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex().selected = true;
-                            if(selectedChapters.contains(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex())){
-                                continue;
-                            }
-                            selectedChapters.add(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex());
-                        }
-                        ctx.update();
-                        notifyItemRangeChanged(highestValuePosition, chapterViewHolder.getAdapterPosition());
-                    }
-
-                    if(currentItem.getSourceId() < lowestValue){
+                    if(currentItem.position < lowestValue){
                         int lowestValuePosition = -1;
 
                         for(int i = 1; i < mChapterList.size(); i++){
                             ChapterIndex currentForItem = mChapterList.get(i).getChapterIndex();
 
-                            if(currentForItem.getSourceId() == lowestValue){
+                            if(currentForItem.position == lowestValue){
                                 lowestValuePosition = i;
                                 break;
                             }
                         }
 
-                        for(int i = 0; i <= lowestValue - currentItem.getSourceId(); i++){
+                        System.out.println("---");
+                        System.out.println(currentItem.position);
+                        System.out.println(lowestValue);
+
+                        for(int i = 0; i <= lowestValue - currentItem.position; i++){
                             mChapterList.get(lowestValuePosition - i).getChapterIndex().selected = true;
                             if(selectedChapters.contains(mChapterList.get(lowestValuePosition - i).getChapterIndex())){
                                 continue;
                             }
                             selectedChapters.add(mChapterList.get(lowestValuePosition - i).getChapterIndex());
                         }
-                        ctx.update();
+
                         notifyItemRangeChanged(chapterViewHolder.getAdapterPosition(), lowestValuePosition);
+                        ctx.update();
+
+                        return true;
                     }
+
+                    if(currentItem.position > highestValue){
+                        int highestValuePosition = -1;
+
+                        for(int i = 1; i < mChapterList.size(); i++){
+                            ChapterIndex currentForItem = mChapterList.get(i).getChapterIndex();
+
+                            if(currentForItem.position == highestValue){
+                                highestValuePosition = i;
+                                break;
+                            }
+                        }
+
+                        System.out.println("-");
+                        System.out.println(currentItem.position);
+                        System.out.println(highestValue);
+
+                        for(int i = 0; i <= currentItem.position - highestValue; i++){
+                            mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex().selected = true;
+                            if(selectedChapters.contains(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex())){
+                                continue;
+                            }
+                            selectedChapters.add(mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex());
+                        }
+
+                        notifyItemRangeChanged(highestValuePosition, chapterViewHolder.getAdapterPosition());
+                        ctx.update();
+                    }
+
 
                     return true;
                 }
