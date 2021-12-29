@@ -28,6 +28,9 @@ public class VisitSourceActivity extends AppCompatActivity {
     Context ctx = this;
     private String currentSourceName;
 
+    private NovelsFromThisSource searchWorker = null;
+    //private LoadImagesTask loadImagesWorker = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

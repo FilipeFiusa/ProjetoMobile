@@ -38,6 +38,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "novel_source" + " text,"
                 + "novel_image" + " text,"
                 + "order_type " + " text,"
+                + "status " + " integer,"
                 + "UNIQUE(novel_name, novel_source)"
                 +");";
 

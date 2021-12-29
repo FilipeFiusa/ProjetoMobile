@@ -161,7 +161,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
 
             mAdapter.putChapterAsReadied(readiedChapters);
-
         }
 
     }
@@ -379,14 +378,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             n = parser.getNovelDetails(novelDetails[0]);
 
-            long id = db.insertNovel(
-                    n.getNovelName(),
-                    n.getNovelAuthor(),
-                    n.getNovelDescription(),
-                    n.getSource(),
-                    n.getNovelImage(),
-                    n.getNovelLink()
-            );
+            long id = db.insertNovel(n);
 
             n.setDb_id((int) id);
 
@@ -406,6 +398,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             if(currentNovel != null && currentNovel.equals(novelDetails[0])){
                 return;
             }
+            currentNovel = novelDetails[0];
             mAdapter.addNovelDetails(novelDetails[0]);
         }
 

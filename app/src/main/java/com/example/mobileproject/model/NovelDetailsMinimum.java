@@ -6,11 +6,18 @@ import java.io.Serializable;
 
 public class NovelDetailsMinimum {
     private Bitmap novelImage;
+    private String novelImageSrc;
     private java.lang.String novelName;
     private java.lang.String novelLink;
 
     public NovelDetailsMinimum(Bitmap novelImage, java.lang.String novelName, java.lang.String novelLink) {
         this.novelImage = novelImage;
+        this.novelName = novelName;
+        this.novelLink = novelLink;
+    }
+
+    public NovelDetailsMinimum(String novelImage, java.lang.String novelName, java.lang.String novelLink) {
+        this.novelImageSrc = novelImage;
         this.novelName = novelName;
         this.novelLink = novelLink;
     }

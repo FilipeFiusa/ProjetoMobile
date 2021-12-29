@@ -7,6 +7,7 @@ import android.app.job.JobService;
 import android.content.Intent;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -38,7 +39,7 @@ public class CheckNovelUpdatesService extends JobService {
         notificationManager = NotificationManagerCompat.from(this);
 
         DBController db = new DBController(getApplicationContext());
-        novelList = db.selectAllNovels();
+        novelList = db.selectOnGoingNovels();
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Atualizando a Biblioteca")
@@ -80,16 +81,16 @@ public class CheckNovelUpdatesService extends JobService {
             notificationManager.notify(2, notification.build());
 
             while (!novelList.isEmpty()){
-                SystemClock.sleep(3000);
-
                 CheckUpdatesItem newItem = CheckUpdate(novelList.get(0));
-                checkUpdatesItems.add(newItem);
+                if(!newItem.isEmpty())
+                    checkUpdatesItems.add(newItem);
 
                 notification
                         .setContentTitle("Atualizando Bibiloteca - (" + (progress + 1) + "/" + totalSize + ")")
                         .setContentText("")
                         .setProgress(totalSize, progress+1, false);
                 notificationManager.notify(2, notification.build());
+
                 SystemClock.sleep(2000);
 
                 progress++;
@@ -102,10 +103,7 @@ public class CheckNovelUpdatesService extends JobService {
                     .setProgress(0, 0, false);
             notificationManager.notify(2, notification.build());
 
-            PutChaptersToDownload();
-
             if(!checkUpdatesItems.isEmpty()){
-
                 StringBuilder message = new StringBuilder();
                 for (int i = 0; i < checkUpdatesItems.size(); i++) {
                     String m = checkUpdatesItems.get(i).toString();
@@ -117,6 +115,9 @@ public class CheckNovelUpdatesService extends JobService {
                     message.append(m);
                 }
 
+                System.out.println("Chegou Aqui");
+                System.out.println(message.toString());
+
                 notification
                         .setContentTitle("Novos capitulos: ")
                         .setOngoing(false)
@@ -124,7 +125,11 @@ public class CheckNovelUpdatesService extends JobService {
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(message));
 
-                SystemClock.sleep(3000);
+                notificationManager.notify(2, notification.build());
+
+                PutChaptersToDownload();
+
+                SystemClock.sleep(2000);
 
                 Intent serviceIntent = new Intent(getApplicationContext(), DownloaderService.class);
                 getApplicationContext().startService(serviceIntent);
@@ -137,11 +142,8 @@ public class CheckNovelUpdatesService extends JobService {
                         .setProgress(0, 0, false);
             }
 
-
-            stopForeground(false);
             notificationManager.cancel(2);
-
-            jobFinished(params, false);
+            stopForeground(false);
         }
 
         public CheckUpdatesItem CheckUpdate(NovelDetails novelDetails) {
@@ -212,16 +214,13 @@ public class CheckNovelUpdatesService extends JobService {
             return newChapters;
         }
 
+        @NonNull
         @Override
         public String toString() {
-            StringBuilder returning = new StringBuilder();
 
-            returning.append(getInitials(novelDetails.getNovelName()));
-
-            returning.append(": ");
-            returning.append(newChapters.size());
-
-            return returning.toString();
+            return getInitials(novelDetails.getNovelName()) +
+                    ": " +
+                    newChapters.size();
         }
 
         public String getInitials(String fullname){
@@ -231,5 +230,10 @@ public class CheckNovelUpdatesService extends JobService {
             }
             return initials.toString();
         }
+
+        public boolean isEmpty(){
+            return newChapters.isEmpty();
+        }
+
     }
 }

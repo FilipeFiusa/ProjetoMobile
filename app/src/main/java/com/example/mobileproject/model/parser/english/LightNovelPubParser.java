@@ -73,6 +73,13 @@ public class LightNovelPubParser extends Parser {
                     .replaceAll("</br>", "\n")
                     .trim();
 
+            // Cleaning Description
+            description = cleanHTMLEntities(description);
+
+            // Get status
+            String status = document.select(".header-stats span").get(3).text();
+            System.out.println(status);
+
             // Get novel author
             String author = document.select(".author").first().text().replace("Author:", "");
 
@@ -88,6 +95,10 @@ public class LightNovelPubParser extends Parser {
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource(SourceName);
             novelDetails.setNovelLink(novelLink);
+
+            if(status.equals("Completed Status")){
+                novelDetails.setStatus(2);
+            }
 
             return novelDetails;
         } catch (IOException e) {
@@ -151,8 +162,11 @@ public class LightNovelPubParser extends Parser {
             Elements novels = document.select(".novel-item");
 
             for (Element e : novels){
+                Element img = e.select("img").first();
+                String imgSrc = img.absUrl("data-src");
+
                 novelsArr.add(new NovelDetailsMinimum(
-                        getNovelImage(e),
+                        imgSrc,
                         Objects.requireNonNull(e.select(".novel-title a").first()).text(),
                         Objects.requireNonNull(e.select(".novel-title a").first()).attr("href")));
             }
@@ -213,71 +227,15 @@ public class LightNovelPubParser extends Parser {
 
             String title = document.select(".chapter-title").first().text();
 
-            document.select("script").remove();
-            document.select("ins").remove();
-            document.select("h1").remove();
-            document.select("h2").remove();
-            document.select("h3").remove();
-            document.select("h4").remove();
-            document.select("h5").remove();
-            document.select(".google-auto-placed").remove();
-            document.select(".ap_container").remove();
-            document.select(".ads").remove();
-            document.select(".ads-holder").remove();
-            document.select(".ads-middle").remove();
-            document.select("[align]").remove();
-            removeComments(document);
+            cleanDocument(document);
 
-            String chapterContent = document.select("#chapter-container")
-                    .first()
-                    .html()
-                    .replaceAll("  ", "")
-                    .replaceAll("\r", "\n")
-                    .replaceAll("\n", "\n")
-                    .replaceAll("\n\n", "\n")
-                    .replaceAll("\n\n\n", "\n")
-                    .replaceAll("<p></p>\n", "")
-                    .replaceAll("<p></p>\r", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<p>", "")
-                    .replaceAll("</p>\n", "\n\n")
-                    .replaceAll("</p>\r", "\n\n")
-                    .replaceAll("</p>", "\n\n")
-                    .replaceAll("<em>", "")
-                    .replaceAll("</em>", "")
-                    .replaceAll("&nbsp;", " ")
-                    .replaceAll("&ZeroWidthSpace;", " ")
-                    .replaceAll("&zeroWidthSpace;", " ")
-                    .replaceAll("<br>", "")
-                    .replaceAll("<i>", "")
-                    .replaceAll("</i>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("</br>", "")
-                    .replaceAll("<div></div>\n", "")
-                    .replaceAll("<div></div>\r", "")
-                    .replaceAll("<div></div>", "")
-                    .replaceAll("<div>\r", "")
-                    .replaceAll("<div>\n", "")
-                    .replaceAll("<div>", "")
-                    .replaceAll("</div>\r", "")
-                    .replaceAll("</div>\n", "")
-                    .replaceAll("</div>", "")
-                    .trim();
+            String chapterContent = document.select("#chapter-container").first().html();
 
-            //chapterContent = chapterContent
-            //      .replaceAll("\\n\\n", "\n")
-            //       .replaceAll("\\n\\n\\n", "\n")
-            //      .replaceAll("\\n\\n\\n\\n", "\n")
-            //     .replaceAll("\\n\\n\\n\\n\\n", "\n")
-            //    .replaceAll("\\n\\n\\n\\n\\n\\n", "\n")
-            //    .replaceAll("\\n\\n\\n\\n\\n\\n\\n", "\n"); */
+            chapterContent = cleanChapter(chapterContent);
 
             System.out.println(chapterContent);
 
-            ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl);
-
-            return content;
+            return new ChapterContent(chapterContent, title, chapterUrl);
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -289,6 +247,96 @@ public class LightNovelPubParser extends Parser {
     public ParserInterface getParserInstance() {
         return new LightNovelPubParser(ctx);
     }
+
+    @Override
+    protected void cleanDocument(Document document){
+        super.cleanDocument(document);
+
+        document.select("h1").remove();
+        document.select("h2").remove();
+        document.select("h3").remove();
+        document.select("h4").remove();
+        document.select("h5").remove();
+        document.select("[align]").remove();
+    }
+
+    @Override
+    protected String cleanChapter(String content){
+        return super.cleanChapter(content)
+                .replaceAll("\\<p><strong><strong>(.*?)\\<\\/strong><\\/strong><\\/p>", "")
+                .replaceAll("  ", "")
+                .replaceAll("\r", "\n")
+                .replaceAll("\n", "\n")
+                .replaceAll("\n\n", "\n")
+                .replaceAll("\n\n\n", "\n")
+                .replaceAll("<p></p>\n", "")
+                .replaceAll("<p></p>\r", "")
+                .replaceAll("<p></p>", "")
+                .replaceAll("<p>", "")
+                .replaceAll("</p>\n", "\n\n")
+                .replaceAll("</p>\r", "\n\n")
+                .replaceAll("</p>", "\n\n")
+                .replaceAll("<em>", "")
+                .replaceAll("</em>", "")
+                .replaceAll("&ZeroWidthSpace;", " ")
+                .replaceAll("&zeroWidthSpace;", " ")
+                .replaceAll("<br>", "")
+                .replaceAll("<i>", "")
+                .replaceAll("</i>", "")
+                .replaceAll("<strong>", "")
+                .replaceAll("</strong>", "")
+                .replaceAll("</br>", "")
+                .replaceAll("<div></div>\n", "")
+                .replaceAll("<div></div>\r", "")
+                .replaceAll("<div></div>", "")
+                .replaceAll("<div>\r", "")
+                .replaceAll("<div>\n", "")
+                .replaceAll("<div>", "")
+                .replaceAll("</div>\r", "")
+                .replaceAll("</div>\n", "")
+                .replaceAll("</div>", "")
+                .trim()
+                ;
+    }
+
+/*    private String CleanSpecificChapterContent(String chapterContent){
+        return chapterContent
+                .replaceAll("<p><strong><strong>Try the lightnovelpub.com plataform_for the most advanced_reading experience.</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Try the lightnovelpub.com plataform_for the most advanced_reading experience.</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Try the lightnovelpub.com plataform_for the most advanced_reading experience</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Follow new_episodes on the lightnovelpub.com plataform.</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Follow new_episodes on the lightnovelpub.com plataform</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Updated_at lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>New_chapters are published on lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Visit lightnovelpub.com for a better_reading experience</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>Follow current_novel on lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>You can_find the rest of this_content on the lightnovelpub.com plataform.</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>You can_find the rest of this_content on the lightnovelpub.com plataform</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>The source of this_chapter; lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>The latest_episodes are on_the lightnovelpub.com website.</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>The latest_episodes are on_the lightnovelpub.com website</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>New novel_chapters are published here: lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>This_content is taken from lightnovelpub.com</strong></strong></p>", "")
+                .replaceAll("<p><strong><strong>The most up-to-date novels are published_here &gt; lighnovelpub.com</strong></strong></p>", "")
+
+                .replaceAll("Try the lightnovelpub.com plataform_for the most advanced_reading experience.</strong></strong></p>", "")
+                .replaceAll("Try the lightnovelpub.com plataform_for the most advanced_reading experience.", "")
+                .replaceAll("Try the lightnovelpub.com plataform_for the most advanced_reading experience", "")
+                .replaceAll("Follow new_episodes on the lightnovelpub.com plataform.", "")
+                .replaceAll("Follow new_episodes on the lightnovelpub.com plataform", "")
+                .replaceAll("Updated_at lightnovelpub.com", "")
+                .replaceAll("New_chapters are published on lightnovelpub.com", "")
+                .replaceAll("Visit lightnovelpub.com for a better_reading experience", "")
+                .replaceAll("Follow current_novel on lightnovelpub.com", "")
+                .replaceAll("You can_find the rest of this_content on the lightnovelpub.com plataform.", "")
+                .replaceAll("You can_find the rest of this_content on the lightnovelpub.com plataform", "")
+                .replaceAll("The source of this_chapter; lightnovelpub.com", "")
+                .replaceAll("The latest_episodes are on_the lightnovelpub.com website.", "")
+                .replaceAll("The latest_episodes are on_the lightnovelpub.com website", "")
+                .replaceAll("New novel_chapters are published here: lightnovelpub.com", "")
+                .replaceAll("This_content is taken from lightnovelpub.com", "")
+                .replaceAll("The most up-to-date novels are published_here &gt; lighnovelpub.com", "");
+    }*/
 
     private Bitmap getNovelImage(Element element) {
         Bitmap bitmap;

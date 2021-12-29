@@ -60,6 +60,10 @@ public class NovelFullParser extends Parser {
                     .replaceAll("</p>", "\n")
                     .trim();
 
+            // Get status
+            String status = document.select(".info div").get(4).text();
+            System.out.println(status);
+
             // Get novel author
             String author = document.select(".info div").first().text().replace("Author:", "");
 
@@ -75,6 +79,10 @@ public class NovelFullParser extends Parser {
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource("NovelFull");
             novelDetails.setNovelLink(novelLink);
+
+            if(status.equals("Status:Completed") || status.equals("Status: Completed")){
+                novelDetails.setStatus(2);
+            }
 
             return novelDetails;
         } catch (IOException e) {

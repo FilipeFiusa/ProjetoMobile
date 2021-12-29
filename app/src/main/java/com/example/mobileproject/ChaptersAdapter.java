@@ -84,6 +84,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public TextView mTextView2;
         public TextView mTextView3;
         public TextView mTextView4;
+        public TextView mTextView5;
 
         public Button mButton;
         public Button mButton2;
@@ -95,6 +96,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mImageView = itemView.findViewById(R.id.novel_image);
             mTextView1 = itemView.findViewById(R.id.novel_name);
             mTextView2 = itemView.findViewById(R.id.novel_author);
+            mTextView5 = itemView.findViewById(R.id.novel_status);
             mTextView3 = itemView.findViewById(R.id.novel_description);
             mTextView4 = itemView.findViewById(R.id.chapter_quantity);
 
@@ -583,6 +585,11 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         novelDetailsHolder.mTextView2.setText(currentNovel.getNovelAuthor());
         novelDetailsHolder.mTextView3.setText(currentNovel.getNovelDescription());
         novelDetailsHolder.mTextView4.setText(new StringBuilder().append(currentNovel.getChapterQuantity()).append(" Capitulos").toString());
+        if(currentNovel.getStatus() == 1){
+            novelDetailsHolder.mTextView5.setText("Em Andamento");
+        }else if(currentNovel.getStatus() == 2){
+            novelDetailsHolder.mTextView5.setText("Completo");
+        }
 
         SetUpFavoriteButtons(novelDetailsHolder, currentNovel.getIsFavorite());
 

@@ -32,7 +32,9 @@ public class DBController {
         this.ctx = ctx;
     }
 
-    public long insertNovel(String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink){
+    public long insertNovel(NovelDetails n){
+        //String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink
+
         ContentValues values;
         long result;
 
@@ -41,20 +43,21 @@ public class DBController {
 
         values.put("last_readed", new Date().getTime());//last_readed
         values.put("on_library", 0);//last_readed
-        values.put("novel_name", novelName);
-        values.put("novel_author", novelAuthor);
-        values.put("novel_description", novelDescription);
-        values.put("novel_source", source);
+        values.put("novel_name", n.getNovelName());
+        values.put("novel_author", n.getNovelAuthor());
+        values.put("novel_description", n.getNovelDescription());
+        values.put("novel_source", n.getSource());
         values.put("order_type", "DSC");
-        values.put("novel_link", novelLink);
+        values.put("novel_link", n.getNovelLink());
+        values.put("status", n.getStatus());
 
-        try (FileOutputStream fos = ctx.openFileOutput(novelName + "_" + source + "_" + "image.png", Context.MODE_PRIVATE)) {
-            novelImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        try (FileOutputStream fos = ctx.openFileOutput(n.getNovelName() + "_" + n.getSource() + "_" + "image.png", Context.MODE_PRIVATE)) {
+            n.getNovelImage().compress(Bitmap.CompressFormat.PNG, 100, fos);
         }catch (IOException e) {
             e.printStackTrace();
         }
 
-        values.put("novel_image", novelName + "_" + source + "_" + "image.png");
+        values.put("novel_image", n.getNovelName() + "_" + n.getSource() + "_" + "image.png");
 
         result = db.insert("Novels", null, values);
         db.close();
@@ -193,6 +196,54 @@ public class DBController {
         return novelDetailsArr;
     }
 
+    public ArrayList<NovelDetails> selectOnGoingNovels(){
+        Cursor result;
+        ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
+
+        db = database.getReadableDatabase();
+        String query = "SELECT * FROM Novels WHERE on_library=1 AND status=1 ORDER BY last_readed DESC";
+        result = db.rawQuery(query, null);
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            do {
+                NovelDetails novelDetails = new NovelDetails();
+
+                novelDetails.setNovelAuthor(result.getString(result.getColumnIndexOrThrow("novel_author")));
+                novelDetails.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
+                novelDetails.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
+                novelDetails.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
+                novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+                novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+                novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+
+
+                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+                File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+                String imagePath = mSaveBit.getPath();
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+                novelDetails.setNovelImage(bitmap);
+
+                query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+                Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
+                if(result2.getCount() > 0) {
+                    result2.moveToFirst();
+
+                    novelDetails.setChapterToReadQuantity(result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+                }
+
+                novelDetailsArr.add(novelDetails);
+            }while (result.moveToNext());
+        }
+
+        db.close();
+
+        return novelDetailsArr;
+    }
+
+
     public NovelDetails getNovel(String novelName, String novelSource){
         Cursor result;
         NovelDetails novel = new NovelDetails();
@@ -209,6 +260,7 @@ public class DBController {
             novel.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
             novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
             novel.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+            novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
 
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));

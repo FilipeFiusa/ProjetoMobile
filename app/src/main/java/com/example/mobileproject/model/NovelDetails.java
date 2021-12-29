@@ -19,6 +19,8 @@ public class NovelDetails implements Serializable {
     private String source;
     private String novelLink;
 
+    private int status = 1; // 1- Ongoing / 2- Completed
+
     private int chapterToReadQuantity = 0;
 
     private String isFavorite = "no";
@@ -162,5 +164,13 @@ public class NovelDetails implements Serializable {
 
     public void setOrderType(String orderType) {
         this.orderType = orderType;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

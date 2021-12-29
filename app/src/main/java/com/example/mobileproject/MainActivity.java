@@ -30,14 +30,13 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        /*
-        int[] lista = new int[]{R.layout.novel_grid_button,R.layout.novel_grid_button,R.layout.novel_grid_button,R.layout.novel_grid_button,R.layout.novel_grid_button};
+        libraryFragment = new LibraryFragment();
 
-        GridView gv = (GridView) findViewById(R.id.novelsGrid);
-        gv.setAdapter(new Adaptador(this, lista));*/
+        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
+                libraryFragment).commit();
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
+    private final BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener(){
 
                 @SuppressLint("NonConstantResourceId")
@@ -72,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        System.out.println(libraryFragment);
 
         if(libraryFragment != null){
             libraryFragment.UpdateNovels();
