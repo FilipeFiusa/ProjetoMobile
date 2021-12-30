@@ -10,65 +10,91 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.example.mobileproject.model.DownloadReceiver;
+import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 
 import java.util.ArrayList;
 
-public class NovelsGridAdaptor extends BaseAdapter {
-        private Context ctx;
-        private ArrayList<NovelDetailsMinimum> lista;
-        private String novelSource;
+public class NovelsGridAdaptor extends RecyclerView.Adapter<NovelsGridAdaptor.NovelDetailsViewHolder> {
+    private ArrayList<NovelDetailsMinimum> mNovelList;
+    private String novelSource;
+    private AppCompatActivity ctx;
 
-        public NovelsGridAdaptor(Context ctx, ArrayList<NovelDetailsMinimum> lista, String novelSource){
-            this.ctx = ctx;
-            this.lista = lista;
-            this.novelSource = novelSource;
-        }
 
-        @Override
-        public int getCount() {
-            // TODO Auto-generated method stub
-            return lista.size();
-        }
+    public static class NovelDetailsViewHolder extends RecyclerView.ViewHolder{
+        public ImageView mImageButton;
+        public TextView mTextView1;
+        public TextView mTextView2;
 
-        @Override
-        public NovelDetailsMinimum getItem(int position) {
-            // TODO Auto-generated method stub
-            return lista.get(position);
-        }
+        public NovelDetailsViewHolder(@NonNull View itemView) {
+            super(itemView);
 
-        @Override
-        public long getItemId(int position) {
-            // TODO Auto-generated method stub
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // TODO Auto-generated method stub
-
-            RelativeLayout row = (RelativeLayout) (convertView == null
-                    ? LayoutInflater.from(ctx).inflate(R.layout.novel_grid_button, parent, false)
-                    : convertView);
-
-            ImageView novelImage = (ImageView) row.findViewById(R.id.grid_novel_image);
-            TextView novelTitle = (TextView) row.findViewById(R.id.grid_novel_name);
-            TextView chapterCount = (TextView) row.findViewById(R.id.grid_chapter_count);
-
-            novelTitle.setText(getItem(position).getNovelName());
-            novelImage.setImageBitmap(getItem(position).getNovelImage());
-            chapterCount.setVisibility(View.INVISIBLE);
-
-            novelImage.setOnClickListener(new View.OnClickListener(){
-                public void onClick(View v) {
-                    Intent intent = new Intent(ctx, NovelDetailsActivity.class);
-                    intent.putExtra("novelLink", getItem(position).getNovelLink());
-                    intent.putExtra("novelName", getItem(position).getNovelName());
-                    intent.putExtra("novelSource", novelSource);
-                    ctx.startActivity(intent);
-                }
-            });
-
-            return row;
+            mImageButton = itemView.findViewById(R.id.grid_novel_image);
+            mTextView1 = itemView.findViewById(R.id.grid_novel_name);
+            mTextView2 = itemView.findViewById(R.id.grid_chapter_count);
         }
     }
+
+    public NovelsGridAdaptor(ArrayList<NovelDetailsMinimum> chapterList, AppCompatActivity ctx, String novelSource){
+        this.mNovelList = chapterList;
+
+        this.ctx = ctx;
+
+        this.novelSource = novelSource;
+    }
+
+    public void updateNovelsList(ArrayList<NovelDetailsMinimum> chapterList){
+        this.mNovelList = chapterList;
+        notifyDataSetChanged();
+    }
+
+    public void updateSpecificItem(NovelDetailsMinimum updatedItem){
+        for(int i = 0; i < mNovelList.size(); i++){
+            NovelDetailsMinimum current = mNovelList.get(i);
+
+            if(current.getId() == updatedItem.getId()){
+                current.setNovelImage(updatedItem.getNovelImage());
+                notifyItemChanged(i);
+                return;
+            }
+        }
+    }
+
+    @NonNull
+    @Override
+    public NovelsGridAdaptor.NovelDetailsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = null;
+        view =  LayoutInflater.from(parent.getContext()).inflate(R.layout.novel_grid_button, parent, false);;
+        return new NovelsGridAdaptor.NovelDetailsViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull NovelDetailsViewHolder holder, int position) {
+        NovelDetailsMinimum currentItem = mNovelList.get(position);
+
+        holder.mTextView1.setText(currentItem.getNovelName());
+        holder.mImageButton.setImageBitmap(currentItem.getNovelImage());
+        holder.mTextView2.setVisibility(View.GONE);
+
+        holder.mImageButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                Intent intent = new Intent(ctx, NovelDetailsActivity.class);
+                intent.putExtra("novelLink", currentItem.getNovelLink());
+                intent.putExtra("novelName", currentItem.getNovelName());
+                intent.putExtra("novelSource", novelSource);
+                ctx.startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return mNovelList.size();
+    }
+}

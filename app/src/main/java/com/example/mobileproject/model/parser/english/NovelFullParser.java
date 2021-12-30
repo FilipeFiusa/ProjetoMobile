@@ -23,6 +23,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class NovelFullParser extends Parser {
     public NovelFullParser(Context ctx) {
@@ -139,7 +140,15 @@ public class NovelFullParser extends Parser {
             for (Element e : novels){
                 Document getImage = Jsoup.connect(URL_BASE + e.attr("href"))
                         .userAgent("Mozilla/5.0").get();
-                novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
+
+                Element img = getImage.select(".book img").first();
+                java.lang.String imgSrc = img.absUrl("src");
+
+                novelsArr.add(new NovelDetailsMinimum(
+                        novelsArr.size(),
+                        imgSrc,
+                        e.text(),
+                        e.attr("href") ));
             }
 
         }catch (IOException e){
@@ -163,7 +172,15 @@ public class NovelFullParser extends Parser {
 
             for (Element e : novels){
                 Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).userAgent("Mozilla/5.0").get();
-                novelsArr.add(new NovelDetailsMinimum(getNovelImage(getImage), e.text(), e.attr("href") ));
+
+                Element img = getImage.select(".book img").first();
+                java.lang.String imgSrc = img.absUrl("src");
+
+                novelsArr.add(new NovelDetailsMinimum(
+                        novelsArr.size(),
+                        imgSrc,
+                        e.text(),
+                        e.attr("href") ));
             }
 
         }catch (IOException e){

@@ -14,13 +14,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mobileproject.R;
+import com.example.mobileproject.VisitSourceActivity;
 
 public class TopFragment1 extends Fragment {
-    Context currentContext = null;
+    VisitSourceActivity mainActivity = null;
     String sourceName = "";
 
-    public TopFragment1(String sourceName) {
+    public TopFragment1(String sourceName, VisitSourceActivity mainActivity) {
         this.sourceName = sourceName;
+        this.mainActivity = mainActivity;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,7 +54,7 @@ public class TopFragment1 extends Fragment {
     private void goToSearch() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.visit_source_top_fragments, new TopFragment2(sourceName));
+        fragmentTransaction.replace(R.id.visit_source_top_fragments, new TopFragment2(sourceName, mainActivity));
         fragmentTransaction.commit(); // save the changes
     }
 

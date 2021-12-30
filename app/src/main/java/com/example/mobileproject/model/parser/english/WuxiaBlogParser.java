@@ -159,11 +159,13 @@ public class WuxiaBlogParser extends Parser {
             Elements novels = document.select(".panel-body .row .media");
 
             for (Element e : novels){
-                if(count >= 10){
-                    break;
-                }
+                Element img = e.select("img").first();
+                String imgSrc = img.attr("src").replace(URL_BASE, "");
+                imgSrc = URL_BASE + imgSrc;
+
                 novelsArr.add(new NovelDetailsMinimum(
-                        getNovelImage(e),
+                        novelsArr.size(),
+                        imgSrc,
                         Objects.requireNonNull(e.select("h4").first()).text(),
                         Objects.requireNonNull(e.select("a").first()).attr("href")));
 
@@ -202,8 +204,13 @@ public class WuxiaBlogParser extends Parser {
                 System.out.println(e.select(".xxxx a").text());
                 System.out.println(e.select(".xxxx a").attr("href").replace(URL_BASE, ""));
 
+                Element img = e.select("img").first();
+                String imgSrc = img.attr("src").replace(URL_BASE, "");
+                imgSrc = URL_BASE + imgSrc;
+
                 novelsArr.add(new NovelDetailsMinimum(
-                        getNovelImage(e),
+                        novelsArr.size(),
+                        imgSrc,
                         e.select(".xxxx a").text(),
                         e.select(".xxxx a").attr("href").replace(URL_BASE, "") ));
             }

@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import java.io.Serializable;
 
 public class NovelDetailsMinimum {
+    private int id;
+
     private Bitmap novelImage;
     private String novelImageSrc;
     private java.lang.String novelName;
@@ -16,7 +18,8 @@ public class NovelDetailsMinimum {
         this.novelLink = novelLink;
     }
 
-    public NovelDetailsMinimum(String novelImage, java.lang.String novelName, java.lang.String novelLink) {
+    public NovelDetailsMinimum(int id, String novelImage, java.lang.String novelName, java.lang.String novelLink) {
+        this.id = id;
         this.novelImageSrc = novelImage;
         this.novelName = novelName;
         this.novelLink = novelLink;
@@ -44,5 +47,21 @@ public class NovelDetailsMinimum {
 
     public void setNovelLink(java.lang.String novelLink) {
         this.novelLink = novelLink;
+    }
+
+    public String getNovelImageSrc() {
+        return novelImageSrc;
+    }
+
+    public void setNovelImageSrc(String novelImageSrc) {
+        this.novelImageSrc = novelImageSrc;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

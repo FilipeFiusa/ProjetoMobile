@@ -166,6 +166,7 @@ public class LightNovelPubParser extends Parser {
                 String imgSrc = img.absUrl("data-src");
 
                 novelsArr.add(new NovelDetailsMinimum(
+                        novelsArr.size(),
                         imgSrc,
                         Objects.requireNonNull(e.select(".novel-title a").first()).text(),
                         Objects.requireNonNull(e.select(".novel-title a").first()).attr("href")));
@@ -207,7 +208,12 @@ public class LightNovelPubParser extends Parser {
         Elements novels = document.select("li");
 
         for (Element e : novels){
-            novelsArr.add(new NovelDetailsMinimum(getNovelImage2(e),
+            Element img = e.select("img").first();
+            String imgSrc = img.absUrl("src");
+
+            novelsArr.add(new NovelDetailsMinimum(
+                    novelsArr.size(),
+                    imgSrc,
                     e.select("h4").first().text()
                             .replace("&#x27;", "'")
                             .replace("&#x2019;", "'"),
