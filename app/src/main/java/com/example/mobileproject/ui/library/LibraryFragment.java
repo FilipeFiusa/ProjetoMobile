@@ -1,7 +1,13 @@
 package com.example.mobileproject.ui.library;
 
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static com.example.mobileproject.App.CHECK_UPDATES_SERVICE_ID;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -30,6 +36,7 @@ import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.CheckUpdateService;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelDetails;
+import com.example.mobileproject.services.CheckNovelUpdatesService;
 
 import java.util.ArrayList;
 
@@ -65,8 +72,8 @@ public class LibraryFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
-                novelsOnLibrary.execute();
+                scheduleJob();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -86,6 +93,18 @@ public class LibraryFragment extends Fragment {
         this.root = root;
 
         return root;
+    }
+
+    private void scheduleJob(){
+        ComponentName componentName = new ComponentName(ctx, CheckNovelUpdatesService.class);
+        JobInfo info = new JobInfo.Builder(CHECK_UPDATES_SERVICE_ID, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setPersisted(true)
+                .setPeriodic(3 * 60 * 60 * 1000)
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) ctx.getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.schedule(info);
     }
 
     public void UpdateNovels(){
