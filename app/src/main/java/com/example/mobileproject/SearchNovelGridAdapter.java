@@ -2,6 +2,8 @@ package com.example.mobileproject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +20,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchNovelGridAdapter extends RecyclerView.Adapter<SearchNovelGridAdapter.NovelGridViewHolder> {
 
     private final ArrayList<ParserTempClass> mTempParser = new ArrayList<>();
-    private List<Parser> mParserList;
+    private ArrayList<ParserTempClass> tempList;
+
+    private final List<Parser> mParserList;
     private String SearchText;
     AppCompatActivity ctx;
 
@@ -41,12 +50,9 @@ public class SearchNovelGridAdapter extends RecyclerView.Adapter<SearchNovelGrid
         }
     }
 
-    public SearchNovelGridAdapter(AppCompatActivity ctx, List<Parser> mList, String SearchText) {
+    public SearchNovelGridAdapter(AppCompatActivity ctx) {
         this.ctx = ctx;
-        this.mParserList = mList;
-        this.SearchText = SearchText;
-
-        new Thread(new SearchInAllSourcesWorker()).start();
+        this.mParserList = ParserFactory.getAllParsers(ctx);;
     }
 
     @NonNull
@@ -70,20 +76,42 @@ public class SearchNovelGridAdapter extends RecyclerView.Adapter<SearchNovelGrid
         return mParserList.size();
     }
 
-    private class SearchInAllSourcesWorker implements Runnable {
+    public void Search(String searchText){
+        this.SearchText = searchText;
+
+        tempList = new ArrayList<>(mTempParser);
+
+        new SearchInAllSourcesWorker().start();
+        SystemClock.sleep(200);
+        new SearchInAllSourcesWorker().start();
+        SystemClock.sleep(200);
+        new SearchInAllSourcesWorker().start();
+    }
+
+    private class SearchInAllSourcesWorker extends Thread {
         @Override
         public void run() {
-            SystemClock.sleep(2000);
+            while (!tempList.isEmpty() || Thread.currentThread().isInterrupted()){
+                ParserTempClass currentItem = tempList.remove(0);
 
-            ArrayList<ParserTempClass> tempList = new ArrayList<>(mTempParser);
+                ArrayList<NovelDetailsMinimum> novelDetailsArr = currentItem.parser.searchNovels(SearchText);
 
-            while (!tempList.isEmpty()){
-                ParserTempClass current = tempList.get(0);
+                for (int i = 0; i < novelDetailsArr.size(); i++) {
+                    NovelDetailsMinimum current = novelDetailsArr.get(i);
 
-                ArrayList<NovelDetailsMinimum> novelDetailsArr = current.parser.searchNovels(SearchText);
-                UpdateView(current.novelsContainer, novelDetailsArr, current.parser.getSourceName());
+                    InputStream input = null;
+                    try {
+                        input = new URL(current.getNovelImageSrc()).openStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(input);
+                        current.setNovelImage(bitmap);
+                    } catch (InterruptedIOException e){
+                        return;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-                tempList.remove(current);
+                UpdateView(currentItem.novelsContainer, novelDetailsArr, currentItem.parser.getSourceName());
             }
         }
 
@@ -95,9 +123,7 @@ public class SearchNovelGridAdapter extends RecyclerView.Adapter<SearchNovelGrid
 
                     for (int i = 0; i < novelDetailsArr.size(); i++) {
                         NovelDetailsMinimum n = novelDetailsArr.get(i);
-
                         View item = InflateView(n);
-
                         view.addView(item);
                     }
                 }

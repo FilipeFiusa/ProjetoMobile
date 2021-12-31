@@ -182,6 +182,7 @@ public class WuxiaBlogParser extends Parser {
     @Override
     public ArrayList<NovelDetailsMinimum> searchNovels(String _searchValue) {
         boolean checkedFirst = false;
+        int count = 0;
 
         String searchValue = removeSpaces(_searchValue);
         String url = "https://www.wuxia.blog/?search=";
@@ -196,6 +197,10 @@ public class WuxiaBlogParser extends Parser {
             Elements novels = document.select("table tr");
 
             for (Element e : novels){
+                if(count >= 10){
+                    break;
+                }
+
                 if(!checkedFirst){
                     checkedFirst = true;
                     continue;
@@ -213,6 +218,8 @@ public class WuxiaBlogParser extends Parser {
                         imgSrc,
                         e.select(".xxxx a").text(),
                         e.select(".xxxx a").attr("href").replace(URL_BASE, "") ));
+
+                count ++;
             }
 
             return novelsArr;

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -31,8 +32,6 @@ public class VisitAllSourcesActivity  extends AppCompatActivity {
     private SearchNovelGridAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private String SearchText;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,18 +40,17 @@ public class VisitAllSourcesActivity  extends AppCompatActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         Intent intent = getIntent();
-        SearchText = intent.getStringExtra("search_text");
-
-        List<Parser> mList = ParserFactory.getAllParsers(this);
+        String searchText = intent.getStringExtra("search_text");
 
         mRecyclerView = findViewById(R.id.novelsGrid);
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new LinearLayoutManager(ctx);
-        mAdapter = new SearchNovelGridAdapter(this, mList, SearchText);
 
+        mAdapter = new SearchNovelGridAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
 
         Button simpleButton1 = (Button) findViewById(R.id.return_activity);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
@@ -63,19 +61,29 @@ public class VisitAllSourcesActivity  extends AppCompatActivity {
         });
 
         EditText editText = (EditText) findViewById(R.id.search_text);
-        editText.setText(SearchText);
+        editText.setText(searchText);
 
         ImageButton simpleButton2 = (ImageButton) findViewById(R.id.search_button);
         simpleButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editText.clearFocus();
-
-                mAdapter = new SearchNovelGridAdapter(VisitAllSourcesActivity.this,
-                        mList, editText.getText().toString());
+                mAdapter = new SearchNovelGridAdapter(VisitAllSourcesActivity.this);
                 mRecyclerView.setAdapter(mAdapter);
-                mRecyclerView.setLayoutManager(mLayoutManager);
+
+                startSearch(editText.getText().toString());
             }
         });
+
+        startSearch(searchText);
+    }
+
+    private void startSearch(String searchText){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(500);
+                mAdapter.Search(searchText);
+            }
+        }).start();
     }
 }

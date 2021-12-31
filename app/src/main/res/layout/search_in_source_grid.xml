@@ -31,15 +31,7 @@
                 android:layout_height="fill_parent"
                 android:layout_width="wrap_content">
 
-                <include layout="@layout/search_novel_grid_button"
-                    />
-                <include layout="@layout/search_novel_grid_button"
-                    />
-                <include layout="@layout/search_novel_grid_button"
-                    />
-                <include layout="@layout/search_novel_grid_button"
-                    />
-                <include layout="@layout/search_novel_grid_button"
+                <include layout="@layout/search_novel_grid_button_placeholder"
                     />
             </LinearLayout>
 

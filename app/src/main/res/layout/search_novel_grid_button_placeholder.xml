@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="370dp"
+    android:layout_height="50dp"
+    android:layout_marginHorizontal="5dp"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:theme="@style/Theme.MyApplicationTest4.MyRipple"
+    >
+    <ProgressBar
+        android:layout_centerInParent="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:indeterminate="true" />
+
+</RelativeLayout>
