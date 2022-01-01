@@ -472,18 +472,17 @@ public class ReaderActivity extends AppCompatActivity {
         }
         int currentChapter = nrc.getCurrentChapter().getId();
 
+        if(currentChapter != -1 && !chaptersReadied.contains(currentChapter)){
+            chaptersReadied.add(currentChapter);
+            DBController db = new DBController(this);
+            db.setChapterAsReaded(currentChapter);
+        }
+
         ChapterIndex next = nrc.getNextChapter();
 
         if(next == null){
             Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
             return;
-        }
-
-
-        if(currentChapter != -1 && !chaptersReadied.contains(currentChapter)){
-            chaptersReadied.add(currentChapter);
-            DBController db = new DBController(this);
-            db.setChapterAsReaded(currentChapter);
         }
 
         mSeekBar.setProgress(nrc.getPosition());
