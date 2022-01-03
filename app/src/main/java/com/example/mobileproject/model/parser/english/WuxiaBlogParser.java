@@ -294,17 +294,19 @@ public class WuxiaBlogParser extends Parser {
                     .replaceAll("</div>\r", "")
                     .replaceAll("</div>\n", "")
                     .replaceAll("</div>", "")
+                    .replaceAll("<span>", "")
+                    .replaceAll("</span>", "")
                     .replaceAll("\r", "\n")
                     .replaceAll("\n", "\n")
                     .replaceAll("\n\n", "\n")
                     .replaceAll("\n\n\n", "\n")
                     .trim();
 
+            chapterContent = cleanHTMLEntities(chapterContent);
+
             System.out.println(chapterContent);
 
-            ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl);
-
-            return content;
+            return new ChapterContent(chapterContent, title, chapterUrl);
         }catch (IOException e){
             e.printStackTrace();
         }

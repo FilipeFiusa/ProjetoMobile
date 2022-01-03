@@ -301,6 +301,8 @@ public class LightNovelPubParser extends Parser {
                 .replaceAll("</div>\r", "")
                 .replaceAll("</div>\n", "")
                 .replaceAll("</div>", "")
+                .replaceAll("<span>", "")
+                .replaceAll("</span>", "")
                 .trim()
                 ;
     }

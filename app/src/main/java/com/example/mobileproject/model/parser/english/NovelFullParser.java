@@ -60,6 +60,7 @@ public class NovelFullParser extends Parser {
                     .replaceAll("</br>", "\n")
                     .replaceAll("</p>", "\n")
                     .trim();
+            description = cleanHTMLEntities(description);
 
             // Get status
             String status = document.select(".info div").get(4).text();
@@ -250,17 +251,11 @@ public class NovelFullParser extends Parser {
                     .replaceAll("</div>\r", "")
                     .replaceAll("</div>\n", "")
                     .replaceAll("</div>", "")
+                    .replaceAll("<span>", "")
+                    .replaceAll("</span>", "")
                     .trim();
 
-            //chapterContent = chapterContent
-              //      .replaceAll("\\n\\n", "\n")
-             //       .replaceAll("\\n\\n\\n", "\n")
-              //      .replaceAll("\\n\\n\\n\\n", "\n")
-               //     .replaceAll("\\n\\n\\n\\n\\n", "\n")
-                //    .replaceAll("\\n\\n\\n\\n\\n\\n", "\n")
-                //    .replaceAll("\\n\\n\\n\\n\\n\\n\\n", "\n"); */
-
-            System.out.println(chapterContent);
+            chapterContent = cleanHTMLEntities(chapterContent);
 
             ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl);
 
