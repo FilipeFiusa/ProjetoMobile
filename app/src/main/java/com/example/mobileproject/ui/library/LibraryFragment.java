@@ -17,12 +17,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,9 +35,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.ChaptersAdapter;
+import com.example.mobileproject.MainActivity;
+import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.R;
 import com.example.mobileproject.VisitSourceActivity;
 import com.example.mobileproject.db.DBController;
+import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.CheckUpdateService;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelDetails;
@@ -41,18 +49,20 @@ import com.example.mobileproject.services.CheckNovelUpdatesService;
 import java.util.ArrayList;
 
 public class LibraryFragment extends Fragment {
-    View root;
-    AppCompatActivity ctx;
+    public MainActivity ctx;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private NovelsAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private View root;
+
+    private ArrayList<NovelDetails> selectedNovelsReference;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.library_fragment, container, false);
-        ctx = (AppCompatActivity) this.requireActivity();
+        root = inflater.inflate(R.layout.library_fragment, container, false);
+        ctx = (MainActivity) requireActivity();
 
         Button mButton1 = root.findViewById(R.id.sort_novels);
         mButton1.setOnClickListener(new View.OnClickListener() {
@@ -81,16 +91,14 @@ public class LibraryFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         mLayoutManager = new GridLayoutManager(ctx, 2);
-        mAdapter = new NovelsAdapter(new ArrayList<>(), ctx);
-        mRecyclerView.addItemDecoration(new NovelsLayoutDecoration(10, ctx));
+        mAdapter = new NovelsAdapter(new ArrayList<>(), ctx, this);
+        mRecyclerView.addItemDecoration(new NovelsLayoutDecoration(5, ctx));
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();
-
-        this.root = root;
 
         return root;
     }
@@ -112,13 +120,120 @@ public class LibraryFragment extends Fragment {
         novelsOnLibrary.execute();
     }
 
-    public class NovelsOnLibrary extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
-        private LinearLayout isLoading;
+    public void openMenu(ArrayList<NovelDetails> reference){
+        selectedNovelsReference = reference;
 
+        showSelectMenu();
+
+        ImageButton cancelSelection = (ImageButton) root.findViewById(R.id.cancel_selection);
+        cancelSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideSelectMenu();
+
+                mAdapter.resetSelectedList();
+                selectedNovelsReference = null;
+            }
+        });
+
+        ImageButton selectAll = (ImageButton) root.findViewById(R.id.select_all);
+        selectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.selectAll();
+            }
+        });
+
+        ImageButton invertSelection = (ImageButton) root.findViewById(R.id.invert_selection);
+        invertSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.invertSelection();
+            }
+        });
+
+        ImageButton bookmarkSelected = (ImageButton) root.findViewById(R.id.bookmark_selected);
+        bookmarkSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ctx, "Não Disponivel ainda", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ImageButton readSelected = (ImageButton) root.findViewById(R.id.read_selected);
+        readSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SetNovelsAsReadiedTask readiedTask = new SetNovelsAsReadiedTask();
+                readiedTask.execute(new ArrayList<>(selectedNovelsReference));
+
+                mAdapter.setAsReadied();
+
+                hideSelectMenu();
+                selectedNovelsReference = null;
+            }
+        });
+
+        ImageButton downloadSelected = (ImageButton) root.findViewById(R.id.download_selected);
+        downloadSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ctx, "Não Disponivel ainda", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ImageButton deleteSelected = (ImageButton) root.findViewById(R.id.delete_selected);
+        deleteSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeleteNovelTask deleteTask = new DeleteNovelTask();
+                deleteTask.execute(new ArrayList<>(selectedNovelsReference));
+
+                mAdapter.removeSelected();
+
+                hideSelectMenu();
+                selectedNovelsReference = null;
+            }
+        });
+
+        update();
+    }
+
+    public void update(){
+        if(selectedNovelsReference != null && selectedNovelsReference.isEmpty()){
+            hideSelectMenu();
+        }
+    }
+
+    private void showSelectMenu(){
+        ctx.hideBottomNav();
+
+        View topView1 = (LinearLayout) root.findViewById(R.id.normal_menu);
+        View topView2 = (LinearLayout) root.findViewById(R.id.select_menu);
+        topView1.setVisibility(View.GONE);
+        topView2.setVisibility(View.VISIBLE);
+
+        FrameLayout mMenu = (FrameLayout) root.findViewById(R.id.bottom_select_menu);
+        mMenu.setVisibility(View.VISIBLE);
+    }
+
+    private void hideSelectMenu(){
+        View topView1 = (LinearLayout) root.findViewById(R.id.normal_menu);
+        View topView2 = (LinearLayout) root.findViewById(R.id.select_menu);
+
+        topView1.setVisibility(View.VISIBLE);
+        topView2.setVisibility(View.GONE);
+
+        FrameLayout mMenu = (FrameLayout) root.findViewById(R.id.bottom_select_menu);
+        mMenu.setVisibility(View.GONE);
+
+        ctx.showBottomNav();
+    }
+
+    private class NovelsOnLibrary extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //isLoading = (LinearLayout) findViewById(R.id.isLoading);
         }
 
         @Override
@@ -134,12 +249,40 @@ public class LibraryFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<NovelDetails> novelDetailsArr) {
             super.onPostExecute(novelDetailsArr);
-            //isLoading.setVisibility(View.INVISIBLE);
-            //isLoading.removeAllViews();
 
             mAdapter.updateNovelsList(novelDetailsArr);
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
+    private class DeleteNovelTask extends AsyncTask<ArrayList<NovelDetails>, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ArrayList<NovelDetails>... arrayLists) {
+            DBController db = new DBController(ctx);
+            ArrayList<NovelDetails> arrayList = new ArrayList<>(arrayLists[0]);
+
+            for(NovelDetails n : arrayList){
+                db.deleteNovel(n.getNovelName(), n.getSource());
+            }
+
+            return null;
+        }
+
+    }
+
+    private class SetNovelsAsReadiedTask extends  AsyncTask<ArrayList<NovelDetails>, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ArrayList<NovelDetails>... arrayLists) {
+            DBController db = new DBController(ctx);
+            ArrayList<NovelDetails> arrayList = new ArrayList<>(arrayLists[0]);
+
+            for(NovelDetails n : arrayList){
+                db.setChaptersReadied(n.getNovelName(), n.getSource(), "");
+            }
+
+            return null;
+        }
+    }
 }

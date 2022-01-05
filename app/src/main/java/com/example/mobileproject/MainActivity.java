@@ -16,18 +16,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Context ctx = this;
     private LibraryFragment libraryFragment;
+    private BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
         libraryFragment = new LibraryFragment();
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                             libraryFragment = (LibraryFragment) selectedFragment;
                             break;
                         case R.id.nav_navigate:
-                            selectedFragment = new NavigateFragment(ctx);
+                            selectedFragment = new NavigateFragment(MainActivity.this);
                             break;
                         case R.id.nav_download_list:
                             selectedFragment = new DownloadsFragment();
@@ -66,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    public void showBottomNav() {
+        bottomNav.setVisibility(View.VISIBLE);
+    }
+
+    public void hideBottomNav() {
+        bottomNav.setVisibility(View.GONE);
+    }
 
 
     @Override

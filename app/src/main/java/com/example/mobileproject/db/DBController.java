@@ -150,6 +150,27 @@ public class DBController {
         }
     }
 
+    public void deleteNovel(String novelName, String novelSource){
+        db = database.getWritableDatabase();
+
+        db.beginTransaction();
+
+        try {
+            long result = db.delete("Chapters", "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+            if(result >=  0){
+                long result2 = db.delete("Novels", "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+                if(result2 >= 0){
+                    db.setTransactionSuccessful();
+                }
+            }
+        } finally {
+            db.endTransaction();
+        }
+
+        db.close();
+    }
+
     public ArrayList<NovelDetails> selectAllNovels(){
         Cursor result;
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
@@ -242,7 +263,6 @@ public class DBController {
 
         return novelDetailsArr;
     }
-
 
     public NovelDetails getNovel(String novelName, String novelSource){
         Cursor result;

@@ -106,6 +106,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
         simpleButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                deleteNovelTask d = new deleteNovelTask();
+                d.execute();
                 //downloadAll();
             }
         });
@@ -168,17 +170,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
     public void openSelectMenu(ArrayList<ChapterIndex> reference){
         selectedChaptersReference = reference;
 
-        View topView1 = (LinearLayout) findViewById(R.id.normal_menu);
-        topView1.setVisibility(View.GONE);
-
-        View topView2 = (LinearLayout) findViewById(R.id.select_menu);
-        topView2.setVisibility(View.VISIBLE);
-
-        View bottomMenuNormal = (FrameLayout) findViewById(R.id.bottom_normal_menu);
-        bottomMenuNormal.setVisibility(View.GONE);
-
-        View bottomMenuSelect = (FrameLayout) findViewById(R.id.bottom_select_menu);
-        bottomMenuSelect.setVisibility(View.VISIBLE);
+        showSelectMenu();
 
         ImageButton cancelSelection = (ImageButton) findViewById(R.id.cancel_selection);
         cancelSelection.setOnClickListener(new View.OnClickListener() {
@@ -302,6 +294,17 @@ public class NovelDetailsActivity extends AppCompatActivity {
         }
 
         return false;
+    }
+
+    private void showSelectMenu(){
+        View topView1 = (LinearLayout) findViewById(R.id.normal_menu);
+        View topView2 = (LinearLayout) findViewById(R.id.select_menu);
+        View bottomMenuNormal = (FrameLayout) findViewById(R.id.bottom_normal_menu);
+        View bottomMenuSelect = (FrameLayout) findViewById(R.id.bottom_select_menu);
+        topView1.setVisibility(View.GONE);
+        topView2.setVisibility(View.VISIBLE);
+        bottomMenuNormal.setVisibility(View.GONE);
+        bottomMenuSelect.setVisibility(View.VISIBLE);
     }
 
     private void hideSelectMenu(){
@@ -566,6 +569,23 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
                 ctx.startService(serviceIntent);
             }
+        }
+    }
+
+    private class deleteNovelTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DBController db = new DBController(NovelDetailsActivity.this);
+
+            db.deleteNovel(currentNovel.getNovelName(), currentNovel.getSource());
+
+            return null;
         }
     }
 }

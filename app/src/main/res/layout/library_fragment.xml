@@ -8,85 +8,187 @@
     tools:context=".ui.library.LibraryFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@color/secodary_dark_theme"
-            >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/normal_menu"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/secodary_dark_theme"
+                >
+
+                <TextView
+                    android:layout_weight="1"
+                    android:text="Biblioteca"
+                    android:layout_gravity="start"
+                    android:textSize="24sp"
+                    android:layout_marginStart="15dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/white"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sort_novels"
+                    android:layout_gravity="right"
+                    app:icon="@drawable/ic_baseline_reorder_64"
+                    app:iconGravity="top"
+                    android:layout_height="match_parent"
+                    android:layout_width="60dp"
+                    android:backgroundTint="@color/secodary_dark_theme"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:layout_gravity="right"
+                    app:icon="@drawable/ic_baseline_search_40"
+                    app:iconGravity="top"
+                    android:gravity="left"
+                    android:layout_height="match_parent"
+                    android:layout_width="60dp"
+                    android:backgroundTint="@color/secodary_dark_theme"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/select_menu"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/secodary_dark_theme"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/cancel_selection"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/secodary_dark_theme"
+                    android:src="@drawable/ic_baseline_close_30"
+                    />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/selected_quantity"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="1"
+                        android:textSize="20sp"
+                        android:textColor="@color/white"
+                        android:paddingStart="10dp"
+                        android:gravity="center_vertical"
+                        />
+
+                </LinearLayout>
+
+
+                <ImageButton
+                    android:id="@+id/select_all"
+                    android:layout_width="60dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/secodary_dark_theme"
+                    android:src="@drawable/ic_baseline_select_all_30"
+                    />
+                <ImageButton
+                    android:id="@+id/invert_selection"
+                    android:layout_width="60dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="@color/secodary_dark_theme"
+                    android:src="@drawable/invert_selection"
+                    />
+            </LinearLayout>
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/librarySwipeRefresh"
+                android:padding="5dp"
+                android:layout_width="match_parent"
                 android:layout_weight="1"
-                android:text="Biblioteca"
-                android:layout_gravity="start"
-                android:textSize="24sp"
-                android:layout_marginStart="15dp"
-                android:gravity="center_vertical"
-                android:textColor="@color/white"
-                android:layout_height="match_parent"
-                android:layout_width="0dp" />
+                android:layout_height="0dp"
+                android:fillViewport="true"
 
+                android:background="@color/main_dark_theme">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sort_novels"
-                android:layout_gravity="right"
-                app:icon="@drawable/ic_baseline_reorder_64"
-                app:iconGravity="top"
-                android:layout_height="match_parent"
-                android:layout_width="60dp"
-                android:backgroundTint="@color/secodary_dark_theme"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/library_recycle_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
 
-            <com.google.android.material.button.MaterialButton
-                android:layout_gravity="right"
-                app:icon="@drawable/ic_baseline_search_40"
-                app:iconGravity="top"
-                android:gravity="left"
-                android:layout_height="match_parent"
-                android:layout_width="60dp"
-                android:backgroundTint="@color/secodary_dark_theme"/>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         </LinearLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/librarySwipeRefresh"
-            android:padding="5dp"
+        <FrameLayout
+            android:id="@+id/bottom_select_menu"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:layout_height="0dp"
-            android:fillViewport="true"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            android:background="@color/main_dark_theme">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/library_recycle_view"
+            <LinearLayout
+                android:layout_margin="10dp"
+                android:padding="0dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/layout_bg"
+                android:backgroundTint="@color/secodary_dark_theme"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+                android:layout_height="60dp">
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                <ImageButton
+                    android:id="@+id/bookmark_selected"
+                    android:padding="0dp"
+                    android:background="@drawable/ripple_effect"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:src="@drawable/ic_baseline_bookmark_border_30"
+                    />
+                <ImageButton
+                    android:id="@+id/read_selected"
+                    android:padding="0dp"
+                    android:background="@drawable/ripple_effect"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:src="@drawable/ic_baseline_done_20"
+                    />
+                <ImageButton
+                    android:id="@+id/download_selected"
+                    android:padding="0dp"
+                    android:background="@drawable/ripple_effect"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:src="@drawable/download"
+                    />
+                <ImageButton
+                    android:id="@+id/delete_selected"
+                    android:padding="0dp"
+                    android:background="@drawable/ripple_effect"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:src="@drawable/ic_baseline_delete_outline_30"
+                    />
 
+            </LinearLayout>
 
-        <!--
-        <GridView
-            android:id="@+id/novelsGrid"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true"
-            android:numColumns="2"
-            android:padding="15dp"
-            android:verticalSpacing="15dp"
-            android:horizontalSpacing="15dp"
-            android:background="@color/main_dark_theme"/>
-            -->
-
-    </LinearLayout>
-
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </FrameLayout>

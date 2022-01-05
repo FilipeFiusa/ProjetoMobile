@@ -25,6 +25,9 @@ public class NovelDetails implements Serializable {
 
     private String isFavorite = "no";
 
+    public boolean selected = false;
+    public int position;
+
     private int chapterQuantity = 0;
 
     private ArrayList<ChapterIndex> chapterIndexes = null;

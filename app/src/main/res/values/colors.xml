@@ -11,4 +11,8 @@
     <color name="main_dark_theme">#1F1B1B</color>
     <color name="secodary_dark_theme">#302D2D</color>
     <color name="royal_blue">#4169E1</color>
+
+    <color name="color_ripple">#FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+
 </resources>
