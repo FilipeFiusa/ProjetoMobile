@@ -281,6 +281,7 @@ public class DBController {
             novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
             novel.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
             novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+            novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
 
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));

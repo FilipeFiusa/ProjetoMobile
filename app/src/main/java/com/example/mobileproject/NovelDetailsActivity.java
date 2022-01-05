@@ -362,15 +362,21 @@ public class NovelDetailsActivity extends AppCompatActivity {
             NovelDetails n = null;
             DBController db = new DBController(ctx);
 
+            //1641068613060
+
             if(novelDetails.length > 1){
                 n = db.getNovel(novelDetails[1], novelDetails[2]);
             }
 
             if(n != null){
-                novelName = novelDetails[1];
-                novelSource = novelDetails[2];
+                if((System.currentTimeMillis() - n.getLastReadied()) < (60 * 60 * 1000) || n.getIsFavorite().equals("yes")){
+                    novelName = novelDetails[1];
+                    novelSource = novelDetails[2];
 
-                return null;
+                    return null;
+                }
+
+                db.deleteNovel(n.getNovelName(), n.getSource());
             }
 
             ParserInterface parser = ParserFactory.getParserInstance(novelDetails[2], ctx);

@@ -24,6 +24,7 @@ public class NovelDetails implements Serializable {
     private int chapterToReadQuantity = 0;
 
     private String isFavorite = "no";
+    private long lastReadied = -1;
 
     public boolean selected = false;
     public int position;
@@ -175,5 +176,13 @@ public class NovelDetails implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public long getLastReadied() {
+        return lastReadied;
+    }
+
+    public void setLastReadied(long lastReadied) {
+        this.lastReadied = lastReadied;
     }
 }

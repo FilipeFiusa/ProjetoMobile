@@ -481,7 +481,7 @@ public class ReaderActivity extends AppCompatActivity {
         ChapterIndex next = nrc.getNextChapter();
 
         if(next == null){
-            Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Não tem capitulo posterior", Toast.LENGTH_SHORT).show();
             return;
         }
 
