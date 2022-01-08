@@ -13,7 +13,10 @@ import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterInDownload;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloaderClass;
+import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.NovelDetails;
+
+import org.jsoup.safety.Cleaner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -224,6 +227,53 @@ public class DBController {
         db = database.getReadableDatabase();
         String query = "SELECT * FROM Novels WHERE on_library=1 AND status=1 ORDER BY last_readed DESC";
         result = db.rawQuery(query, null);
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            do {
+                NovelDetails novelDetails = new NovelDetails();
+
+                novelDetails.setNovelAuthor(result.getString(result.getColumnIndexOrThrow("novel_author")));
+                novelDetails.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
+                novelDetails.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
+                novelDetails.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
+                novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+                novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+                novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+
+
+                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+                File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+                String imagePath = mSaveBit.getPath();
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+                novelDetails.setNovelImage(bitmap);
+
+                query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+                Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
+                if(result2.getCount() > 0) {
+                    result2.moveToFirst();
+
+                    novelDetails.setChapterToReadQuantity(result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+                }
+
+                novelDetailsArr.add(novelDetails);
+            }while (result.moveToNext());
+        }
+
+        db.close();
+
+        return novelDetailsArr;
+    }
+
+    public ArrayList<NovelDetails> selectAllNovelsFromSource(String source){
+        Cursor result;
+        ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
+
+        db = database.getReadableDatabase();
+        String query = "SELECT * FROM Novels WHERE on_library=1 AND novel_source=? ORDER BY last_readed DESC";
+        result = db.rawQuery(query, new String[]{source});
 
         if(result.getCount() > 0){
             result.moveToFirst();
@@ -656,7 +706,6 @@ public class DBController {
         }
     }
 
-
     public boolean setChaptersReadied(String novelName, String novelSource, String _query){
         Cursor result;
 
@@ -715,4 +764,244 @@ public class DBController {
         db.close();
     }
 
+    public long CreateCleaner(NovelCleaner cleaner){
+        ContentValues values;
+        long result;
+
+        db = database.getWritableDatabase();
+        values = new ContentValues();
+
+        values.put("type", cleaner.getType());
+        values.put("cleaner_name", cleaner.getName());
+        values.put("flag", cleaner.getFlag());
+        values.put("replacement", cleaner.getReplacement());
+
+        result = db.insert("Cleaners", null, values);
+        db.close();
+
+        return result;
+    }
+
+    public ArrayList<NovelCleaner> CreateCleanerConnectionsAny(NovelCleaner cleaner){
+        ContentValues values;
+        long result;
+        long cleanerID = CreateCleaner(cleaner);
+
+        ArrayList<NovelCleaner> tempNovelCleaners = new ArrayList<>();
+
+        if(cleanerID > -1){
+            ArrayList<NovelDetails> allNovels = selectAllNovels();
+
+            db = database.getWritableDatabase();
+
+            for(NovelDetails n : allNovels){
+                NovelCleaner tempCleaner = new NovelCleaner(
+                        cleaner.getName(),
+                        cleaner.getFlag(),
+                        cleaner.getReplacement(),
+                        cleaner.getType());
+
+                tempCleaner.setCleanerId((int) cleanerID);
+
+                values = new ContentValues();
+
+                values.put("cleaner_id", cleanerID);
+                values.put("novel_name", n.getNovelName());
+                values.put("novel_source", n.getSource());
+                if(cleaner.isActive()){
+                    values.put("isActive", 1);
+                }else{
+                    values.put("isActive", 0);
+
+                }
+
+                result = db.insert("CleanerConnection", null, values);
+
+                tempCleaner.setConnectionId((int) result);
+            }
+
+            db.close();
+        }
+
+        return tempNovelCleaners;
+    }
+
+    public ArrayList<NovelCleaner> CreateCleanerConnectionsSource(NovelCleaner cleaner, String novelSource){
+        ArrayList<NovelCleaner> tempNovelCleaners = new ArrayList<>();
+        ContentValues values;
+        long result;
+        long cleanerID = CreateCleaner(cleaner);
+
+        if(cleanerID > -1){
+            ArrayList<NovelDetails> allNovels = selectAllNovelsFromSource(novelSource);
+
+            db = database.getWritableDatabase();
+
+            for(NovelDetails n : allNovels){
+                NovelCleaner tempCleaner = new NovelCleaner(
+                        cleaner.getName(),
+                        cleaner.getFlag(),
+                        cleaner.getReplacement(),
+                        cleaner.getType());
+
+                tempCleaner.setCleanerId((int) cleanerID);
+
+                values = new ContentValues();
+
+                values.put("cleaner_id", cleanerID);
+                values.put("novel_name", n.getNovelName());
+                values.put("novel_source", n.getSource());
+                if(cleaner.isActive()){
+                    values.put("isActive", 1);
+                }else{
+                    values.put("isActive", 0);
+                }
+
+                result = db.insert("CleanerConnection", null, values);
+                tempCleaner.setConnectionId((int) result);
+            }
+
+            db.close();
+        }
+
+        return tempNovelCleaners;
+    }
+
+    public NovelCleaner CreateCleanerConnectionsNovel(NovelCleaner cleaner, String novelName, String novelSource){
+        ContentValues values;
+        long result;
+        long cleanerID = CreateCleaner(cleaner);
+
+        NovelCleaner tempCleaner = new NovelCleaner(
+                cleaner.getName(),
+                cleaner.getFlag(),
+                cleaner.getReplacement(),
+                cleaner.getType());
+
+        tempCleaner.setCleanerId((int) cleanerID);
+
+        if(cleanerID > -1){
+            db = database.getWritableDatabase();
+
+            values = new ContentValues();
+
+            values.put("cleaner_id", cleanerID);
+            values.put("novel_name", novelName);
+            values.put("novel_source", novelSource);
+            if(cleaner.isActive()){
+                values.put("isActive", 1);
+            }else{
+                values.put("isActive", 0);
+            }
+
+            result = db.insert("CleanerConnection", null, values);
+
+            tempCleaner.setConnectionId((int) result);
+
+            db.close();
+        }
+
+        return tempCleaner;
+    }
+
+    public ArrayList<NovelCleaner> getCleanerConnections(String novelName, String novelSource){
+        Cursor result;
+        ArrayList<NovelCleaner> cleaners = new ArrayList<>();
+
+        db = database.getReadableDatabase();
+
+        String query = "" +
+                "SELECT CleanerConnection.*, Cleaners.type, Cleaners.cleaner_name, Cleaners.flag, Cleaners.replacement " +
+                "FROM Cleaners " +
+                "INNER JOIN CleanerConnection ON Cleaners.id = CleanerConnection.cleaner_id " +
+                "WHERE CleanerConnection.novel_name=? AND CleanerConnection.novel_source=?";
+        result = db.rawQuery(query, new String[]{novelName, novelSource});
+
+        System.out.println(query);
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            do {
+                NovelCleaner cleaner = new NovelCleaner();
+
+                cleaner.setName(result.getString(result.getColumnIndexOrThrow("cleaner_name")));
+                cleaner.setFlag(result.getString(result.getColumnIndexOrThrow("flag")));
+                cleaner.setReplacement(result.getString(result.getColumnIndexOrThrow("replacement")));
+                cleaner.setType(result.getInt(result.getColumnIndexOrThrow("type")));
+                cleaner.setConnectionId(result.getInt(result.getColumnIndexOrThrow("id")));
+                cleaner.setCleanerId(result.getInt(result.getColumnIndexOrThrow("cleaner_id")));
+
+                int isActive = result.getInt(result.getColumnIndexOrThrow("isActive"));
+
+                if(isActive == 1){
+                    cleaner.setActive(true);
+                }else{
+                    cleaner.setActive(false);
+                }
+
+                cleaners.add(cleaner);
+            }while (result.moveToNext());
+        }
+
+        db.close();
+
+        return cleaners;
+    }
+
+    public void deleteCleaner(int cleaner_id){
+        db = database.getWritableDatabase();
+
+        db.beginTransaction();
+
+        try {
+            long result = db.delete("CleanerConnection", "cleaner_id=?", new String[]{String.valueOf(cleaner_id)});
+            if(result >=  0){
+                long result2 = db.delete("Cleaners", "id=?", new String[]{String.valueOf(cleaner_id)});
+
+                if(result2 >= 0){
+                    db.setTransactionSuccessful();
+                }
+            }
+        } finally {
+            db.endTransaction();
+        }
+
+        db.close();
+    }
+
+    public void ChangeIsActiveConnection(int connection_id, boolean isActive){
+
+        ContentValues values = new ContentValues();
+        long result;
+
+        db = database.getWritableDatabase();
+
+
+        if(isActive){
+            values.put("isActive", 1);
+        }else{
+            values.put("isActive", 0);
+        }
+
+        result = db.update("CleanerConnection", values, "id=? ", new String[]{String.valueOf(connection_id)});
+
+        db.close();
+    }
+
+    public void EditCleaner(NovelCleaner cleaner){
+        ContentValues values = new ContentValues();
+        long result;
+
+        db = database.getWritableDatabase();
+
+        values.put("cleaner_name", cleaner.getName());
+        values.put("flag", cleaner.getFlag());
+        values.put("replacement", cleaner.getReplacement());
+
+
+        result = db.update("Cleaners", values, "id=? ", new String[]{String.valueOf(cleaner.getCleanerId())});
+
+        db.close();
+    }
 }

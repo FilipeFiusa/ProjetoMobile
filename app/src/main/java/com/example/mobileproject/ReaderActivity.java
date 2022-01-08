@@ -4,17 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -22,24 +20,22 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.azeesoft.lib.colorpicker.ColorPickerDialog;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.example.mobileproject.model.parser.english.NovelFullParser;
+import com.example.mobileproject.ui.reader_cleansers.ReaderCleaner;
 import com.example.mobileproject.ui.reader_settings.ReaderSettings;
 import com.example.mobileproject.util.FontFactory;
 
@@ -56,7 +52,8 @@ public class ReaderActivity extends AppCompatActivity {
     private ReaderChaptersAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private ArrayList<Integer> chaptersReadied = new ArrayList<>();
+    private final ArrayList<Integer> chaptersReadied = new ArrayList<>();
+    private ArrayList<NovelCleaner> novelCleaners = null;
 
     private SeekBar mSeekBar;
     private TextView chapterProgress;
@@ -69,7 +66,9 @@ public class ReaderActivity extends AppCompatActivity {
     Animation animTranslateSideOut;
 
     public ReaderSettings readerSettings;
+    public ReaderCleaner readerCleaner;
 
+    private String novelName;
     private String sourceName;
 
     @Override
@@ -92,6 +91,7 @@ public class ReaderActivity extends AppCompatActivity {
         String chapterLink = i.getStringExtra("chapterLink");
         System.out.println(chapterLink);
         sourceName = i.getStringExtra("sourceName");
+        novelName = i.getStringExtra("novelName");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
         nrc.setStartedChapter(chapterLink);
 
@@ -170,13 +170,16 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
+        GetCleaners getCleaners = new GetCleaners();
+        getCleaners.execute();
+
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(nrc.getCurrentChapter());
     }
 
     private void setUpMenu(){
         Intent i = getIntent();
-        String novelName = i.getStringExtra("novelName");
+        novelName = i.getStringExtra("novelName");
 
         ImageButton returnButton = (ImageButton) findViewById(R.id.reader_return);
         returnButton.setOnClickListener(new View.OnClickListener() {
@@ -294,6 +297,35 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton openUserCleansers = (ImageButton) findViewById(R.id.open_user_cleansers);
+        openUserCleansers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
+                FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
+
+                topMenu.startAnimation(animTranslateOut);
+                bottomMenu.startAnimation(animTranslateBottomOut);
+                topMenu.setVisibility(View.GONE);
+                bottomMenu.setVisibility(View.GONE);
+
+                RelativeLayout container = (RelativeLayout) findViewById(R.id.reader_activity);
+                FrameLayout inflatedLayout= (FrameLayout) getLayoutInflater()
+                        .inflate(R.layout.reader_user_cleaners, container, false);
+                readerCleaner = new ReaderCleaner(inflatedLayout, ReaderActivity.this, novelCleaners, novelName, sourceName);
+                container.addView(inflatedLayout);
+            }
+        });
+
+        ImageButton reloadChapterButton = (ImageButton) findViewById(R.id.reload_chapter_content);
+        reloadChapterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getChapterContent = new GetChapterContent();
+                getChapterContent.execute(nrc.getCurrentChapter());
+            }
+        });
+
         //SetUpReaderConfigMenu();
     }
 
@@ -352,100 +384,6 @@ public class ReaderActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    /*
-    private void SetUpReaderConfigMenu(){
-        TextView textPreview = (TextView) findViewById(R.id.text_preview);
-        LinearLayout bgPreview = (LinearLayout) findViewById(R.id.background_preview);
-
-        //reader_font_size_selector
-        Spinner dropdown = findViewById(R.id.reader_font_size_selector);
-        String[] items = new String[]{"16", "17","18","19","20","21","22","23","24","25","26","27","28","29","30"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-        dropdown.setAdapter(adapter);
-        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-                Log.v("item", (String) parent.getItemAtPosition(position));
-                textPreview.setTextSize((Float) Float.parseFloat((String) parent.getItemAtPosition(position)));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // TODO Auto-generated method stub
-            }
-        });
-
-        Spinner dropdown2 = findViewById(R.id.reader_font_family_selector);
-        String[] items2 = new String[]{"Acme", "Alice", "Coming_soon", "Roboto"};
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items2);
-        dropdown2.setAdapter(adapter2);
-        dropdown2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-                Typeface font = null;
-
-                Log.i("item: ", (String) parent.getItemAtPosition(position));
-
-                String font_name = (String) parent.getItemAtPosition(position);
-
-                if(font_name.equals("Acme")){
-                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.acme);
-                    textPreview.setTypeface(font);
-                }else if(font_name.equals("Alice")){
-                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.alice);
-                    textPreview.setTypeface(font);
-                }else if(font_name.equals("Coming_soon")){
-                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.coming_soon);
-                    textPreview.setTypeface(font);
-                }else if(font_name.equals("Roboto")){
-                    font = ResourcesCompat.getFont(ReaderActivity.this, R.font.roboto);
-                    textPreview.setTypeface(font);
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // TODO Auto-generated method stub
-            }
-        });
-
-        LinearLayout mColorChanger = findViewById(R.id.reader_font_color_selector);
-        mColorChanger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorPickerDialog colorPickerDialog= ColorPickerDialog.createColorPickerDialog(ReaderActivity.this,ColorPickerDialog.DARK_THEME);
-                colorPickerDialog.setOnColorPickedListener(new ColorPickerDialog.OnColorPickedListener() {
-                    @Override
-                    public void onColorPicked(int color, String hexVal) {
-                        textPreview.setTextColor(Color.parseColor(hexVal));
-                        mColorChanger.setBackgroundColor(Color.parseColor(hexVal));
-                    }
-                });
-                colorPickerDialog.show();
-            }
-        });
-
-        LinearLayout mBgChanger = findViewById(R.id.reader_bg_color_selector);
-        bgPreview.setBackgroundColor(getResources().getColor(R.color.main_dark_theme));
-        mBgChanger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ColorPickerDialog colorPickerDialog= ColorPickerDialog.createColorPickerDialog(ReaderActivity.this,ColorPickerDialog.DARK_THEME);
-                colorPickerDialog.setOnColorPickedListener(new ColorPickerDialog.OnColorPickedListener() {
-                    @Override
-                    public void onColorPicked(int color, String hexVal) {
-                        bgPreview.setBackgroundColor(Color.parseColor(hexVal));
-                        mBgChanger.setBackgroundColor(Color.parseColor(hexVal));
-                    }
-                });
-                colorPickerDialog.show();
-            }
-        });
-    }
-*/
     private void getPreviousChapter(){
         if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
             return;
@@ -518,10 +456,6 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -535,8 +469,6 @@ public class ReaderActivity extends AppCompatActivity {
 
     }
 
-    // Shows the system bars by removing all the flags
-    // except for the ones that make the content appear under the system bars.
     private void showSystemUI() {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -572,6 +504,7 @@ public class ReaderActivity extends AppCompatActivity {
                 chapterContent = db.getChapter(chapter[0].getId());
 
                 if(!chapterContent.getChapterContent().isEmpty()){
+                    chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
                     return chapterContent;
                 }
             }
@@ -582,6 +515,8 @@ public class ReaderActivity extends AppCompatActivity {
             }
 
             chapterContent = parser.getChapterContent(chapter[0].getChapterLink());
+
+            chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
 
             return chapterContent;
         }
@@ -603,7 +538,43 @@ public class ReaderActivity extends AppCompatActivity {
             scrollView.pageScroll(ScrollView.FOCUS_UP);
             scrollView.smoothScrollTo(0,0);
         }
+
+        private String CleanChapter(String chapterContent){
+            String cleanedChapter = chapterContent;
+
+            while (novelCleaners == null){
+                SystemClock.sleep(100);
+                System.out.println("Loop");
+            }
+
+            System.out.println("Finalizando ---");
+
+            for(NovelCleaner cleaner : novelCleaners){
+                System.out.println(cleaner.getName());
+                if(!cleaner.isActive()) continue;
+
+                cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
+            }
+
+            return cleanedChapter;
+        }
     }
 
+    private class GetCleaners extends AsyncTask<Void, Void, ArrayList<NovelCleaner>>{
+
+        @Override
+        protected ArrayList<NovelCleaner> doInBackground(Void... voids) {
+            DBController db = new DBController(ReaderActivity.this);
+
+            return db.getCleanerConnections(novelName, sourceName);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<NovelCleaner> cleaners) {
+            super.onPostExecute(cleaners);
+
+            novelCleaners = cleaners;
+        }
+    }
 }
 

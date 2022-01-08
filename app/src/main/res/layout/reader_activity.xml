@@ -239,16 +239,20 @@
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
+                    android:id="@+id/open_user_cleansers"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:layout_width="0dp"
+                    android:src="@drawable/ic_mode_edit_white_24dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
+                    android:id="@+id/reload_chapter_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:layout_width="0dp"
+                    android:src="@drawable/ic_baseline_refresh_30"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
                     android:background="@color/secodary_dark_theme"/>
