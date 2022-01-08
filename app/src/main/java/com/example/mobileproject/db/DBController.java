@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -63,13 +64,26 @@ public class DBController {
         values.put("novel_image", n.getNovelName() + "_" + n.getSource() + "_" + "image.png");
 
         result = db.insert("Novels", null, values);
-        db.close();
 
-        String[] files = ctx.fileList();
+        if(result > -1){
+            ArrayList<NovelCleaner> cleaners = getCleanersTypeOneAndTwo();
+            for(NovelCleaner cleaner : cleaners){
+                values = new ContentValues();
 
-        for (String f : files){
-            Log.i("-------", f);
+                values.put("cleaner_id", cleaner.getCleanerId());
+                values.put("novel_name", n.getNovelName());
+                values.put("novel_source", n.getSource());
+                if(cleaner.isActive()){
+                    values.put("isActive", 1);
+                }else{
+                    values.put("isActive", 0);
+                }
+
+                result = db.insert("CleanerConnection", null, values);
+            }
         }
+
+        db.close();
 
         return result;
     }
@@ -160,6 +174,10 @@ public class DBController {
 
         try {
             long result = db.delete("Chapters", "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+            if(result >= 0){
+                result = db.delete("CleanerConnection", "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+            }
+
             if(result >=  0){
                 long result2 = db.delete("Novels", "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
 
@@ -948,6 +966,42 @@ public class DBController {
 
         return cleaners;
     }
+
+    public ArrayList<NovelCleaner> getCleanersTypeOneAndTwo(){
+        Cursor result;
+        ArrayList<NovelCleaner> cleaners = new ArrayList<>();
+
+        db = database.getReadableDatabase();
+
+        String query = "" +
+                "SELECT * " +
+                "FROM Cleaners " +
+                "WHERE Cleaners.type=1 OR Cleaners.type=2 ";
+        result = db.rawQuery(query, null);
+
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            do {
+                NovelCleaner cleaner = new NovelCleaner();
+
+                cleaner.setName(result.getString(result.getColumnIndexOrThrow("cleaner_name")));
+                cleaner.setFlag(result.getString(result.getColumnIndexOrThrow("flag")));
+                cleaner.setReplacement(result.getString(result.getColumnIndexOrThrow("replacement")));
+                cleaner.setType(result.getInt(result.getColumnIndexOrThrow("type")));
+                cleaner.setCleanerId(result.getInt(result.getColumnIndexOrThrow("id")));
+
+                cleaner.setActive(false);
+
+                cleaners.add(cleaner);
+            }while (result.moveToNext());
+        }
+
+        db.close();
+
+        return cleaners;
+    }
+
 
     public void deleteCleaner(int cleaner_id){
         db = database.getWritableDatabase();
