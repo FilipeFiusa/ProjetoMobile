@@ -1,11 +1,13 @@
 package com.example.mobileproject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -21,6 +23,7 @@ public class VisitSourceWebViewActivity extends AppCompatActivity {
     Context ctx = this;
     private String currentSourceName;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +47,12 @@ public class VisitSourceWebViewActivity extends AppCompatActivity {
         Parser p = (Parser) ParserFactory.getParserInstance(currentSourceName, ctx);
 
         WebView wv = (WebView) findViewById(R.id.web_view);
+        wv.setWebViewClient(new WebViewClient() {
+            public boolean shouldOverrideUrlLoading(WebView view, String url){
+                view.loadUrl(url);
+                return false;
+            }
+        });
 
         WebSettings ws = wv.getSettings();
 
