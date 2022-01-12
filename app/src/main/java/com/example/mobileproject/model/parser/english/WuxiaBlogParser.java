@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Objects;
 
 public class WuxiaBlogParser extends Parser {
-
     public WuxiaBlogParser(Context ctx) {
         super(ctx);
 
@@ -237,6 +236,8 @@ public class WuxiaBlogParser extends Parser {
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
 
+            String rawChapter = document.html();
+
             String title = document.select("h4").first().text();
 
             document.select("script").remove();
@@ -306,7 +307,7 @@ public class WuxiaBlogParser extends Parser {
 
             System.out.println(chapterContent);
 
-            return new ChapterContent(chapterContent, title, chapterUrl);
+            return new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
         }catch (IOException e){
             e.printStackTrace();
         }

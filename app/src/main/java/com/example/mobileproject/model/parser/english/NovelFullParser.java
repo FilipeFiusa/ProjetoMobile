@@ -198,6 +198,8 @@ public class NovelFullParser extends Parser {
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
 
+            String rawChapter = document.html();
+
             String title = document.select(".chapter-text").first().text();
 
             document.select("script").remove();
@@ -253,11 +255,13 @@ public class NovelFullParser extends Parser {
                     .replaceAll("</div>", "")
                     .replaceAll("<span>", "")
                     .replaceAll("</span>", "")
+                    .replaceAll("\n  ", "\n")
+                    .replaceAll("\n ", "\n")
                     .trim();
 
             chapterContent = cleanHTMLEntities(chapterContent);
 
-            ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl);
+            ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
 
             return content;
         }catch (IOException e){
