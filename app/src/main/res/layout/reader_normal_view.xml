@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ScrollView
+        android:id="@+id/reader_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants">
+
+        <LinearLayout
+            android:id="@+id/chapter_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
+            >
+
+            <TextView
+                android:id="@+id/chapter_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:clickable="true"
+                android:longClickable="true"
+                android:enabled="true"
+                android:focusable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="35sp" />
+
+
+            <TextView
+                android:id="@+id/chapter_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:enabled="true"
+                android:focusable="true"
+                android:longClickable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="@string/test"
+                android:textColor="@color/white"
+                android:textIsSelectable="true"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingTop="30dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="30dp">
+
+                <Button
+                    android:id="@+id/reader_previous"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/secodary_dark_theme"
+                    android:text="Anterior" />
+
+                <Button
+                    android:id="@+id/reader_next"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/secodary_dark_theme"
+                    android:text="Proximo" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

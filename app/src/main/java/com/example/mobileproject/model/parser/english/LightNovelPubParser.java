@@ -233,15 +233,13 @@ public class LightNovelPubParser extends Parser {
 
             String title = document.select(".chapter-title").first().text();
 
-            cleanDocument(document);
+            String rawChapter = document.html();
 
             String chapterContent = document.select("#chapter-container").first().html();
 
             chapterContent = cleanChapter(chapterContent);
 
-            System.out.println(chapterContent);
-
-            return new ChapterContent(chapterContent, title, chapterUrl);
+            return new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
         }catch (IOException e){
             e.printStackTrace();
         }

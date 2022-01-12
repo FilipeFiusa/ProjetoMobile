@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +38,7 @@ import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.ui.reader_cleansers.ReaderCleaner;
 import com.example.mobileproject.ui.reader_settings.ReaderSettings;
+import com.example.mobileproject.ui.reader_web_view.ReaderWebViewController;
 import com.example.mobileproject.util.FontFactory;
 
 import java.util.ArrayList;
@@ -67,9 +69,14 @@ public class ReaderActivity extends AppCompatActivity {
 
     public ReaderSettings readerSettings;
     public ReaderCleaner readerCleaner;
+    public ReaderWebViewController webViewController;
+
+    private ChapterContent currentChapterContent;
 
     private String novelName;
     private String sourceName;
+
+    private int readerViewType = 1; // 1- Normal View / 2- ReaderView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,43 +137,7 @@ public class ReaderActivity extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
-                FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
-                FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
-
-                if(readerSettings != null){
-                    FrameLayout temp = readerSettings.getFrameLayout();
-                    RelativeLayout container = (RelativeLayout) findViewById(R.id.reader_activity);
-                    container.removeView(temp);
-                    readerSettings = null;
-
-                    return;
-                }
-
-                if(sideMenu.getVisibility() == View.VISIBLE){
-                    sideMenu.startAnimation(animTranslateSideOut);
-                    sideMenu.setVisibility(View.GONE);
-
-                    return;
-                }
-
-                if (topMenu.getVisibility() == View.GONE){
-                    showSystemUI();
-
-                    topMenu.setVisibility(View.VISIBLE);
-                    bottomMenu.setVisibility(View.VISIBLE);
-
-                    topMenu.startAnimation(animTranslateIn);
-                    bottomMenu.startAnimation(animTranslateBottomIn);
-                }else{
-                    hideSystemUI();
-
-                    topMenu.startAnimation(animTranslateOut);
-                    bottomMenu.startAnimation(animTranslateBottomOut);
-
-                    topMenu.setVisibility(View.GONE);
-                    bottomMenu.setVisibility(View.GONE);
-                }
+                toggleReaderMenu();
             }
         });
 
@@ -287,13 +258,6 @@ public class ReaderActivity extends AppCompatActivity {
                         .inflate(R.layout.reader_settings, container, false);
                 readerSettings = new ReaderSettings(inflatedLayout, ReaderActivity.this);
                 container.addView(inflatedLayout);
-
-                /*
-
-                FrameLayout readerSettings = (FrameLayout) findViewById(R.id.reader_settings);
-                readerSettings.setVisibility(View.VISIBLE);
-
-                 */
             }
         });
 
@@ -326,7 +290,63 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
-        //SetUpReaderConfigMenu();
+        ImageButton openOnWebViewButton = (ImageButton) findViewById(R.id.open_chapter_on_web_view);
+        openOnWebViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Toast.makeText(ReaderActivity.this, "Not Working yet", Toast.LENGTH_SHORT).show();
+                LinearLayout container = (LinearLayout) findViewById(R.id.reader_container);
+                container.removeAllViews();
+                CoordinatorLayout inflatedLayout= (CoordinatorLayout) getLayoutInflater()
+                        .inflate(R.layout.reader_web_view, container, false);
+                webViewController = new ReaderWebViewController(inflatedLayout, ReaderActivity.this, nrc.getCurrentChapter(), sourceName, currentChapterContent);
+                container.addView(inflatedLayout);
+
+                readerViewType = 2;
+                toggleReaderMenu();
+            }
+        });
+    }
+
+    public void toggleReaderMenu(){
+        FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
+        FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
+        FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
+
+        if(readerSettings != null){
+            FrameLayout temp = readerSettings.getFrameLayout();
+            RelativeLayout container = (RelativeLayout) findViewById(R.id.reader_activity);
+            container.removeView(temp);
+            readerSettings = null;
+
+            return;
+        }
+
+        if(sideMenu.getVisibility() == View.VISIBLE){
+            sideMenu.startAnimation(animTranslateSideOut);
+            sideMenu.setVisibility(View.GONE);
+
+            return;
+        }
+
+        if (topMenu.getVisibility() == View.GONE){
+            showSystemUI();
+
+            topMenu.setVisibility(View.VISIBLE);
+            bottomMenu.setVisibility(View.VISIBLE);
+
+            topMenu.startAnimation(animTranslateIn);
+            bottomMenu.startAnimation(animTranslateBottomIn);
+        }else{
+            hideSystemUI();
+
+            topMenu.startAnimation(animTranslateOut);
+            bottomMenu.startAnimation(animTranslateBottomOut);
+
+            topMenu.setVisibility(View.GONE);
+            bottomMenu.setVisibility(View.GONE);
+        }
     }
 
     private void setReaderUserPreferences(){
@@ -336,19 +356,13 @@ public class ReaderActivity extends AppCompatActivity {
         container.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#1F1B1B")));
 
         TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
-        chapterContentView.setTextSize(preferences.getFloat("font_size", 20));
+        chapterContentView.setTextSize(preferences.getFloat("font_size", 18));
         chapterContentView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
         chapterContentView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
         TextView chapterTitleView = (TextView) findViewById(R.id.chapter_name);
         chapterTitleView.setTextSize(preferences.getFloat("font_size", 20) + 15);
         chapterTitleView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
         chapterTitleView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-
-
-        System.out.println(preferences.getFloat("font_size", 20));//	#FFFFFF
-        System.out.println(preferences.getString("font_name", "Roboto"));//	#FFFFFF
-        System.out.println(preferences.getString("font_color", "#FFFFFF"));//	#FFFFFF
-        System.out.println(preferences.getString("background_color", "#1F1B1B"));//	#FFFFFF
     }
 
     public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
@@ -384,7 +398,7 @@ public class ReaderActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void getPreviousChapter(){
+    public void getPreviousChapter(){
         if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
             return;
         }
@@ -399,12 +413,11 @@ public class ReaderActivity extends AppCompatActivity {
         mSeekBar.setProgress(nrc.getPosition());
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
-
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(previous);
     }
 
-    private void getNextChapter() {
+    public void getNextChapter() {
         if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
             return;
         }
@@ -441,6 +454,7 @@ public class ReaderActivity extends AppCompatActivity {
 
         mSeekBar.setProgress(currentPosition);
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
+
 
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(c);
@@ -530,13 +544,22 @@ public class ReaderActivity extends AppCompatActivity {
                 return;
             }
 
-            chapterName.setText(chapterContent.getChapterName());
-            chapterNameBottom.setText(chapterContent.getChapterName());
-            chapterContentView.setText(chapterContent.getChapterContent());
+            currentChapterContent = chapterContent;
 
-            scrollView.fullScroll(ScrollView.FOCUS_UP);
-            scrollView.pageScroll(ScrollView.FOCUS_UP);
-            scrollView.smoothScrollTo(0,0);
+            System.out.println("Finished");
+
+            if(readerViewType == 1){
+                chapterName.setText(chapterContent.getChapterName());
+                chapterNameBottom.setText(chapterContent.getChapterName());
+                chapterContentView.setText(chapterContent.getChapterContent());
+
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
+                scrollView.pageScroll(ScrollView.FOCUS_UP);
+                scrollView.smoothScrollTo(0,0);
+            }else if(readerViewType == 2){
+                chapterNameBottom.setText(chapterContent.getChapterName());
+                webViewController.goToAnotherChapter(nrc.getCurrentChapter(), chapterContent);
+            }
         }
 
         private String CleanChapter(String chapterContent){
@@ -547,10 +570,7 @@ public class ReaderActivity extends AppCompatActivity {
                 System.out.println("Loop");
             }
 
-            System.out.println("Finalizando ---");
-
             for(NovelCleaner cleaner : novelCleaners){
-                System.out.println(cleaner.getName());
                 if(!cleaner.isActive()) continue;
 
                 cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
