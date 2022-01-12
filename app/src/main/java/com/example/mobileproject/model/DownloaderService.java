@@ -184,7 +184,7 @@ public class DownloaderService extends Service {
 
         ChapterContent chapterContent = p.getChapterContent(chapterIndex.getChapterLink());
 
-        boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent());
+        boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
 
         if(!result){
             return;

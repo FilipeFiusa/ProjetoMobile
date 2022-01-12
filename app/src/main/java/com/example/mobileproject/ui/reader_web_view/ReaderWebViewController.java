@@ -137,6 +137,10 @@ public class ReaderWebViewController  {
             }
         });
 
+        if(currentChapterContent == null || currentChapter == null){
+            return;
+        }
+
         webView.loadDataWithBaseURL(baseUrl + currentChapter.getChapterLink(),
                 currentChapterContent.getRawChapter(),
                 "text/html",

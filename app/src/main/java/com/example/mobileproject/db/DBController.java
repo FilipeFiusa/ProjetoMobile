@@ -47,6 +47,7 @@ public class DBController {
 
         values.put("last_readed", new Date().getTime());//last_readed
         values.put("on_library", 0);//last_readed
+        values.put("readerViewType", 1);//last_readed
         values.put("novel_name", n.getNovelName());
         values.put("novel_author", n.getNovelAuthor());
         values.put("novel_description", n.getNovelDescription());
@@ -103,6 +104,21 @@ public class DBController {
         return result;
     }
 
+    public long changeReaderViewType(String novelName, String novelSource, int newReaderViewType){
+        ContentValues values = new ContentValues();
+        long result;
+
+        db = database.getWritableDatabase();
+
+
+        values.put("readerViewType", newReaderViewType);
+        result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
+
+        db.close();
+
+        return result;
+    }
+
     public String insertChapters(String novelName, String novelSource, ChapterIndex index) {
         ContentValues values;
         long result;
@@ -118,6 +134,7 @@ public class DBController {
         values.put("chapter_name", index.getChapterName());
         values.put("chapter_link", index.getChapterLink());
         values.put("chapter_content", "");
+        values.put("raw_chapter", "");
         values.put("readed", "no");
         values.put("downloaded", "no");
 
@@ -212,6 +229,7 @@ public class DBController {
                 novelDetails.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
                 novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+                novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -259,6 +277,7 @@ public class DBController {
                 novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+                novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -306,6 +325,7 @@ public class DBController {
                 novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+                novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -350,6 +370,8 @@ public class DBController {
             novel.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
             novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
             novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
+            novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+
 
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
@@ -669,6 +691,7 @@ public class DBController {
             ChapterContent c = new ChapterContent();
 
             c.setChapterContent(result.getString(result.getColumnIndexOrThrow("chapter_content")));
+            c.setRawChapter(result.getString(result.getColumnIndexOrThrow("raw_chapter")));
             c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
             c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
 
@@ -699,12 +722,13 @@ public class DBController {
         return -1;
     }
 
-    public boolean setChapterContent(int id, String chapterContent){
+    public boolean setChapterContent(int id, String chapterContent, String rawChapter){
         long result;
         db = database.getReadableDatabase();
 
         ContentValues values = new ContentValues();;
         values.put("chapter_content", chapterContent);
+        values.put("raw_chapter", rawChapter);
         values.put("downloaded", "yes");
 
         result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});

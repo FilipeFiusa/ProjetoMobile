@@ -39,6 +39,8 @@ public class App extends Application {
     }
 
     private void scheduleJob(){
+        if(true) return;
+
         if(isJobServiceOn(this)){
             return;
         }

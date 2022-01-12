@@ -20,6 +20,7 @@ public class NovelDetails implements Serializable {
     private String novelLink;
 
     private int status = 1; // 1- Ongoing / 2- Completed
+    private int readerViewType = 1; // 1- Ongoing / 2- Completed
 
     private int chapterToReadQuantity = 0;
 
@@ -184,5 +185,13 @@ public class NovelDetails implements Serializable {
 
     public void setLastReadied(long lastReadied) {
         this.lastReadied = lastReadied;
+    }
+
+    public int getReaderViewType() {
+        return readerViewType;
+    }
+
+    public void setReaderViewType(int readerViewType) {
+        this.readerViewType = readerViewType;
     }
 }

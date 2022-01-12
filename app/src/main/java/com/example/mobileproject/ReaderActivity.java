@@ -37,6 +37,7 @@ import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.ui.reader_cleansers.ReaderCleaner;
+import com.example.mobileproject.ui.reader_normal_view.ReaderNormalView;
 import com.example.mobileproject.ui.reader_settings.ReaderSettings;
 import com.example.mobileproject.ui.reader_web_view.ReaderWebViewController;
 import com.example.mobileproject.util.FontFactory;
@@ -69,14 +70,16 @@ public class ReaderActivity extends AppCompatActivity {
 
     public ReaderSettings readerSettings;
     public ReaderCleaner readerCleaner;
+
     public ReaderWebViewController webViewController;
+    public ReaderNormalView normalViewController;
 
     private ChapterContent currentChapterContent;
 
     private String novelName;
     private String sourceName;
 
-    private int readerViewType = 1; // 1- Normal View / 2- ReaderView
+    private int readerViewType; // 1- Normal View / 2- ReaderView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +87,7 @@ public class ReaderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reader_activity);
 
-        setReaderUserPreferences();
+        //setReaderUserPreferences();
 
         animTranslateIn = AnimationUtils.loadAnimation(this, R.anim.translate_in);
         animTranslateOut = AnimationUtils.loadAnimation(this, R.anim.translate_out);
@@ -96,7 +99,7 @@ public class ReaderActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         String chapterLink = i.getStringExtra("chapterLink");
-        System.out.println(chapterLink);
+        readerViewType = i.getIntExtra("readerViewType", 1);
         sourceName = i.getStringExtra("sourceName");
         novelName = i.getStringExtra("novelName");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
@@ -114,38 +117,41 @@ public class ReaderActivity extends AppCompatActivity {
         DownloadReceiver downloadReceiver = new DownloadReceiver(new Handler(), mAdapter);
         mAdapter.setDownloadReceiver(downloadReceiver);
 
-
-        previousButton = (Button) findViewById(R.id.reader_previous);
-        previousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPreviousChapter();
-            }
-        });
-
-        nextButton = (Button) findViewById(R.id.reader_next);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getNextChapter();
-            }
-        });
+        if(readerViewType == 1){
+            setUpNormalView();
+        }else if(readerViewType == 2){
+            setUpWebView();
+        }
 
         setUpMenu();
-
-        TextView textView = (TextView) findViewById(R.id.chapter_content);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleReaderMenu();
-            }
-        });
 
         GetCleaners getCleaners = new GetCleaners();
         getCleaners.execute();
 
         getChapterContent = new GetChapterContent();
         getChapterContent.execute(nrc.getCurrentChapter());
+    }
+
+    private void setUpNormalView(){
+        LinearLayout container = (LinearLayout) findViewById(R.id.reader_container);
+        container.removeAllViews();
+        FrameLayout inflatedLayout= (FrameLayout) getLayoutInflater()
+                .inflate(R.layout.reader_normal_view, container, false);
+        normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, currentChapterContent);
+        container.addView(inflatedLayout);
+
+        readerViewType = 1;
+    }
+
+    private void setUpWebView(){
+        LinearLayout container = (LinearLayout) findViewById(R.id.reader_container);
+        container.removeAllViews();
+        CoordinatorLayout inflatedLayout= (CoordinatorLayout) getLayoutInflater()
+                .inflate(R.layout.reader_web_view, container, false);
+        webViewController = new ReaderWebViewController(inflatedLayout, ReaderActivity.this, nrc.getCurrentChapter(), sourceName, currentChapterContent);
+        container.addView(inflatedLayout);
+
+        readerViewType = 2;
     }
 
     private void setUpMenu(){
@@ -158,6 +164,7 @@ public class ReaderActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent data = new Intent();
                 data.putExtra("readiedChapters", chaptersReadied);
+                data.putExtra("currentReaderViewType", readerViewType);
                 setResult(RESULT_OK,data);
 
                 finish();
@@ -290,21 +297,27 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton openOnWebViewButton = (ImageButton) findViewById(R.id.open_chapter_on_web_view);
-        openOnWebViewButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton toggleReaderViewType = (ImageButton) findViewById(R.id.open_chapter_on_web_view);
+        if(readerViewType == 1){
+            toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
+        }else if(readerViewType == 2){
+            toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
+        }
+        toggleReaderViewType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(readerViewType == 1){
+                    setUpWebView();
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
+                }else if(readerViewType == 2){
+                    setUpNormalView();
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
+                }
 
-                //Toast.makeText(ReaderActivity.this, "Not Working yet", Toast.LENGTH_SHORT).show();
-                LinearLayout container = (LinearLayout) findViewById(R.id.reader_container);
-                container.removeAllViews();
-                CoordinatorLayout inflatedLayout= (CoordinatorLayout) getLayoutInflater()
-                        .inflate(R.layout.reader_web_view, container, false);
-                webViewController = new ReaderWebViewController(inflatedLayout, ReaderActivity.this, nrc.getCurrentChapter(), sourceName, currentChapterContent);
-                container.addView(inflatedLayout);
-
-                readerViewType = 2;
                 toggleReaderMenu();
+
+                ChangeReaderViewType changeReaderViewType = new ChangeReaderViewType();
+                changeReaderViewType.execute(readerViewType);
             }
         });
     }
@@ -349,24 +362,12 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
-    private void setReaderUserPreferences(){
-        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-        LinearLayout container = findViewById(R.id.reader_container);
-        container.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#1F1B1B")));
-
-        TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
-        chapterContentView.setTextSize(preferences.getFloat("font_size", 18));
-        chapterContentView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
-        chapterContentView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-        TextView chapterTitleView = (TextView) findViewById(R.id.chapter_name);
-        chapterTitleView.setTextSize(preferences.getFloat("font_size", 20) + 15);
-        chapterTitleView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), this));
-        chapterTitleView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-    }
-
     public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
-        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
+        if(normalViewController != null){
+            normalViewController.changeReaderSettings(font_size, font_name, font_color, background_color);
+        }
+
+/*        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
         if(background_color != null){
@@ -395,7 +396,7 @@ public class ReaderActivity extends AppCompatActivity {
             editor.putString("font_color", font_color);
         }
 
-        editor.apply();
+        editor.apply();*/
     }
 
     public void getPreviousChapter(){
@@ -464,6 +465,7 @@ public class ReaderActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent data = new Intent();
         data.putExtra("readiedChapters", chaptersReadied);
+        data.putExtra("currentReaderViewType", readerViewType);
         setResult(RESULT_OK,data);
 
         finish();
@@ -492,21 +494,12 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private class GetChapterContent extends AsyncTask<ChapterIndex, Void, ChapterContent> {
-        private TextView chapterName;
         private TextView chapterNameBottom;
-        private TextView chapterContentView;
-
-        private ScrollView scrollView;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            chapterName = (TextView) findViewById(R.id.chapter_name);
             chapterNameBottom = (TextView) findViewById(R.id.chapter_name_bottom);
-            chapterContentView = (TextView) findViewById(R.id.chapter_content);
-
-            scrollView = (ScrollView) findViewById(R.id.reader_scroll_view);
         }
 
         @Override
@@ -546,20 +539,14 @@ public class ReaderActivity extends AppCompatActivity {
 
             currentChapterContent = chapterContent;
 
-            System.out.println("Finished");
 
             if(readerViewType == 1){
-                chapterName.setText(chapterContent.getChapterName());
-                chapterNameBottom.setText(chapterContent.getChapterName());
-                chapterContentView.setText(chapterContent.getChapterContent());
-
-                scrollView.fullScroll(ScrollView.FOCUS_UP);
-                scrollView.pageScroll(ScrollView.FOCUS_UP);
-                scrollView.smoothScrollTo(0,0);
+                normalViewController.setChapterContent(chapterContent);
             }else if(readerViewType == 2){
-                chapterNameBottom.setText(chapterContent.getChapterName());
                 webViewController.goToAnotherChapter(nrc.getCurrentChapter(), chapterContent);
             }
+
+            chapterNameBottom.setText(chapterContent.getChapterName());
         }
 
         private String CleanChapter(String chapterContent){
@@ -567,7 +554,6 @@ public class ReaderActivity extends AppCompatActivity {
 
             while (novelCleaners == null){
                 SystemClock.sleep(100);
-                System.out.println("Loop");
             }
 
             for(NovelCleaner cleaner : novelCleaners){
@@ -594,6 +580,17 @@ public class ReaderActivity extends AppCompatActivity {
             super.onPostExecute(cleaners);
 
             novelCleaners = cleaners;
+        }
+    }
+
+    private class ChangeReaderViewType extends AsyncTask<Integer, Void, Void>{
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            DBController db = new DBController(ReaderActivity.this);
+
+            db.changeReaderViewType(novelName, sourceName, integers[0]);
+
+            return null;
         }
     }
 }

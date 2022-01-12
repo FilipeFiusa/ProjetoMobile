@@ -163,6 +163,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
 
             mAdapter.putChapterAsReadied(readiedChapters);
+
+            currentNovel.setReaderViewType(data.getIntExtra("currentReaderViewType", 1));
         }
 
     }

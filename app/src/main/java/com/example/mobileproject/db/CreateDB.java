@@ -24,7 +24,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 3);
+        super(context, db_name, null, 4);
     }
 
     @Override
@@ -33,6 +33,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "id" + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                 + "last_readed" + " integer,"
                 + "on_library" + " integer,"
+                + "readerViewType" + " integer,"
                 + "novel_name" + " text,"
                 + "novel_author" + " text,"
                 + "novel_description" + " text,"
@@ -53,6 +54,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "novel_source text,"
                 + "chapter_name" + " text,"
                 + "chapter_link" + " text,"
+                + "raw_chapter" + " text,"
                 + "chapter_content" + " text,"
                 + "readed" + " text,"
                 + "downloaded" + " text,"

@@ -558,6 +558,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
                     intent.putExtra("novelName", currentNovel.getNovelName());
                     intent.putExtra("sourceName", currentNovel.getSource());
+                    intent.putExtra("readerViewType", currentNovel.getReaderViewType());
                     ctx.startActivityForResult(intent, 1);
                 }
             });
@@ -685,6 +686,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
                     intent.putExtra("sourceName", currentNovel.getSource());
                     intent.putExtra("novelName", currentNovel.getNovelName());
+                    intent.putExtra("readerViewType", currentNovel.getReaderViewType());
                     ctx.startActivityForResult(intent, 1);
 
                     return;
@@ -700,6 +702,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
                     intent.putExtra("sourceName", currentNovel.getSource());
                     intent.putExtra("novelName", currentNovel.getNovelName());
+                    intent.putExtra("readerViewType", currentNovel.getReaderViewType());
                     ctx.startActivityForResult(intent, 1);
 
                     return;
