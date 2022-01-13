@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -12,6 +13,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -60,6 +62,10 @@ public class ReaderWebViewController  {
         this.currentChapter = currentChapter;
         this.sourceName = sourceName;
         this.currentChapterContent = currentChapterContent;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+           ctx.getWindow().getAttributes().layoutInDisplayCutoutMode = 0;
+        }
 
         setUpMenu();
         setUpWebView();
@@ -118,7 +124,7 @@ public class ReaderWebViewController  {
         });
 
         TextView currentLink = (TextView) layout.findViewById(R.id.current_link);
-        currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink()).toString());
+        currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink().replace(baseUrl, "")).toString());
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -188,7 +194,7 @@ public class ReaderWebViewController  {
         );
 
         TextView currentLink = (TextView) layout.findViewById(R.id.current_link);
-        currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink()).toString());
+        currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink().replace(baseUrl, "")).toString());
     }
 
 

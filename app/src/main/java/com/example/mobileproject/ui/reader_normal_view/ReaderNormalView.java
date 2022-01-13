@@ -3,7 +3,9 @@ package com.example.mobileproject.ui.reader_normal_view;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -35,6 +37,11 @@ public class ReaderNormalView {
         scrollView = (ScrollView) layout.findViewById(R.id.reader_scroll_view);
 
         setUpLayout();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ctx.getWindow().getAttributes().layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
 
         if(currentChapter != null){
             setChapterContent(currentChapter);
