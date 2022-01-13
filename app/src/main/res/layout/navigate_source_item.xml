@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/font_grid_view"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="25dp"
+    android:background="@drawable/selectable_item_background"
+    android:layout_height="70dp">
+    <!--android:background="@drawable/selectable_item_background"-->
+    <ImageView
+        android:id="@+id/favicon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center" />
+
+
+    <LinearLayout
+        android:layout_marginStart="30dp"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/source_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingVertical="5dp"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:textColor="@color/white"
+            android:text="Nome da Fonte"
+            />
+
+        <TextView
+            android:id="@+id/source_language"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#989898"
+            android:text="English"
+            android:paddingBottom="5dp"
+            />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/pin_source"
+        android:layout_gravity="center"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_outline_push_pin_24"
+        android:background="@drawable/selectable_item_background"
+        />
+
+<!--    <ImageView
+        android:id="@+id/font_button_id"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />-->
+
+</LinearLayout>

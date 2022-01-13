@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.model.parser.Parser;
@@ -18,17 +20,30 @@ import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 import com.example.mobileproject.ui.top_fragment.TopFragment1;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NavigateFragment extends Fragment {
     Context currentContext = null;
+
+    private RecyclerView mRecycleView;
+    private SourceContainerAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.navigate_fragment, container, false);
+        
 
+        List<Parser> parsers = ParserFactory.getAllParsersWithPreferences(getContext());
 
-        Parser[] lista = ParserFactory.getAllParsers(currentContext).toArray(new Parser[0]);
-        GridView gv = (GridView) root.findViewById(R.id.fontsGrid);
-        gv.setAdapter(new FontsGridAdaptor(currentContext, lista));
+        mRecycleView = (RecyclerView) root.findViewById(R.id.source_container_recycle_view);
+
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mAdapter = new SourceContainerAdapter(getContext(), parsers);
+
+        mRecycleView.setAdapter(mAdapter);
+        mRecycleView.setLayoutManager(mLayoutManager);
 
         loadFragment(new TopFragment1());
 

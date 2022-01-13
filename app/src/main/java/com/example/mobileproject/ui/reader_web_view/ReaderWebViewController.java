@@ -127,7 +127,7 @@ public class ReaderWebViewController  {
         currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink().replace(baseUrl, "")).toString());
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "SetJavaScriptEnabled"})
     private void  setUpWebView(){
         webView = (WebView) layout.findViewById(R.id.reader_web_view);
 

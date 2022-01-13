@@ -26,7 +26,15 @@
                 />
 
 
-            <GridView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/source_container_recycle_view"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:background="@color/main_dark_theme"
+                />
+
+<!--            <GridView
                 android:id="@+id/fontsGrid"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -36,7 +44,7 @@
                 android:padding="15dp"
                 android:verticalSpacing="5dp"
                 android:horizontalSpacing="5dp"
-                android:background="@color/main_dark_theme"/>
+                android:background="@color/main_dark_theme"/>-->
 
         </LinearLayout>
 

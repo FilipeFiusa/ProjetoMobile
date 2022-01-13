@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import com.example.mobileproject.R;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.Languages;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
@@ -32,6 +33,7 @@ public class NovelFullParser extends Parser {
         URL_BASE = "https://novelfull.com";
         SourceName = "NovelFull";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_novelfull);
+        language = Languages.ENGLISH;
     }
 
     @Override

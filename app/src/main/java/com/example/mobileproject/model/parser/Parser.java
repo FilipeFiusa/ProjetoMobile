@@ -4,15 +4,26 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
+import com.example.mobileproject.model.Languages;
+import com.example.mobileproject.ui.navigate.SourceItemAdapter;
+
+import org.intellij.lang.annotations.Language;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 
 public abstract class Parser implements ParserInterface {
-    protected String URL_BASE;
-    protected String SourceName;
+    protected String URL_BASE = "";
+    protected String SourceName = "";
     protected Drawable Icon;
+    protected Languages language;
 
     protected Context ctx;
+
+    public boolean isPinned;
+    public boolean isActive;
+
+    public SourceItemAdapter adapterReference = null;
+    public int position;
 
     public Parser(Context ctx) {
         this.ctx = ctx;
@@ -66,5 +77,9 @@ public abstract class Parser implements ParserInterface {
                 .replaceAll("&quot;", "\"")
                 .replaceAll("&apos;", "'")
                 .replaceAll("&nbsp;", " ");
+    }
+
+    public Languages getLanguage() {
+        return language;
     }
 }
