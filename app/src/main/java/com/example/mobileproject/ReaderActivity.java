@@ -89,6 +89,7 @@ public class ReaderActivity extends AppCompatActivity {
     private String sourceName;
 
     private Thread checkForServiceStartedThread;
+    private Thread checkForDownloaderServiceStarted;
 
     private DownloadRAReceiver downloadReceiver;
     private CheckUpdatesRAReceiver updatesReceiver;
@@ -185,6 +186,10 @@ public class ReaderActivity extends AppCompatActivity {
                 data.putExtra("readiedChapters", chaptersReadied);
                 data.putExtra("currentReaderViewType", readerViewType);
                 setResult(RESULT_OK,data);
+
+                checkForServiceStartedThread.interrupt();
+                if(checkForDownloaderServiceStarted != null)
+                    checkForDownloaderServiceStarted.interrupt();
 
                 finish();
             }
@@ -456,7 +461,8 @@ public class ReaderActivity extends AppCompatActivity {
             UpdateChaptersList updateChaptersList = new UpdateChaptersList();
             updateChaptersList.execute();
 
-            new Thread(new CheckForDownloadServiceRunningTask()).start();
+            checkForDownloaderServiceStarted = new Thread(new CheckForDownloadServiceRunningTask());
+            checkForServiceStartedThread.start();
         }
     }
 
@@ -470,6 +476,10 @@ public class ReaderActivity extends AppCompatActivity {
         data.putExtra("readiedChapters", chaptersReadied);
         data.putExtra("currentReaderViewType", readerViewType);
         setResult(RESULT_OK,data);
+
+        checkForServiceStartedThread.interrupt();
+        if(checkForDownloaderServiceStarted != null)
+            checkForDownloaderServiceStarted.interrupt();
 
         finish();
     }
