@@ -3,8 +3,7 @@ package com.example.mobileproject.ui.library;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 import static com.example.mobileproject.App.CHECK_UPDATES_SERVICE_ID;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -13,43 +12,39 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.mobileproject.ChaptersAdapter;
 import com.example.mobileproject.MainActivity;
-import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.R;
-import com.example.mobileproject.VisitSourceActivity;
 import com.example.mobileproject.db.DBController;
-import com.example.mobileproject.model.ChapterIndex;
-import com.example.mobileproject.model.CheckUpdateService;
 import com.example.mobileproject.model.DownloadReceiver;
+import com.example.mobileproject.model.DownloaderService;
+import com.example.mobileproject.services.CheckUpdateService;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.services.CheckNovelUpdatesService;
+import com.example.mobileproject.services.receivers.CheckUpdatesLFReceiver;
 
 import java.util.ArrayList;
 
 public class LibraryFragment extends Fragment {
     public MainActivity ctx;
+
+    private CheckUpdatesLFReceiver updatesReceiver;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
@@ -58,6 +53,8 @@ public class LibraryFragment extends Fragment {
     private View root;
 
     private ArrayList<NovelDetails> selectedNovelsReference;
+
+    private Thread checkUpdatesThread;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -100,10 +97,18 @@ public class LibraryFragment extends Fragment {
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();
 
+        updatesReceiver = new CheckUpdatesLFReceiver(new Handler(), this);
+
+        checkUpdatesThread = new Thread(new CheckForUpdateService());
+        checkUpdatesThread.start();
+
         return root;
     }
 
     private void scheduleJob(){
+        JobScheduler scheduler = (JobScheduler) ctx.getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.cancel(CHECK_UPDATES_SERVICE_ID);
+
         ComponentName componentName = new ComponentName(ctx, CheckNovelUpdatesService.class);
         JobInfo info = new JobInfo.Builder(CHECK_UPDATES_SERVICE_ID, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
@@ -111,7 +116,6 @@ public class LibraryFragment extends Fragment {
                 .setPeriodic(3 * 60 * 60 * 1000)
                 .build();
 
-        JobScheduler scheduler = (JobScheduler) ctx.getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(info);
     }
 
@@ -230,6 +234,11 @@ public class LibraryFragment extends Fragment {
         ctx.showBottomNav();
     }
 
+    public void checkUpdatesFinished(){
+        NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
+        novelsOnLibrary.execute();
+    }
+
     private class NovelsOnLibrary extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
         @Override
         protected void onPreExecute() {
@@ -283,6 +292,35 @@ public class LibraryFragment extends Fragment {
             }
 
             return null;
+        }
+    }
+
+    private class CheckForUpdateService implements Runnable {
+
+        @Override
+        public void run() {
+            boolean isServiceRunning = false;
+            while (!isServiceRunning){
+                isServiceRunning = isMyServiceRunning(CheckUpdateService.class);
+
+                if(isServiceRunning){
+                    Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
+                    serviceIntent.putExtra("receiver", (Parcelable) updatesReceiver);
+                    ctx.startService(serviceIntent);
+                }
+
+                SystemClock.sleep(1000);
+            }
+        }
+
+        private boolean isMyServiceRunning(Class<?> serviceClass) {
+            ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

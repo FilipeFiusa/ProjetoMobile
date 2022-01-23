@@ -117,8 +117,6 @@ public class WuxiaBlogParser extends Parser {
 
             if(chapterIndices.size() >= 100){
                 String dataId = d.select("#more").first().attr("data-nid");
-                System.out.println(dataId);
-                System.out.println(URL_BASE + "temphtml/_tempChapterList_all_" + dataId + ".html");
 
                 Document getOtherChaps = Jsoup.connect(URL_BASE + "temphtml/_tempChapterList_all_" + dataId + ".html").userAgent("Mozilla/5.0").get();
                 Elements otherLinks = getOtherChaps.select("a");
@@ -189,8 +187,6 @@ public class WuxiaBlogParser extends Parser {
         String url = "https://www.wuxia.blog/?search=";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
-        System.out.println(url + searchValue);
-
         try{
             url = url + searchValue;
             Document document = Jsoup.connect(url)
@@ -206,9 +202,6 @@ public class WuxiaBlogParser extends Parser {
                     checkedFirst = true;
                     continue;
                 }
-
-                System.out.println(e.select(".xxxx a").text());
-                System.out.println(e.select(".xxxx a").attr("href").replace(URL_BASE, ""));
 
                 Element img = e.select("img").first();
                 String imgSrc = img.attr("src").replace(URL_BASE, "");
@@ -306,8 +299,6 @@ public class WuxiaBlogParser extends Parser {
                     .trim();
 
             chapterContent = cleanHTMLEntities(chapterContent);
-
-            System.out.println(chapterContent);
 
             return new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
         }catch (IOException e){

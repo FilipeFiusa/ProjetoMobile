@@ -1,11 +1,13 @@
 package com.example.mobileproject;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +32,9 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.example.mobileproject.services.CheckUpdateService;
+import com.example.mobileproject.services.receivers.CheckUpdatesNDReceiver;
+import com.example.mobileproject.util.ServiceHelper;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -39,7 +44,11 @@ public class NovelDetailsActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private ChaptersAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private Thread checkForServiceStartedThread;
+
     private DownloadReceiver downloadReceiver;
+    private CheckUpdatesNDReceiver updatesReceiver;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -54,8 +63,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     NovelDetails currentNovel = null;
 
-    boolean isTextViewClicked = false;
-    boolean isFavorite = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +104,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 if(contentDB != null && contentDB.getStatus() == AsyncTask.Status.RUNNING){
                     contentDB.cancel(true);
                 }
+
+                checkForServiceStartedThread.interrupt();
 
                 finish();
             }
@@ -150,6 +159,11 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 startActivity(Intent.createChooser(intent, "Share via"));
             }
         });
+
+        updatesReceiver = new CheckUpdatesNDReceiver(new Handler(), this);
+
+        checkForServiceStartedThread = new Thread(new CheckForUpdateServiceRunningTask());
+        checkForServiceStartedThread.start();
     }
 
     @Override
@@ -347,7 +361,66 @@ public class NovelDetailsActivity extends AppCompatActivity {
             contentDB.cancel(true);
         }
 
+        checkForServiceStartedThread.interrupt();
+
         finish();
+    }
+
+    public void updateChapterList(String novelName, String novelSource){
+        if(currentNovel.getNovelName().equals(novelName) && currentNovel.getSource().equals(novelSource)){
+            System.out.println("achou");
+
+            UpdateChaptersList updateChaptersList = new UpdateChaptersList();
+            updateChaptersList.execute();
+
+            new Thread(new CheckForDownloadServiceRunningTask()).start();
+        }
+        System.out.println("errado");
+    }
+
+    private class CheckForUpdateServiceRunningTask implements Runnable {
+
+        @Override
+        public void run() {
+            boolean isServiceRunning = false;
+            while (!Thread.currentThread().isInterrupted()) {
+                isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, CheckUpdateService.class);
+
+                if (isServiceRunning) {
+                    System.out.println("CreatingReceiver");
+                    Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
+                    serviceIntent.putExtra("receiver2", (Parcelable) updatesReceiver);
+                    ctx.startService(serviceIntent);
+
+                    SystemClock.sleep(10000);
+                }
+
+                SystemClock.sleep(1000);
+            }
+        }
+    }
+
+    private class CheckForDownloadServiceRunningTask implements Runnable {
+
+        @Override
+        public void run() {
+            boolean isServiceRunning = false;
+            while (!isServiceRunning){
+                if(Thread.currentThread().isInterrupted())
+                    break;
+
+                isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, DownloaderService.class);
+
+                if(isServiceRunning){
+                    System.out.println("CreatingDownloadReceiver");
+                    Intent serviceIntent = new Intent(ctx, DownloaderService.class);
+                    serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
+                    ctx.startService(serviceIntent);
+                }
+
+                SystemClock.sleep(1000);
+            }
+        }
     }
 
     private class getNovelDetails extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
@@ -459,8 +532,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
             super.onPostExecute(chapterIndexes);
 
             mAdapter.addNewChapterIndexes(chapterIndexes);
-
-            //mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -507,6 +578,35 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             mAdapter.addChapterIndexes(chapterIndexes);
             mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private class UpdateChaptersList extends AsyncTask<Void, Void, ArrayList<ChapterIndex>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected ArrayList<ChapterIndex> doInBackground(Void... voids) {
+            DBController db = new DBController(NovelDetailsActivity.this);
+
+            ArrayList<ChapterIndex> c = db.getChaptersFromANovel(currentNovel.getNovelName(), currentNovel.getSource());
+
+            return c;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
+            super.onPostExecute(chapterIndexes);
+
+            if(chapterIndexes == null){
+                return;
+            }
+
+            mAdapter.updateChapterList(chapterIndexes);
         }
     }
 

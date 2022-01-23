@@ -36,7 +36,7 @@ public class DBController {
         this.ctx = ctx;
     }
 
-    public long insertNovel(NovelDetails n){
+    public synchronized long insertNovel(NovelDetails n){
         //String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink
 
         ContentValues values;
@@ -89,7 +89,7 @@ public class DBController {
         return result;
     }
 
-    public long putOnLibrary(String novelName, String novelSource){
+    public synchronized long putOnLibrary(String novelName, String novelSource){
         ContentValues values = new ContentValues();
         long result;
 
@@ -104,7 +104,7 @@ public class DBController {
         return result;
     }
 
-    public long changeReaderViewType(String novelName, String novelSource, int newReaderViewType){
+    public synchronized long changeReaderViewType(String novelName, String novelSource, int newReaderViewType){
         ContentValues values = new ContentValues();
         long result;
 
@@ -119,7 +119,7 @@ public class DBController {
         return result;
     }
 
-    public String insertChapters(String novelName, String novelSource, ChapterIndex index) {
+    public synchronized String insertChapters(String novelName, String novelSource, ChapterIndex index) {
         ContentValues values;
         long result;
 
@@ -149,7 +149,7 @@ public class DBController {
 
     }
 
-    public void updateChapters(String novelName, String novelSource, ArrayList<ChapterIndex> c){
+    public synchronized void updateChapters(String novelName, String novelSource, ArrayList<ChapterIndex> c){
         Cursor result;
         long result2;
 
@@ -169,13 +169,11 @@ public class DBController {
 
             if (cursor == null || !cursor.moveToFirst()) {
                 //Insert new
-                System.out.println("Inserting");
 
                 db.close();
                 insertChapters(novelName, novelSource, c.get(i));
             } else {
                 //Update
-                System.out.println("Updating");
 
                 values.put("source_id", c.get(i).getSourceId());
                 db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.get(i).getId())});
@@ -184,7 +182,7 @@ public class DBController {
         }
     }
 
-    public void deleteNovel(String novelName, String novelSource){
+    public synchronized void deleteNovel(String novelName, String novelSource){
         db = database.getWritableDatabase();
 
         db.beginTransaction();
@@ -209,7 +207,7 @@ public class DBController {
         db.close();
     }
 
-    public ArrayList<NovelDetails> selectAllNovels(){
+    public synchronized ArrayList<NovelDetails> selectAllNovels(){
         Cursor result;
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
 
@@ -256,7 +254,7 @@ public class DBController {
         return novelDetailsArr;
     }
 
-    public ArrayList<NovelDetails> selectOnGoingNovels(){
+    public synchronized ArrayList<NovelDetails> selectOnGoingNovels(){
         Cursor result;
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
 
@@ -304,7 +302,7 @@ public class DBController {
         return novelDetailsArr;
     }
 
-    public ArrayList<NovelDetails> selectAllNovelsFromSource(String source){
+    public synchronized ArrayList<NovelDetails> selectAllNovelsFromSource(String source){
         Cursor result;
         ArrayList<NovelDetails> novelDetailsArr = new ArrayList<>();
 
@@ -352,7 +350,7 @@ public class DBController {
         return novelDetailsArr;
     }
 
-    public NovelDetails getNovel(String novelName, String novelSource){
+    public synchronized NovelDetails getNovel(String novelName, String novelSource){
         Cursor result;
         NovelDetails novel = new NovelDetails();
 
@@ -398,7 +396,7 @@ public class DBController {
         return novel;
     }
 
-    public ArrayList<ChapterIndex> getChaptersFromANovel(String novelName, String novelSource){
+    public synchronized ArrayList<ChapterIndex> getChaptersFromANovel(String novelName, String novelSource){
         Cursor result;
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
@@ -433,7 +431,7 @@ public class DBController {
         return chapterIndexes;
     }
 
-    public ArrayList<ChapterInDownload>  getDownloadingChapters(){
+    public synchronized ArrayList<ChapterInDownload>  getDownloadingChapters(){
         Cursor result;
         ArrayList<ChapterInDownload> chapterIndexes = new ArrayList<>();
 
@@ -472,7 +470,7 @@ public class DBController {
         return chapterIndexes;
     }
 
-    public boolean putChapterOnDownload(int id){
+    public synchronized boolean putChapterOnDownload(int id){
         long result;
         ContentValues values = new ContentValues();;
 
@@ -489,7 +487,7 @@ public class DBController {
         }
     }
 
-    public boolean putChapterOnDownload(String novelName, String source, String chapterLink){
+    public synchronized boolean putChapterOnDownload(String novelName, String source, String chapterLink){
         long result;
         ContentValues values = new ContentValues();;
 
@@ -498,7 +496,7 @@ public class DBController {
         return putChapterOnDownload(novelName, source, id);
     }
 
-    public boolean putChapterOnDownload(String novelName, String novelSource, int id){
+    public synchronized boolean putChapterOnDownload(String novelName, String novelSource, int id){
         long result;
         ContentValues values = new ContentValues();;
 
@@ -528,7 +526,7 @@ public class DBController {
         }
     }
 
-    public boolean PutMultipleChaptersToDownload(String novelName, String novelSource, ArrayList<ChapterIndex> chapters){
+    public synchronized boolean PutMultipleChaptersToDownload(String novelName, String novelSource, ArrayList<ChapterIndex> chapters){
         boolean haveAnChapterToDownload = false;
 
         for(ChapterIndex c : chapters){
@@ -554,7 +552,7 @@ public class DBController {
         return haveAnChapterToDownload;
     }
 
-    public boolean setChapterAsReaded(int id){
+    public synchronized boolean setChapterAsReaded(int id){
         Cursor result;
         ContentValues values = new ContentValues();
 
@@ -595,7 +593,7 @@ public class DBController {
         }
     }
 
-    public boolean setChapterAsUnReaded(int id){
+    public synchronized boolean setChapterAsUnReaded(int id){
         Cursor result;
         ContentValues values = new ContentValues();
 
@@ -636,7 +634,7 @@ public class DBController {
         }
     }
 
-    public ArrayList<DownloaderClass> getDownloadingNovels(){
+    public synchronized ArrayList<DownloaderClass> getDownloadingNovels(){
         Cursor result;
         ArrayList<DownloaderClass> downloaderClasses = new ArrayList<>();
         db = database.getReadableDatabase();
@@ -678,7 +676,7 @@ public class DBController {
         return downloaderClasses;
     }
 
-    public ChapterContent getChapter(int id){
+    public synchronized ChapterContent getChapter(int id){
         Cursor result;
 
         db = database.getReadableDatabase();
@@ -703,7 +701,7 @@ public class DBController {
         return null;
     }
 
-    public int getChapterId(String chapterLink){
+    public synchronized int getChapterId(String chapterLink){
         Cursor result;
 
         db = database.getReadableDatabase();
@@ -722,7 +720,7 @@ public class DBController {
         return -1;
     }
 
-    public boolean setChapterContent(int id, String chapterContent, String rawChapter){
+    public synchronized boolean setChapterContent(int id, String chapterContent, String rawChapter){
         long result;
         db = database.getReadableDatabase();
 
@@ -748,7 +746,7 @@ public class DBController {
         }
     }
 
-    public boolean setChaptersReadied(String novelName, String novelSource, String _query){
+    public synchronized boolean setChaptersReadied(String novelName, String novelSource, String _query){
         Cursor result;
 
         db = database.getReadableDatabase();
@@ -770,7 +768,7 @@ public class DBController {
         return true;
     }
 
-    public boolean SetAntecedentChaptersAsReadied(String novelName, String novelSource, int lowerSourceId){
+    public synchronized boolean SetAntecedentChaptersAsReadied(String novelName, String novelSource, int lowerSourceId){
         Cursor result;
 
         db = database.getReadableDatabase();
@@ -792,7 +790,7 @@ public class DBController {
         return true;
     }
 
-    public void UpdateOrderType(String novelName, String novelSource, String orderType){
+    public synchronized void UpdateOrderType(String novelName, String novelSource, String orderType){
         long result;
         db = database.getReadableDatabase();
 
@@ -806,7 +804,7 @@ public class DBController {
         db.close();
     }
 
-    public long CreateCleaner(NovelCleaner cleaner){
+    public synchronized long CreateCleaner(NovelCleaner cleaner){
         ContentValues values;
         long result;
 
@@ -824,7 +822,7 @@ public class DBController {
         return result;
     }
 
-    public ArrayList<NovelCleaner> CreateCleanerConnectionsAny(NovelCleaner cleaner){
+    public synchronized ArrayList<NovelCleaner> CreateCleanerConnectionsAny(NovelCleaner cleaner){
         ContentValues values;
         long result;
         long cleanerID = CreateCleaner(cleaner);
@@ -868,7 +866,7 @@ public class DBController {
         return tempNovelCleaners;
     }
 
-    public ArrayList<NovelCleaner> CreateCleanerConnectionsSource(NovelCleaner cleaner, String novelSource){
+    public synchronized ArrayList<NovelCleaner> CreateCleanerConnectionsSource(NovelCleaner cleaner, String novelSource){
         ArrayList<NovelCleaner> tempNovelCleaners = new ArrayList<>();
         ContentValues values;
         long result;
@@ -909,7 +907,7 @@ public class DBController {
         return tempNovelCleaners;
     }
 
-    public NovelCleaner CreateCleanerConnectionsNovel(NovelCleaner cleaner, String novelName, String novelSource){
+    public synchronized NovelCleaner CreateCleanerConnectionsNovel(NovelCleaner cleaner, String novelName, String novelSource){
         ContentValues values;
         long result;
         long cleanerID = CreateCleaner(cleaner);
@@ -946,7 +944,7 @@ public class DBController {
         return tempCleaner;
     }
 
-    public ArrayList<NovelCleaner> getCleanerConnections(String novelName, String novelSource){
+    public synchronized ArrayList<NovelCleaner> getCleanerConnections(String novelName, String novelSource){
         Cursor result;
         ArrayList<NovelCleaner> cleaners = new ArrayList<>();
 
@@ -991,7 +989,7 @@ public class DBController {
         return cleaners;
     }
 
-    public ArrayList<NovelCleaner> getCleanersTypeOneAndTwo(){
+    public synchronized ArrayList<NovelCleaner> getCleanersTypeOneAndTwo(){
         Cursor result;
         ArrayList<NovelCleaner> cleaners = new ArrayList<>();
 
@@ -1027,7 +1025,7 @@ public class DBController {
     }
 
 
-    public void deleteCleaner(int cleaner_id){
+    public synchronized void deleteCleaner(int cleaner_id){
         db = database.getWritableDatabase();
 
         db.beginTransaction();
@@ -1048,7 +1046,7 @@ public class DBController {
         db.close();
     }
 
-    public void ChangeIsActiveConnection(int connection_id, boolean isActive){
+    public synchronized void ChangeIsActiveConnection(int connection_id, boolean isActive){
 
         ContentValues values = new ContentValues();
         long result;
@@ -1067,7 +1065,7 @@ public class DBController {
         db.close();
     }
 
-    public void EditCleaner(NovelCleaner cleaner){
+    public synchronized void EditCleaner(NovelCleaner cleaner){
         ContentValues values = new ContentValues();
         long result;
 

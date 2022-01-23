@@ -5,6 +5,7 @@ import static com.example.mobileproject.App.CHANNEL_ID;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
@@ -14,7 +15,6 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterIndex;
-import com.example.mobileproject.model.CheckUpdateService;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.parser.ParserFactory;
@@ -34,7 +34,7 @@ public class CheckNovelUpdatesService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        System.out.println("Running");
+/*        System.out.println("Running");
 
         notificationManager = NotificationManagerCompat.from(this);
 
@@ -49,9 +49,12 @@ public class CheckNovelUpdatesService extends JobService {
                 .setOnlyAlertOnce(true)
                 .setProgress(100, 0, false);
 
-        startForeground(2, notification.build());
+        startForeground(2, notification.build());*/
 
-        new Thread(new CheckUpdateWorker(jobParameters)).start();
+        //new Thread(new CheckUpdateWorker(jobParameters)).start();
+
+        Intent serviceIntent = new Intent(this, CheckUpdateService.class);
+        startService(serviceIntent);
 
         return true;
     }

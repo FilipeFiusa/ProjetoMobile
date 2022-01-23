@@ -47,7 +47,7 @@ public class DownloaderService extends Service {
         @Override
         public void run() {
             CheckDownloadQueueOnDB();
-            SystemClock.sleep(1000);
+            SystemClock.sleep(5000);
 
             while (!downloader.isEmpty()){
                 DownloaderClass currentNovel = downloader.get(0);

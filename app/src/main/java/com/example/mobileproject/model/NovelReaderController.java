@@ -50,6 +50,12 @@ public class NovelReaderController implements Serializable {
         return chapterIndices.get(newPosition);
     }
 
+    public void updateChaptersList(ChapterIndex currentChapter, ArrayList<ChapterIndex> chapters){
+        this.chapterIndices = chapters;
+
+        setStartedChapter(currentChapter.getChapterLink());
+    }
+
     public ArrayList<ChapterIndex> getChapterIndices(){
         return chapterIndices;
     }

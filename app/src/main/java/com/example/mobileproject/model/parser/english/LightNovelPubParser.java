@@ -80,7 +80,6 @@ public class LightNovelPubParser extends Parser {
 
             // Get status
             String status = document.select(".header-stats span").get(3).text();
-            System.out.println(status);
 
             // Get novel author
             String author = document.select(".author").first().text().replace("Author:", "");
@@ -117,8 +116,6 @@ public class LightNovelPubParser extends Parser {
 
         try {
             for(int i = 1; i <= 1000; i++){
-                System.out.println(URL_BASE + novelLink + "/chapters/page-" + i);
-
                 d = Jsoup.connect(URL_BASE + novelLink + "/chapters/page-" + i).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select(".chapter-list li a");
@@ -136,8 +133,6 @@ public class LightNovelPubParser extends Parser {
                             e.attr("title"),
                             e.attr("href"),
                             chapterIndices.size());
-
-                    System.out.println(Objects.requireNonNull(e.select(".chapter-title").first()).text());
 
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);

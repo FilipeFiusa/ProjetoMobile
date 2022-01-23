@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -31,21 +32,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.example.mobileproject.services.CheckUpdateService;
+import com.example.mobileproject.services.receivers.CheckUpdatesNDReceiver;
+import com.example.mobileproject.services.receivers.CheckUpdatesRAReceiver;
+import com.example.mobileproject.services.receivers.DownloadRAReceiver;
 import com.example.mobileproject.ui.reader_cleansers.ReaderCleaner;
 import com.example.mobileproject.ui.reader_normal_view.ReaderNormalView;
 import com.example.mobileproject.ui.reader_settings.ReaderSettings;
 import com.example.mobileproject.ui.reader_web_view.ReaderWebViewController;
 import com.example.mobileproject.util.FontFactory;
+import com.example.mobileproject.util.ServiceHelper;
 
 import java.util.ArrayList;
 
 
 public class ReaderActivity extends AppCompatActivity {
+    private final ReaderActivity ctx = this;
+
     private NovelReaderController nrc;
     private GetChapterContent getChapterContent;
     Button previousButton;
@@ -78,6 +87,11 @@ public class ReaderActivity extends AppCompatActivity {
 
     private String novelName;
     private String sourceName;
+
+    private Thread checkForServiceStartedThread;
+
+    private DownloadRAReceiver downloadReceiver;
+    private CheckUpdatesRAReceiver updatesReceiver;
 
     private int readerViewType; // 1- Normal View / 2- ReaderView
 
@@ -114,8 +128,6 @@ public class ReaderActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        DownloadReceiver downloadReceiver = new DownloadReceiver(new Handler(), mAdapter);
-        mAdapter.setDownloadReceiver(downloadReceiver);
 
         if(readerViewType == 1){
             setUpNormalView();
@@ -124,6 +136,13 @@ public class ReaderActivity extends AppCompatActivity {
         }
 
         setUpMenu();
+
+        updatesReceiver = new CheckUpdatesRAReceiver(new Handler(), this);
+        downloadReceiver = new DownloadRAReceiver(new Handler(), this);
+        mAdapter.setDownloadReceiver(downloadReceiver);
+
+        checkForServiceStartedThread = new Thread(new CheckForUpdateServiceRunningTask());
+        checkForServiceStartedThread.start();
 
         GetCleaners getCleaners = new GetCleaners();
         getCleaners.execute();
@@ -366,37 +385,6 @@ public class ReaderActivity extends AppCompatActivity {
         if(normalViewController != null){
             normalViewController.changeReaderSettings(font_size, font_name, font_color, background_color);
         }
-
-/*        SharedPreferences preferences = getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        if(background_color != null){
-            LinearLayout container = findViewById(R.id.reader_container);
-            container.setBackgroundColor(Color.parseColor(background_color));
-            editor.putString("background_color", background_color);
-        }
-        TextView chapterContentView = (TextView) findViewById(R.id.chapter_content);
-        TextView chapterTitleView = (TextView) findViewById(R.id.chapter_name);
-
-        if(font_size != 0){
-            chapterContentView.setTextSize(font_size);
-            chapterTitleView.setTextSize(font_size + 15);
-            editor.putFloat("font_size", font_size);
-        }
-
-        if(font_name != null){
-            chapterContentView.setTypeface(new FontFactory().GetFont(font_name, this));
-            chapterTitleView.setTypeface(new FontFactory().GetFont(font_name, this));
-            editor.putString("font_name", font_name);
-        }
-
-        if(font_color != null) {
-            chapterContentView.setTextColor(Color.parseColor(font_color));
-            chapterTitleView.setTextColor(Color.parseColor(font_color));
-            editor.putString("font_color", font_color);
-        }
-
-        editor.apply();*/
     }
 
     public void getPreviousChapter(){
@@ -461,6 +449,21 @@ public class ReaderActivity extends AppCompatActivity {
         getChapterContent.execute(c);
     }
 
+    public void updateChapterList(String novelName, String novelSource){
+        if(novelName.equals(this.novelName) && novelSource.equals(this.sourceName)){
+            System.out.println("Updating");
+
+            UpdateChaptersList updateChaptersList = new UpdateChaptersList();
+            updateChaptersList.execute();
+
+            new Thread(new CheckForDownloadServiceRunningTask()).start();
+        }
+    }
+
+    public void ChapterDownloaded(int chapterId){
+        mAdapter.ChapterDownloaded(chapterId);
+    }
+
     @Override
     public void onBackPressed() {
         Intent data = new Intent();
@@ -491,6 +494,50 @@ public class ReaderActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private class CheckForUpdateServiceRunningTask implements Runnable {
+
+        @Override
+        public void run() {
+            boolean isServiceRunning = false;
+            while (!Thread.currentThread().isInterrupted()) {
+                isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, CheckUpdateService.class);
+
+                if (isServiceRunning) {
+                    Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
+                    serviceIntent.putExtra("receiver3", (Parcelable) updatesReceiver);
+                    ctx.startService(serviceIntent);
+
+                    SystemClock.sleep(10000);
+                }
+
+                SystemClock.sleep(1000);
+            }
+        }
+    }
+
+    private class CheckForDownloadServiceRunningTask implements Runnable {
+
+        @Override
+        public void run() {
+            boolean isServiceRunning = false;
+            while (!isServiceRunning){
+                if(Thread.currentThread().isInterrupted())
+                    break;
+
+                isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, DownloaderService.class);
+
+                if(isServiceRunning){
+                    System.out.println("CreatingDownloadReceiver");
+                    Intent serviceIntent = new Intent(ctx, DownloaderService.class);
+                    serviceIntent.putExtra("receiver2", (Parcelable) downloadReceiver);
+                    ctx.startService(serviceIntent);
+                }
+
+                SystemClock.sleep(1000);
+            }
+        }
     }
 
     private class GetChapterContent extends AsyncTask<ChapterIndex, Void, ChapterContent> {
@@ -591,6 +638,22 @@ public class ReaderActivity extends AppCompatActivity {
             db.changeReaderViewType(novelName, sourceName, integers[0]);
 
             return null;
+        }
+    }
+
+    private class UpdateChaptersList extends AsyncTask<Void, Void, ArrayList<ChapterIndex>>{
+        @Override
+        protected ArrayList<ChapterIndex> doInBackground(Void... voids) {
+            DBController db = new DBController(ctx);
+            ArrayList<ChapterIndex> chapters = db.getChaptersFromANovel(novelName, sourceName);
+            return chapters;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ChapterIndex> chapterIndices) {
+            super.onPostExecute(chapterIndices);
+
+            mAdapter.updateChapterList(chapterIndices);
         }
     }
 }

@@ -66,7 +66,6 @@ public class NovelFullParser extends Parser {
 
             // Get status
             String status = document.select(".info div").get(4).text();
-            System.out.println(status);
 
             // Get novel author
             String author = document.select(".info div").first().text().replace("Author:", "");

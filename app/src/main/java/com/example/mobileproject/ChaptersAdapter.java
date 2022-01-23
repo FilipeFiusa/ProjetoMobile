@@ -149,6 +149,18 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    public void updateChapterList(ArrayList<ChapterIndex> c){
+        mChapterList.subList(1, mChapterList.size()).clear();
+
+        for (int i = 0; i < c.size(); i++) {
+            mChapterList.add(new NovelDetailsAdapterObject(c.get(i)));
+        }
+
+        sortList();
+
+        notifyItemRangeChanged(1, mChapterList.size());
+    }
+
     public void addNewChapterIndexes(ArrayList<ChapterIndex> c) {
         String order = orderType;
 

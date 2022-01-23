@@ -20,6 +20,8 @@ import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.ReaderMenuItem;
+import com.example.mobileproject.services.receivers.DownloadRAReceiver;
+import com.example.mobileproject.util.ServiceHelper;
 
 import java.util.ArrayList;
 import java.util.logging.Handler;
@@ -34,7 +36,7 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private Context ctx;
 
-    private DownloadReceiver downloadReceiver;
+    private DownloadRAReceiver downloadReceiver;
 
     public int currentReadingPosition;
 
@@ -75,10 +77,10 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public void setDownloadReceiver(DownloadReceiver d){
+    public void setDownloadReceiver(DownloadRAReceiver d){
         this.downloadReceiver = d;
 
-        if(!isMyServiceRunning(DownloaderService.class)){
+        if(!ServiceHelper.isMyServiceRunning(ctx, DownloaderService.class)){
             return;
         }
 
@@ -87,14 +89,26 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ctx.startService(serviceIntent);
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
+    public void updateChapterList(ArrayList<ChapterIndex> chapters){
+        int i = 0;
+
+        ChapterIndex currentChapter = nrc.getCurrentChapter();
+
+        nrc.updateChaptersList(currentChapter, chapters);
+
+        mList = new ArrayList<>();
+
+        for (ChapterIndex c : chapters){
+            if(c.getChapterLink().equals(currentChapter.getChapterLink())){
+                this.mList.add(new ReaderMenuItem(c, true));
+                currentReadingPosition = i;
+            }else {
+                this.mList.add(new ReaderMenuItem(c, false));
             }
+            i++;
         }
-        return false;
+
+        notifyItemRangeChanged(0, mList.size());
     }
 
     public void ChapterDownloaded(int id){
