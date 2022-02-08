@@ -396,6 +396,51 @@ public class DBController {
         return novel;
     }
 
+    public synchronized NovelDetails getNovelWithNovelLink(String novelSource, String novelLink){
+        Cursor result;
+        NovelDetails novel = new NovelDetails();
+
+        db = database.getReadableDatabase();
+        String query = "SELECT * FROM Novels WHERE novel_source=? AND novel_link=?";
+        result = db.rawQuery(query, new String[]{novelSource, novelLink});
+        if(result.getCount() > 0){
+            result.moveToFirst();
+
+            novel.setNovelAuthor(result.getString(result.getColumnIndexOrThrow("novel_author")));
+            novel.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
+            novel.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
+            novel.setSource(result.getString(result.getColumnIndexOrThrow("novel_source")));
+            novel.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
+            novel.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
+            novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
+            novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
+            novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+
+            int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
+
+            if(is_favorite == 0){
+                novel.setIsFavorite("no");
+            }else{
+                novel.setIsFavorite("yes");
+            }
+
+            String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+            File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+            String imagePath = mSaveBit.getPath();
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+            novel.setNovelImage(bitmap);
+        }else{
+            db.close();
+            return null;
+        }
+
+        db.close();
+
+        return novel;
+    }
+
+
     public synchronized ArrayList<ChapterIndex> getChaptersFromANovel(String novelName, String novelSource){
         Cursor result;
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();

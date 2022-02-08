@@ -9,6 +9,8 @@ import com.example.mobileproject.model.parser.english.WuxiaBlogParser;
 
 import org.reflections.Reflections;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,5 +61,22 @@ public class ParserFactory {
 
 
         return parsers;
+    }
+
+    public static Parser checkIfSourceExistsWithLink(Context ctx, URL novelLink) throws MalformedURLException {
+        List<Parser> allParsers = getAllParsers(ctx);
+
+        String novelLinkString = novelLink.getProtocol() + "://" + novelLink.getHost();
+
+        for (Parser parser : allParsers){
+            URL currentParserUrl = new URL(parser.getURL_BASE());
+            String currentUrlString = currentParserUrl.getProtocol() + "://" + currentParserUrl.getHost();
+
+            if (currentUrlString.equals(novelLinkString)){
+                return parser;
+            }
+        }
+
+        return null;
     }
 }

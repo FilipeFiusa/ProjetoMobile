@@ -36,24 +36,18 @@
                     android:layout_height="match_parent"
                     android:layout_width="0dp" />
 
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sort_novels"
-                    android:layout_gravity="right"
-                    app:icon="@drawable/ic_baseline_reorder_64"
-                    app:iconGravity="top"
-                    android:layout_height="match_parent"
+                <ImageButton
+                    android:id="@+id/add_novel"
                     android:layout_width="60dp"
-                    android:backgroundTint="@color/secodary_dark_theme"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:layout_gravity="right"
-                    app:icon="@drawable/ic_baseline_search_40"
-                    app:iconGravity="top"
-                    android:gravity="left"
                     android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_add_24"
+                    android:background="@drawable/selectable_item_background" />
+
+                <ImageButton
                     android:layout_width="60dp"
-                    android:backgroundTint="@color/secodary_dark_theme"/>
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_search_40"
+                    android:background="@drawable/selectable_item_background" />
 
             </LinearLayout>
             <LinearLayout
@@ -190,5 +184,121 @@
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <FrameLayout
+        android:id="@+id/pop_up_menu"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#80000000">
+
+        <LinearLayout
+            android:id="@+id/select_type_menu"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/secodary_dark_theme">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:paddingVertical="15dp"
+                android:textSize="18sp"
+                android:text="Selecione o tipo da novel"/>
+
+            <Button
+                android:id="@+id/epub_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selectable_item_background"
+                android:textSize="12sp"
+                android:text="Epub"/>
+
+            <Button
+                android:id="@+id/novel_link_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selectable_item_background"
+                android:textSize="12sp"
+                android:text="WebNovel"/>
+
+            <Button
+                android:id="@+id/cancel_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selectable_item_background"
+                android:textSize="12sp"
+                android:text="Cancelar"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/set_novel_link_menu"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/secodary_dark_theme">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:paddingVertical="15dp"
+                android:textSize="18sp"
+                android:text="Digite o link da novel"/>
+
+            <EditText
+                android:id="@+id/link_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:background="@color/white"
+                android:hint="Novel link"
+                android:layout_marginVertical="10dp"
+                android:paddingVertical="10dp"
+                android:layout_marginHorizontal="15dp"
+                android:paddingStart="5dp"
+                android:maxLines="1" />
+
+            <LinearLayout
+                android:layout_marginHorizontal="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/cancel_option_2"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selectable_item_background"
+                    android:textSize="12sp"
+                    android:text="Cancelar"/>
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/search_option"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selectable_item_background"
+                    android:textSize="12sp"
+                    android:text="Procurar"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </FrameLayout>

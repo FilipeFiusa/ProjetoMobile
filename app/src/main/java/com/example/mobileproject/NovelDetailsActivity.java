@@ -3,6 +3,7 @@ package com.example.mobileproject;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -127,7 +128,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         if(novel_name != null && novel_source != null){
             contentDB = new getNovelDetailsFromDB();
-            contentDB.execute(novel_name, novel_source);
+            contentDB.execute(novel_name, novel_source, "");
         }else{
             String novelLink = i.getStringExtra("novelLink");
             String novelName = i.getStringExtra("novelName");
@@ -425,7 +426,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     private class getNovelDetails extends AsyncTask<String, NovelDetails, ArrayList<ChapterIndex>> {
 
-        private String novelName, novelSource;
+        private String novelName, novelSource, novelLink;
 
         @Override
         protected void onPreExecute() {
@@ -435,16 +436,22 @@ public class NovelDetailsActivity extends AppCompatActivity {
         @Override
         protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
             NovelDetails n = null;
+            long id;
             DBController db = new DBController(ctx);
 
             //1641068613060
 
             if(novelDetails.length > 1){
-                n = db.getNovel(novelDetails[1], novelDetails[2]);
+                if(!novelDetails[1].isEmpty()){
+                    n = db.getNovel(novelDetails[1], novelDetails[2]);
+                }else if(!novelDetails[0].isEmpty()){
+                    n = db.getNovelWithNovelLink(novelDetails[2], novelDetails[0]);
+                }
             }
 
             if(n != null){
                 if((System.currentTimeMillis() - n.getLastReadied()) < (60 * 60 * 1000) || n.getIsFavorite().equals("yes")){
+                    novelLink = novelDetails[0];
                     novelName = novelDetails[1];
                     novelSource = novelDetails[2];
 
@@ -462,7 +469,12 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             n = parser.getNovelDetails(novelDetails[0]);
 
-            long id = db.insertNovel(n);
+            try {
+                id = db.insertNovel(n);
+            }catch (SQLiteConstraintException e){
+                novelName = null;
+                return null;
+            }
 
             n.setDb_id((int) id);
 
@@ -490,6 +502,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
             super.onPostExecute(chapterIndexes);
 
+            System.out.println(chapterIndexes);
+
             if(chapterIndexes == null && novelName == null){
                 mSwipeRefreshLayout.setRefreshing(false);
                 return;
@@ -497,7 +511,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             if(chapterIndexes == null){
                 contentDB = new getNovelDetailsFromDB();
-                contentDB.execute(novelName, novelSource);
+                contentDB.execute(novelName, novelSource, novelLink);
                 return;
             }
 
@@ -540,17 +554,30 @@ public class NovelDetailsActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
         protected ArrayList<ChapterIndex> doInBackground(String... novelDetails) {
+            NovelDetails novel;
             DBController db = new DBController(NovelDetailsActivity.this);
             if(novelDetails[0] == null || novelDetails[1] == null){
                 return null;
             }
-            NovelDetails novel = db.getNovel(novelDetails[0], novelDetails[1]);
+            System.out.println(1);
+            if(!novelDetails[0].isEmpty()){
+                System.out.println(2.1);
+                novel = db.getNovel(novelDetails[0], novelDetails[1]);
+            }else if (!novelDetails[2].isEmpty()){
+                System.out.println(2.2);
+                novel = db.getNovelWithNovelLink(novelDetails[1], novelDetails[2]);
+            }else{
+                System.out.println(2.3);
+                return null;
+            }
+            System.out.println(3);
+
             if(novel == null){
+                System.out.println(4);
                 return null;
             }
 

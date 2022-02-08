@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -30,15 +31,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mobileproject.MainActivity;
+import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
+import com.example.mobileproject.model.parser.Parser;
+import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.services.CheckUpdateService;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.services.CheckNovelUpdatesService;
 import com.example.mobileproject.services.receivers.CheckUpdatesLFReceiver;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class LibraryFragment extends Fragment {
@@ -61,7 +67,7 @@ public class LibraryFragment extends Fragment {
         root = inflater.inflate(R.layout.library_fragment, container, false);
         ctx = (MainActivity) requireActivity();
 
-        Button mButton1 = root.findViewById(R.id.sort_novels);
+/*        Button mButton1 = root.findViewById(R.id.sort_novels);
         mButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,7 +78,8 @@ public class LibraryFragment extends Fragment {
                 Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
                 ctx.startService(serviceIntent);
             }
-        });
+        });*/
+
 
         mSwipeRefreshLayout = root.findViewById(R.id.librarySwipeRefresh);
         mSwipeRefreshLayout.setRefreshing(true);
@@ -102,6 +109,8 @@ public class LibraryFragment extends Fragment {
         checkUpdatesThread = new Thread(new CheckForUpdateService());
         checkUpdatesThread.start();
 
+        SetUpMenu();
+
         return root;
     }
 
@@ -122,6 +131,89 @@ public class LibraryFragment extends Fragment {
     public void UpdateNovels(){
         NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
         novelsOnLibrary.execute();
+    }
+
+    public void SetUpMenu(){
+        FrameLayout popup = root.findViewById(R.id.pop_up_menu);
+        LinearLayout selectTypeMenu = root.findViewById(R.id.select_type_menu);
+        LinearLayout setNovelLinkMenu = root.findViewById(R.id.set_novel_link_menu);
+
+        ImageButton addNovel = root.findViewById(R.id.add_novel);
+        addNovel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popup.setVisibility(View.VISIBLE);
+                selectTypeMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
+        Button epubOption = root.findViewById(R.id.epub_option);
+        epubOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ctx, "Não disponivel ainda", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button novelLinkOption = root.findViewById(R.id.novel_link_option);
+        novelLinkOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectTypeMenu.setVisibility(View.GONE);
+                setNovelLinkMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
+        Button cancelOption = root.findViewById(R.id.cancel_option);
+        cancelOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectTypeMenu.setVisibility(View.GONE);
+                setNovelLinkMenu.setVisibility(View.GONE);
+                popup.setVisibility(View.GONE);
+            }
+        });
+
+        Button cancelOption2 = root.findViewById(R.id.cancel_option_2);
+        cancelOption2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectTypeMenu.setVisibility(View.GONE);
+                setNovelLinkMenu.setVisibility(View.GONE);
+                popup.setVisibility(View.GONE);
+            }
+        });
+
+        Button searchOption = root.findViewById(R.id.search_option);
+        searchOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText searchInput = root.findViewById(R.id.link_input);
+                String searchLink = searchInput.getText().toString();
+
+                try {
+                    URL currentUrl = new URL(searchLink);
+                    Parser currentParser = ParserFactory.checkIfSourceExistsWithLink(ctx, currentUrl);
+
+                    if (currentParser != null){
+                        System.out.println(currentParser.getSourceName());
+                        System.out.println(currentUrl.getPath());
+
+                        Intent intent = new Intent(ctx, NovelDetailsActivity.class);
+
+                        intent.putExtra("novelLink", currentUrl.getPath());
+                        intent.putExtra("novelName", "");
+                        intent.putExtra("novelSource", currentParser.getSourceName());
+
+                        ctx.startActivityForResult(intent, 1);
+                    }
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
     }
 
     public void openMenu(ArrayList<NovelDetails> reference){

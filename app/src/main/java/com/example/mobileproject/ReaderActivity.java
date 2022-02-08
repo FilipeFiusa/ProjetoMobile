@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -552,6 +554,7 @@ public class ReaderActivity extends AppCompatActivity {
 
     private class GetChapterContent extends AsyncTask<ChapterIndex, Void, ChapterContent> {
         private TextView chapterNameBottom;
+        private boolean hasInternet = true;
 
         @Override
         protected void onPreExecute() {
@@ -573,6 +576,12 @@ public class ReaderActivity extends AppCompatActivity {
                 }
             }
 
+            if (!isNetworkAvailable(ctx)){
+                hasInternet = false;
+
+                return null;
+            }
+
             ParserInterface parser = ParserFactory.getParserInstance(sourceName,ReaderActivity.this);
             if(parser == null){
                 return null;
@@ -588,6 +597,11 @@ public class ReaderActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ChapterContent chapterContent) {
             super.onPostExecute(chapterContent);
+
+            if(chapterContent == null && !hasInternet ){
+                Toast.makeText(ReaderActivity.this, "Sem internet", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if(chapterContent == null || chapterContent.getChapterContent().isEmpty()){
                 Toast.makeText(ReaderActivity.this, "Falha ao acessar", Toast.LENGTH_SHORT).show();
@@ -605,6 +619,17 @@ public class ReaderActivity extends AppCompatActivity {
 
             chapterNameBottom.setText(chapterContent.getChapterName());
         }
+
+        public boolean isNetworkAvailable(final Context context) {
+            final ConnectivityManager cm = (ConnectivityManager)
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return false;
+            final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            // if no network is available networkInfo will be null
+            // otherwise check if we are connected
+            return (networkInfo != null && networkInfo.isConnected());
+        }
+
 
         private String CleanChapter(String chapterContent){
             String cleanedChapter = chapterContent;

@@ -20,6 +20,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,8 +33,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class LightNovelPubParser extends Parser {
@@ -178,19 +182,36 @@ public class LightNovelPubParser extends Parser {
 
     @Override
     public ArrayList<NovelDetailsMinimum> searchNovels(String searchValue) {
+        return new ArrayList<>();
+        /*
         String html = "";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
+
+        JSONObject postJsonObject = new JSONObject();
+        try {
+            postJsonObject.put("inputContent", searchValue);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         OkHttpClient client = new OkHttpClient();
-        String url = URL_BASE + "/lnwsearchlive?inputContent=" + searchValue.replace(" ", "%20");
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, postJsonObject.toString());
+
+        String url = URL_BASE + "/lnwsearchlive";
 
         Request request = new Request.Builder()
                 .header("User-Agent", "Mozilla/5.0")
+                .addHeader("lnrequestverifytoken", "CfDJ8LL1tUsY83pMlvlZAmXeR3RPrB7mXqQIsT7aW_P07D1tabNa7nc-cT7ToRC6ip2YzwaXcUlv5c7yD9JsDldBZfIrNRS5oDSY5Ob19Kv1rAJk7x6Cfri1La1C0R729T_hz2LAcd_BsaJtn4lA34XLonA")
                 .url(url)
+                .post(body)
                 .build();
 
 
         try (Response response = client.newCall(request).execute()) {
             String temp = response.body().string();
+            System.out.println(temp);
+
             JsonObject jsonObject = new JsonParser().parse(temp).getAsJsonObject();
             html = jsonObject.get("resultview").getAsString();
         } catch (IOException e) {
@@ -218,7 +239,7 @@ public class LightNovelPubParser extends Parser {
             ));
         }
 
-        return novelsArr;
+        return novelsArr;*/
     }
 
     @Override
