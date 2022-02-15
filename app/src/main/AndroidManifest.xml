@@ -48,6 +48,10 @@
             android:name="com.example.mobileproject.VisitSourceWebViewActivity"
             android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
         </activity>
+        <activity
+            android:name="com.example.mobileproject.CreateSourceWebViewActivity"
+            android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
+        </activity>
 
         <service android:name=".model.DownloaderService" />
         <service android:name=".services.CheckUpdateService" />

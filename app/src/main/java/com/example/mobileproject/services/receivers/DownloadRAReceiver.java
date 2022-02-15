@@ -22,6 +22,8 @@ public class DownloadRAReceiver extends ResultReceiver {
 
         int chapter_id = resultData.getInt("chapter_id");
 
-        readerActivity.ChapterDownloaded(chapter_id);
+        if(readerActivity != null){
+            readerActivity.ChapterDownloaded(chapter_id);
+        }
     }
 }

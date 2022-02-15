@@ -24,6 +24,7 @@ public class NovelReaderController implements Serializable {
     }
 
     public ChapterIndex getCurrentChapter(){
+        if(chapterIndices.size() == 0) return new ChapterIndex();
         return chapterIndices.get(position);
     }
 

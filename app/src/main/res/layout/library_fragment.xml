@@ -299,6 +299,64 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/open_web_view_menu"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/secodary_dark_theme">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:paddingVertical="15dp"
+                android:textSize="18sp"
+                android:text="Digite o link da novel"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:text="O link da novel que você digitou não existe um parser disponivel ainda. Deseja abrir no WebView ? \n\nNo WebView é possivel criar um Parser especifico para esse novo site!"
+                android:layout_marginVertical="10dp"
+                android:paddingVertical="10dp"
+                android:layout_marginHorizontal="15dp"
+                android:textColor="@color/white" />
+
+            <LinearLayout
+                android:layout_marginHorizontal="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/cancel_option_3"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selectable_item_background"
+                    android:textSize="12sp"
+                    android:text="Cancelar"/>
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/open_web_view_option"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selectable_item_background"
+                    android:textSize="12sp"
+                    android:text="Abrir"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
     </FrameLayout>
 
 </FrameLayout>

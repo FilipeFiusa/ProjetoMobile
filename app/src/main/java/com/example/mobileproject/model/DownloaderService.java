@@ -55,6 +55,7 @@ public class DownloaderService extends Service {
                 String chapterName = currentNovel.getChapterToDownload().getChapterName();
 
                 notification
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setContentTitle(title + " - " + chapterName)
                         .setContentText("")
                         .setProgress(1, 0, true);
@@ -72,6 +73,7 @@ public class DownloaderService extends Service {
             }
 
             notification
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setContentText("Download Finished")
                     .setOngoing(false)
                     .setProgress(0, 0, false);

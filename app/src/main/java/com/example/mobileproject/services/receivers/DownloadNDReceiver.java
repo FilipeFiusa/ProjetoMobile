@@ -20,6 +20,8 @@ public class DownloadNDReceiver extends ResultReceiver {
 
         int chapter_id = resultData.getInt("chapter_id");
 
-        novelDetailsAdapter.ChapterDownloaded(chapter_id);
+        if(novelDetailsAdapter != null){
+            novelDetailsAdapter.ChapterDownloaded(chapter_id);
+        }
     }
 }

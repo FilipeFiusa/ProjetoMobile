@@ -2,15 +2,18 @@ package com.example.mobileproject.services;
 
 import static com.example.mobileproject.App.CHANNEL_ID;
 
+import android.app.Notification;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
@@ -19,6 +22,7 @@ import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.example.mobileproject.util.ServiceHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +36,11 @@ public class CheckNovelUpdatesService extends JobService {
     private NotificationManagerCompat notificationManager;
     private NotificationCompat.Builder notification;
 
+    int SUMMARY_ID = 0;
+    String GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL";
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-/*        System.out.println("Running");
-
         notificationManager = NotificationManagerCompat.from(this);
 
         DBController db = new DBController(getApplicationContext());
@@ -49,19 +54,40 @@ public class CheckNovelUpdatesService extends JobService {
                 .setOnlyAlertOnce(true)
                 .setProgress(100, 0, false);
 
-        startForeground(2, notification.build());*/
+        startForeground(2, notification.build());
 
-        //new Thread(new CheckUpdateWorker(jobParameters)).start();
+        new Thread(new CheckUpdateWorker(jobParameters)).start();
+
+        /*
 
         Intent serviceIntent = new Intent(this, CheckUpdateService.class);
         startService(serviceIntent);
 
+
+        jobFinished(jobParameters, false);*/
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
-        return true;
+        return false;
+    }
+
+    private class CheckIfServiceIsRunning implements Runnable{
+        private final JobParameters jobParameters;
+
+        public CheckIfServiceIsRunning(JobParameters jobParameters) {
+            this.jobParameters = jobParameters;
+        }
+
+        @Override
+        public void run() {
+            while (ServiceHelper.isMyServiceRunning(getApplicationContext(), CheckUpdateService.class)){
+                SystemClock.sleep(1000);
+            }
+
+            jobFinished(jobParameters, true);
+        }
     }
 
     private class CheckUpdateWorker implements Runnable {
@@ -84,6 +110,8 @@ public class CheckNovelUpdatesService extends JobService {
             notificationManager.notify(2, notification.build());
 
             while (!novelList.isEmpty()){
+                SystemClock.sleep(2000);
+
                 CheckUpdatesItem newItem = CheckUpdate(novelList.get(0));
                 if(!newItem.isEmpty())
                     checkUpdatesItems.add(newItem);
@@ -100,14 +128,10 @@ public class CheckNovelUpdatesService extends JobService {
                 novelList.remove(0);
             }
 
-            notification
-                    .setContentText("Finalizado")
-                    .setOngoing(false)
-                    .setProgress(0, 0, false);
-            notificationManager.notify(2, notification.build());
-
             if(!checkUpdatesItems.isEmpty()){
-                StringBuilder message = new StringBuilder();
+                showNewChaptersNotification();
+
+/*                StringBuilder message = new StringBuilder();
                 for (int i = 0; i < checkUpdatesItems.size(); i++) {
                     String m = checkUpdatesItems.get(i).toString();
                     if(i==0){
@@ -118,9 +142,6 @@ public class CheckNovelUpdatesService extends JobService {
                     message.append(m);
                 }
 
-                System.out.println("Chegou Aqui");
-                System.out.println(message.toString());
-
                 notification
                         .setContentTitle("Novos capitulos: ")
                         .setOngoing(false)
@@ -128,15 +149,12 @@ public class CheckNovelUpdatesService extends JobService {
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(message));
 
-                notificationManager.notify(2, notification.build());
+                notificationManager.notify(2, notification.build());*/
 
                 PutChaptersToDownload();
 
-                SystemClock.sleep(2000);
-
                 Intent serviceIntent = new Intent(getApplicationContext(), DownloaderService.class);
                 getApplicationContext().startService(serviceIntent);
-
             }else{
                 notification
                         .setContentTitle("Finalizado")
@@ -147,6 +165,7 @@ public class CheckNovelUpdatesService extends JobService {
 
             notificationManager.cancel(2);
             stopForeground(false);
+            jobFinished(params, false);
         }
 
         public CheckUpdatesItem CheckUpdate(NovelDetails novelDetails) {
@@ -181,6 +200,46 @@ public class CheckNovelUpdatesService extends JobService {
             db.updateChapters(novelDetails.getNovelName(), novelDetails.getSource(), tempList);
 
             return new CheckUpdatesItem(novelDetails, newChapters);
+        }
+
+        private void showNewChaptersNotification(){
+            String GROUP_NAME = "Novels_Group";
+            int newChaptersCount = 0;
+
+            NotificationCompat.InboxStyle summaryNotificationStyle = new NotificationCompat.InboxStyle();
+
+            for (int i = 0; i < checkUpdatesItems.size(); i++) {
+                NovelDetails currentNovel = checkUpdatesItems.get(i).novelDetails;
+
+                Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_baseline_android)
+                        .setContentTitle(currentNovel.getNovelName())
+                        .setContentText(checkUpdatesItems.get(i).allChaptersToString())
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(checkUpdatesItems.get(i).allChaptersToString()))
+                        .setLargeIcon(currentNovel.getNovelImage())
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setGroup(GROUP_NAME)
+                        .build();
+
+                notificationManager.notify(10 + i, notification);
+
+                summaryNotificationStyle.addLine(currentNovel.getNovelName() + "  -  " + checkUpdatesItems.get(i).allChaptersToString());
+
+                newChaptersCount += checkUpdatesItems.get(i).newChapters.size();
+            }
+
+            summaryNotificationStyle.setBigContentTitle(newChaptersCount + " novos capitulos");
+
+            Notification summaryNotification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                    .setStyle(summaryNotificationStyle)
+                    .setSmallIcon(R.drawable.ic_baseline_android)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setGroup(GROUP_NAME)
+                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+                    .setGroupSummary(true)
+                    .build();
+
+            notificationManager.notify(9, summaryNotification);
         }
 
         public void PutChaptersToDownload(){
@@ -224,6 +283,20 @@ public class CheckNovelUpdatesService extends JobService {
             return getInitials(novelDetails.getNovelName()) +
                     ": " +
                     newChapters.size();
+        }
+
+        public String allChaptersToString(){
+            StringBuilder allChaptersToString = new StringBuilder();
+
+            for (int i = 0; i < newChapters.size(); i++) {
+                allChaptersToString.append(newChapters.get(i).getChapterName());
+
+                if(i+1 != newChapters.size()){
+                    allChaptersToString.append(", ");
+                }
+            }
+
+            return allChaptersToString.toString();
         }
 
         public String getInitials(String fullname){

@@ -46,10 +46,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
     private ChaptersAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private Thread checkForServiceStartedThread;
-
     private DownloadReceiver downloadReceiver;
-    private CheckUpdatesNDReceiver updatesReceiver;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -106,8 +103,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
                     contentDB.cancel(true);
                 }
 
-                checkForServiceStartedThread.interrupt();
-
                 finish();
             }
         });
@@ -116,8 +111,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
         simpleButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteNovelTask d = new deleteNovelTask();
-                d.execute();
+/*                deleteNovelTask d = new deleteNovelTask();
+                d.execute();*/
                 //downloadAll();
             }
         });
@@ -160,11 +155,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 startActivity(Intent.createChooser(intent, "Share via"));
             }
         });
-
-        updatesReceiver = new CheckUpdatesNDReceiver(new Handler(), this);
-
-        checkForServiceStartedThread = new Thread(new CheckForUpdateServiceRunningTask());
-        checkForServiceStartedThread.start();
     }
 
     @Override
@@ -362,42 +352,16 @@ public class NovelDetailsActivity extends AppCompatActivity {
             contentDB.cancel(true);
         }
 
-        checkForServiceStartedThread.interrupt();
-
         finish();
     }
 
     public void updateChapterList(String novelName, String novelSource){
         if(currentNovel.getNovelName().equals(novelName) && currentNovel.getSource().equals(novelSource)){
-            System.out.println("achou");
 
             UpdateChaptersList updateChaptersList = new UpdateChaptersList();
             updateChaptersList.execute();
 
             new Thread(new CheckForDownloadServiceRunningTask()).start();
-        }
-        System.out.println("errado");
-    }
-
-    private class CheckForUpdateServiceRunningTask implements Runnable {
-
-        @Override
-        public void run() {
-            boolean isServiceRunning = false;
-            while (!Thread.currentThread().isInterrupted()) {
-                isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, CheckUpdateService.class);
-
-                if (isServiceRunning) {
-                    System.out.println("CreatingReceiver");
-                    Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
-                    serviceIntent.putExtra("receiver2", (Parcelable) updatesReceiver);
-                    ctx.startService(serviceIntent);
-
-                    SystemClock.sleep(10000);
-                }
-
-                SystemClock.sleep(1000);
-            }
         }
     }
 
@@ -413,7 +377,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, DownloaderService.class);
 
                 if(isServiceRunning){
-                    System.out.println("CreatingDownloadReceiver");
                     Intent serviceIntent = new Intent(ctx, DownloaderService.class);
                     serviceIntent.putExtra("receiver", (Parcelable) downloadReceiver);
                     ctx.startService(serviceIntent);

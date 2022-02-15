@@ -13,8 +13,9 @@ import android.view.View;
 import com.example.mobileproject.services.CheckNovelUpdatesService;
 
 public class App extends Application {
-    public static final String CHANNEL_ID = "App Downloader";
-    public static final int CHECK_UPDATES_SERVICE_ID = 123;
+    public static final String CHANNEL_ID = "Check Updates";
+    public static final int OLD_CHECK_UPDATES_SERVICE_ID = 123;
+    public static final int CHECK_UPDATES_SERVICE_ID = 1234;
 
     @Override
     public void onCreate() {
@@ -29,7 +30,7 @@ public class App extends Application {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel serviceChanel = new NotificationChannel(
                     CHANNEL_ID,
-                    "App Downloader Channel",
+                    "Check Updates Channel",
                     NotificationManager.IMPORTANCE_LOW
             );
 
@@ -39,7 +40,7 @@ public class App extends Application {
     }
 
     private void scheduleJob(){
-        if(true) return;
+        //if(true) return;
 
         if(isJobServiceOn(this)){
             return;
@@ -53,6 +54,7 @@ public class App extends Application {
                 .build();
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.cancel(OLD_CHECK_UPDATES_SERVICE_ID);
         scheduler.schedule(info);
     }
 

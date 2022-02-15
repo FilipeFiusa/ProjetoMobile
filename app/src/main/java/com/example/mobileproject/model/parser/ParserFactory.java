@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.example.mobileproject.model.parser.english.LightNovelPubParser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
+import com.example.mobileproject.model.parser.english.RoyalRoadParser;
 import com.example.mobileproject.model.parser.english.WuxiaBlogParser;
 
 import org.reflections.Reflections;
@@ -37,7 +38,8 @@ public class ParserFactory {
         return Arrays.asList(
                 new NovelFullParser(ctx),
                 new LightNovelPubParser(ctx),
-                new WuxiaBlogParser(ctx)
+                new WuxiaBlogParser(ctx),
+                new RoyalRoadParser(ctx)
         );
     }
 

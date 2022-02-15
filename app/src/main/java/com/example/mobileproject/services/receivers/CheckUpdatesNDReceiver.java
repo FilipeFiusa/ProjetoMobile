@@ -23,6 +23,8 @@ public class CheckUpdatesNDReceiver extends ResultReceiver {
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         super.onReceiveResult(resultCode, resultData);
 
+        if(novelDetails == null) return;
+
         ArrayList<CheckUpdatesItem> items = (ArrayList<CheckUpdatesItem>) resultData.getSerializable("updatedNovelsList");
 
         for (CheckUpdatesItem item : items){

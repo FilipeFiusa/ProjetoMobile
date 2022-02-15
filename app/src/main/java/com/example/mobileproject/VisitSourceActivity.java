@@ -72,7 +72,7 @@ public class VisitSourceActivity extends AppCompatActivity {
 
         mLayoutManager = new GridLayoutManager(ctx, 2);
         mAdapter = new NovelsGridAdaptor(new ArrayList<>(), ctx, currentSourceName);
-        mRecyclerView.addItemDecoration(new NovelsLayoutDecoration(10, ctx));
+        mRecyclerView.addItemDecoration(new NovelsLayoutDecoration(5, ctx));
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);

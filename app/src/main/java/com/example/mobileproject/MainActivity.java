@@ -9,6 +9,7 @@ import com.example.mobileproject.ui.downloads.DownloadsFragment;
 import com.example.mobileproject.ui.library.LibraryFragment;
 import com.example.mobileproject.ui.navigate.NavigateFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +30,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottom_navigation);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
+        //bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        bottomNav.setOnItemSelectedListener(navListener);
+        bottomNav.setOnItemReselectedListener(new NavigationBarView.OnItemReselectedListener() {
+            @Override
+            public void onNavigationItemReselected(@NonNull MenuItem item) {
+                
+            }
+        });
 
         libraryFragment = new LibraryFragment();
 
@@ -37,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
                 libraryFragment).commit();
     }
 
-    private final BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener(){
+    private final BottomNavigationView.OnItemSelectedListener navListener =
+            new NavigationBarView.OnItemSelectedListener(){
 
                 @SuppressLint("NonConstantResourceId")
                 @Override

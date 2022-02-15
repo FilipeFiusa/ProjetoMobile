@@ -79,7 +79,13 @@ public class ReaderWebViewController  {
             setUpPopUp(preferences.edit());
         }
 
-        baseUrl = ((Parser) Objects.requireNonNull(ParserFactory.getParserInstance(sourceName, ctx))).getURL_BASE();
+        try{
+            baseUrl = ((Parser) Objects.requireNonNull(ParserFactory.getParserInstance(sourceName, ctx))).getURL_BASE();
+        }catch (NullPointerException e){
+            baseUrl = "";
+            currentChapter.setChapterLink("");
+        }
+
 
         FrameLayout hideMenu = (FrameLayout) layout.findViewById(R.id.hide_reader_menu);
         hideMenu.setOnClickListener(new View.OnClickListener() {
@@ -197,5 +203,8 @@ public class ReaderWebViewController  {
         currentLink.setText(new StringBuilder().append(baseUrl).append(currentChapter.getChapterLink().replace(baseUrl, "")).toString());
     }
 
+    public void openLink(String link){
+        webView.loadUrl(link);
+    }
 
 }

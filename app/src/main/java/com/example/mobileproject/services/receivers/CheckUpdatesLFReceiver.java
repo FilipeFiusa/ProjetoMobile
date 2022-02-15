@@ -19,6 +19,9 @@ public class CheckUpdatesLFReceiver extends ResultReceiver {
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         super.onReceiveResult(resultCode, resultData);
 
-        libraryFragment.checkUpdatesFinished();
+        if(libraryFragment != null){
+            libraryFragment.checkUpdatesFinished();
+        }
+
     }
 }

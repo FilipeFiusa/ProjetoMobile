@@ -258,6 +258,7 @@ public class NovelFullParser extends Parser {
                     .replaceAll("</span>", "")
                     .replaceAll("\n  ", "\n")
                     .replaceAll("\n ", "\n")
+                    .replaceAll("\\n\\s+(.*?)", "\n\n")
                     .trim();
 
             chapterContent = cleanHTMLEntities(chapterContent);

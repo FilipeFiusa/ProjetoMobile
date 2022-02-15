@@ -51,6 +51,7 @@ import com.example.mobileproject.ui.reader_web_view.ReaderWebViewController;
 import com.example.mobileproject.util.FontFactory;
 import com.example.mobileproject.util.ServiceHelper;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -458,8 +459,6 @@ public class ReaderActivity extends AppCompatActivity {
 
     public void updateChapterList(String novelName, String novelSource){
         if(novelName.equals(this.novelName) && novelSource.equals(this.sourceName)){
-            System.out.println("Updating");
-
             UpdateChaptersList updateChaptersList = new UpdateChaptersList();
             updateChaptersList.execute();
 
@@ -541,7 +540,6 @@ public class ReaderActivity extends AppCompatActivity {
                 isServiceRunning = ServiceHelper.isMyServiceRunning(ctx, DownloaderService.class);
 
                 if(isServiceRunning){
-                    System.out.println("CreatingDownloadReceiver");
                     Intent serviceIntent = new Intent(ctx, DownloaderService.class);
                     serviceIntent.putExtra("receiver2", (Parcelable) downloadReceiver);
                     ctx.startService(serviceIntent);
@@ -588,7 +586,6 @@ public class ReaderActivity extends AppCompatActivity {
             }
 
             chapterContent = parser.getChapterContent(chapter[0].getChapterLink());
-
             chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
 
             return chapterContent;

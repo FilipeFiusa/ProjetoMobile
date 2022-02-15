@@ -599,9 +599,11 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         novelDetailsHolder.mTextView3.setText(currentNovel.getNovelDescription());
         novelDetailsHolder.mTextView4.setText(new StringBuilder().append(currentNovel.getChapterQuantity()).append(" Capitulos").toString());
         if(currentNovel.getStatus() == 1){
-            novelDetailsHolder.mTextView5.setText("Em Andamento");
+            novelDetailsHolder.mTextView5.setVisibility(View.VISIBLE);
+            novelDetailsHolder.mTextView5.setText("Em Andamento - " + currentNovel.getSource());
         }else if(currentNovel.getStatus() == 2){
-            novelDetailsHolder.mTextView5.setText("Completo");
+            novelDetailsHolder.mTextView5.setVisibility(View.VISIBLE);
+            novelDetailsHolder.mTextView5.setText("Completo - " + currentNovel.getSource());
         }
 
         SetUpFavoriteButtons(novelDetailsHolder, currentNovel.getIsFavorite());

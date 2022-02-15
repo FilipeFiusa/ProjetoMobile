@@ -30,12 +30,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.mobileproject.CreateSourceWebViewActivity;
 import com.example.mobileproject.MainActivity;
 import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.R;
+import com.example.mobileproject.ReaderActivity;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
+import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.services.CheckUpdateService;
@@ -61,6 +64,8 @@ public class LibraryFragment extends Fragment {
     private ArrayList<NovelDetails> selectedNovelsReference;
 
     private Thread checkUpdatesThread;
+
+    private URL currentUrl;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -106,9 +111,6 @@ public class LibraryFragment extends Fragment {
 
         updatesReceiver = new CheckUpdatesLFReceiver(new Handler(), this);
 
-        checkUpdatesThread = new Thread(new CheckForUpdateService());
-        checkUpdatesThread.start();
-
         SetUpMenu();
 
         return root;
@@ -137,6 +139,7 @@ public class LibraryFragment extends Fragment {
         FrameLayout popup = root.findViewById(R.id.pop_up_menu);
         LinearLayout selectTypeMenu = root.findViewById(R.id.select_type_menu);
         LinearLayout setNovelLinkMenu = root.findViewById(R.id.set_novel_link_menu);
+        LinearLayout openWebViewMenu = root.findViewById(R.id.open_web_view_menu);
 
         ImageButton addNovel = root.findViewById(R.id.add_novel);
         addNovel.setOnClickListener(new View.OnClickListener() {
@@ -192,7 +195,7 @@ public class LibraryFragment extends Fragment {
                 String searchLink = searchInput.getText().toString();
 
                 try {
-                    URL currentUrl = new URL(searchLink);
+                    currentUrl = new URL(searchLink);
                     Parser currentParser = ParserFactory.checkIfSourceExistsWithLink(ctx, currentUrl);
 
                     if (currentParser != null){
@@ -206,11 +209,45 @@ public class LibraryFragment extends Fragment {
                         intent.putExtra("novelSource", currentParser.getSourceName());
 
                         ctx.startActivityForResult(intent, 1);
+
+                        searchInput.getText().clear();
+                    }else{
+                        setNovelLinkMenu.setVisibility(View.GONE);
+                        openWebViewMenu.setVisibility(View.VISIBLE);
+
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
 
+            }
+        });
+
+        Button cancelOption3 = root.findViewById(R.id.cancel_option_3);
+        cancelOption3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectTypeMenu.setVisibility(View.GONE);
+                setNovelLinkMenu.setVisibility(View.GONE);
+                popup.setVisibility(View.GONE);
+                openWebViewMenu.setVisibility(View.GONE);
+            }
+        });
+
+        Button openWebView = root.findViewById(R.id.open_web_view_option);
+        openWebView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //if (true) return;
+
+                Intent intent = new Intent(ctx, CreateSourceWebViewActivity.class);
+                intent.putExtra("currentUrl", currentUrl);
+                ctx.startActivityForResult(intent, 1);
+
+                selectTypeMenu.setVisibility(View.GONE);
+                setNovelLinkMenu.setVisibility(View.GONE);
+                popup.setVisibility(View.GONE);
+                openWebViewMenu.setVisibility(View.GONE);
             }
         });
 
@@ -384,35 +421,6 @@ public class LibraryFragment extends Fragment {
             }
 
             return null;
-        }
-    }
-
-    private class CheckForUpdateService implements Runnable {
-
-        @Override
-        public void run() {
-            boolean isServiceRunning = false;
-            while (!isServiceRunning){
-                isServiceRunning = isMyServiceRunning(CheckUpdateService.class);
-
-                if(isServiceRunning){
-                    Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
-                    serviceIntent.putExtra("receiver", (Parcelable) updatesReceiver);
-                    ctx.startService(serviceIntent);
-                }
-
-                SystemClock.sleep(1000);
-            }
-        }
-
-        private boolean isMyServiceRunning(Class<?> serviceClass) {
-            ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (serviceClass.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

@@ -253,6 +253,8 @@ public class LightNovelPubParser extends Parser {
 
             String rawChapter = document.html();
 
+            cleanDocument(document);
+
             String chapterContent = document.select("#chapter-container").first().html();
 
             chapterContent = cleanChapter(chapterContent);

@@ -19,6 +19,8 @@ public abstract class Parser implements ParserInterface {
 
     protected Context ctx;
 
+    protected int parserType = 3; // 3- Full implementation / 2- not full implementation / 1- WebView implementation
+
     public boolean isPinned;
     public boolean isActive;
 
@@ -56,13 +58,15 @@ public abstract class Parser implements ParserInterface {
     //override and use super.CleanDocument if needed.
     protected void cleanDocument(Document document){
         removeComments(document);
-        document.select("script").remove();
-        document.select("ins").remove();
         document.select(".google-auto-placed").remove();
         document.select(".ap_container").remove();
         document.select(".ads").remove();
+        document.select(".ads-box").remove();
+        document.select(".adsbox").remove();
         document.select(".ads-holder").remove();
         document.select(".ads-middle").remove();
+        document.select("ins").remove();
+        document.select("script").remove();
     }
 
     protected String cleanChapter(String content){

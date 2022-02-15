@@ -56,7 +56,7 @@ public class CheckUpdateService extends Service {
         wakeLock.acquire(10*60*1000L /*10 minutes*/);
 
         DBController db = new DBController(getApplicationContext());
-        novelList = db.selectAllNovels();
+        novelList = db.selectOnGoingNovels();
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Atualizando a Biblioteca")
