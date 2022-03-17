@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    android:visibility="visible"
+    android:layout_width="match_parent"
+    android:paddingHorizontal="30dp"
+    android:paddingVertical="35dp"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/chapter_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:longClickable="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="35sp"
+
+            android:text="Title mt legal"
+            />
+
+
+        <TextView
+            android:id="@+id/chapter_content"
+            android:scrollbars="none"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/lorem_ipsum"
+            android:textColor="@color/black"
+            android:textIsSelectable="true"
+            android:textSize="16sp" />
+    </LinearLayout>
+</FrameLayout>

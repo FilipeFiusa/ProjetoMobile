@@ -21,6 +21,7 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_keyboard_arrow_left_40.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_keyboard_arrow_right_15.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_keyboard_arrow_right_24.xml" value="0.21614583333333334" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_library_books_24.xml" value="0.35185185185185186" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_library_books_40.xml" value="0.21614583333333334" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.30833333333333335" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.10989583333333333" />
@@ -75,6 +76,11 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_activity.xml" value="0.2621744054360136" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_menu_button_item.xml" value="0.25" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view.xml" value="0.3159328188833409" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view_page_view.xml" value="0.3625" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view_page_view_item1.xml" value="0.3625" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view_page_view_item2.xml" value="0.3625" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view_page_view_item3.xml" value="0.25" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_normal_view_scroll_view.xml" value="0.203125" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_settings.xml" value="0.109375" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_user_cleaners.xml" value="0.3625" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/reader_user_cleaners_edit_fragment.xml" value="0.3625" />

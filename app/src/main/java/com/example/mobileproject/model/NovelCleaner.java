@@ -94,4 +94,6 @@ public class NovelCleaner {
     public int hashCode() {
         return Objects.hash(isActive, name, flag, replacement, type);
     }
+
+
 }

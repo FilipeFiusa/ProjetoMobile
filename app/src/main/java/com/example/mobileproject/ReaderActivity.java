@@ -28,10 +28,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.loader.content.AsyncTaskLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.db.DBController;
+import com.example.mobileproject.model.Chapter;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloaderService;
@@ -50,6 +52,7 @@ import com.example.mobileproject.ui.reader_settings.ReaderSettings;
 import com.example.mobileproject.ui.reader_web_view.ReaderWebViewController;
 import com.example.mobileproject.util.FontFactory;
 import com.example.mobileproject.util.ServiceHelper;
+import com.example.mobileproject.util.SystemUiHelper;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,9 +62,6 @@ public class ReaderActivity extends AppCompatActivity {
     private final ReaderActivity ctx = this;
 
     private NovelReaderController nrc;
-    private GetChapterContent getChapterContent;
-    Button previousButton;
-    Button nextButton;
 
     private RecyclerView mRecyclerView;
     private ReaderChaptersAdapter mAdapter;
@@ -97,11 +97,13 @@ public class ReaderActivity extends AppCompatActivity {
     private DownloadRAReceiver downloadReceiver;
     private CheckUpdatesRAReceiver updatesReceiver;
 
-    private int readerViewType; // 1- Normal View / 2- ReaderView
+    private int readerViewType; // 1- Scroll View / 2- Web View / 3- Page View
+
+    public TextView chapterNameBottom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        hideSystemUI();
+        SystemUiHelper.hideSystemUI(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reader_activity);
 
@@ -133,7 +135,7 @@ public class ReaderActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        if(readerViewType == 1){
+        if(readerViewType == 1 || readerViewType == 3){
             setUpNormalView();
         }else if(readerViewType == 2){
             setUpWebView();
@@ -150,20 +152,49 @@ public class ReaderActivity extends AppCompatActivity {
 
         GetCleaners getCleaners = new GetCleaners();
         getCleaners.execute();
+    }
 
-        getChapterContent = new GetChapterContent();
-        getChapterContent.execute(nrc.getCurrentChapter());
+    private void loadCurrentChapter(){
+        if((readerViewType == 1 || readerViewType == 3) && normalViewController != null){
+            normalViewController.initializeReaderView();
+        }else if (readerViewType == 2 && webViewController != null) {
+
+        }
+    }
+
+    private void reloadChapter(){
+
+    }
+
+    private void loadChapter(){
+        if((readerViewType == 1 || readerViewType == 3) && normalViewController != null){
+            normalViewController.initializeReaderView();
+        }else if (readerViewType == 2 && webViewController != null) {
+
+        }
+    }
+
+    private void loadChapter(int direction){
+        if((readerViewType == 1 || readerViewType == 3) && normalViewController != null){
+            normalViewController.loadChapter(direction);
+        }else if (readerViewType == 2 && webViewController != null) {
+
+        }
     }
 
     private void setUpNormalView(){
         LinearLayout container = (LinearLayout) findViewById(R.id.reader_container);
         container.removeAllViews();
-        FrameLayout inflatedLayout= (FrameLayout) getLayoutInflater()
-                .inflate(R.layout.reader_normal_view, container, false);
-        normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, currentChapterContent);
-        container.addView(inflatedLayout);
+        FrameLayout inflatedLayout= (FrameLayout) getLayoutInflater().inflate(R.layout.reader_normal_view, container, false);
 
-        readerViewType = 1;
+        if(readerViewType == 1){
+            normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
+                    sourceName, chapterNameBottom, novelCleaners, 1);
+        }else if (readerViewType == 3){
+            normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
+                    sourceName, chapterNameBottom, novelCleaners, 2);
+        }
+        container.addView(inflatedLayout);
     }
 
     private void setUpWebView(){
@@ -171,10 +202,8 @@ public class ReaderActivity extends AppCompatActivity {
         container.removeAllViews();
         CoordinatorLayout inflatedLayout= (CoordinatorLayout) getLayoutInflater()
                 .inflate(R.layout.reader_web_view, container, false);
-        webViewController = new ReaderWebViewController(inflatedLayout, ReaderActivity.this, nrc.getCurrentChapter(), sourceName, currentChapterContent);
+        webViewController = new ReaderWebViewController(inflatedLayout, ReaderActivity.this, nrc.getCurrentChapter().getChapterIndex(), sourceName, currentChapterContent);
         container.addView(inflatedLayout);
-
-        readerViewType = 2;
     }
 
     private void setUpMenu(){
@@ -205,6 +234,10 @@ public class ReaderActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(normalViewController != null && normalViewController.pageViewController != null){
+                    normalViewController.pageViewController.menuChangePage();
+                }
+
                 getNextChapter();
             }
         });
@@ -213,6 +246,10 @@ public class ReaderActivity extends AppCompatActivity {
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(normalViewController != null && normalViewController.pageViewController != null){
+                    normalViewController.pageViewController.menuChangePage();
+                }
+
                 getPreviousChapter();
             }
         });
@@ -238,18 +275,13 @@ public class ReaderActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Log.i("Go to - ", String.valueOf(progress - 1));
 
-                ChapterIndex c = nrc.goToChapter(progress);
-
-                getChapterContent = new GetChapterContent();
-                getChapterContent.execute(c);
+                goToChapter(progress);
             }
         });
 
@@ -261,7 +293,7 @@ public class ReaderActivity extends AppCompatActivity {
                 FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
                 FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
 
-                hideSystemUI();
+                SystemUiHelper.hideSystemUI(ReaderActivity.this);
 
                 topMenu.startAnimation(animTranslateOut);
                 bottomMenu.startAnimation(animTranslateBottomOut);
@@ -319,8 +351,7 @@ public class ReaderActivity extends AppCompatActivity {
         reloadChapterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getChapterContent = new GetChapterContent();
-                getChapterContent.execute(nrc.getCurrentChapter());
+                reloadChapter();
             }
         });
 
@@ -328,25 +359,36 @@ public class ReaderActivity extends AppCompatActivity {
         if(readerViewType == 1){
             toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
         }else if(readerViewType == 2){
+            toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
+        }else if(readerViewType == 3){
             toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
         }
         toggleReaderViewType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(readerViewType == 1){
+                    readerViewType = 2;
                     setUpWebView();
-                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
                 }else if(readerViewType == 2){
+                    readerViewType = 3;
+                    setUpNormalView();
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
+                }else if(readerViewType == 3){
+                    readerViewType = 1;
                     setUpNormalView();
                     toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
                 }
 
                 toggleReaderMenu();
+                loadCurrentChapter();
 
                 ChangeReaderViewType changeReaderViewType = new ChangeReaderViewType();
                 changeReaderViewType.execute(readerViewType);
             }
         });
+
+        chapterNameBottom = (TextView) findViewById(R.id.chapter_name_bottom);
     }
 
     public void toggleReaderMenu(){
@@ -371,7 +413,7 @@ public class ReaderActivity extends AppCompatActivity {
         }
 
         if (topMenu.getVisibility() == View.GONE){
-            showSystemUI();
+            SystemUiHelper.showSystemUI(this);
 
             topMenu.setVisibility(View.VISIBLE);
             bottomMenu.setVisibility(View.VISIBLE);
@@ -379,7 +421,7 @@ public class ReaderActivity extends AppCompatActivity {
             topMenu.startAnimation(animTranslateIn);
             bottomMenu.startAnimation(animTranslateBottomIn);
         }else{
-            hideSystemUI();
+            SystemUiHelper.hideSystemUI(this);
 
             topMenu.startAnimation(animTranslateOut);
             bottomMenu.startAnimation(animTranslateBottomOut);
@@ -396,29 +438,28 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     public void getPreviousChapter(){
-        if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
+        Chapter previous = nrc.getPreviousChapter();
+
+        if(previous == null || previous.getChapterIndex() == null){
+            Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        ChapterIndex previous = nrc.getPreviousChapter();
-
-        if(previous == null){
-            Toast.makeText(this, "Não tem capitulo anterior", Toast.LENGTH_SHORT).show();
-            return;
+        if(nrc.getCurrentPreviousChapter() == null || nrc.getCurrentPreviousChapter().getChapterIndex() == null){
+            if(normalViewController.pageViewController != null){
+                normalViewController.pageViewController.addInvalidPage(2);
+                return;
+            }
         }
 
         mSeekBar.setProgress(nrc.getPosition());
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
-        getChapterContent = new GetChapterContent();
-        getChapterContent.execute(previous);
+        loadChapter(2);
     }
 
     public void getNextChapter() {
-        if(getChapterContent.getStatus() == AsyncTask.Status.RUNNING){
-            return;
-        }
-        int currentChapter = nrc.getCurrentChapter().getId();
+        int currentChapter = nrc.getCurrentChapter().getChapterIndex().getId();
 
         if(currentChapter != -1 && !chaptersReadied.contains(currentChapter)){
             chaptersReadied.add(currentChapter);
@@ -426,35 +467,39 @@ public class ReaderActivity extends AppCompatActivity {
             db.setChapterAsReaded(currentChapter);
         }
 
-        ChapterIndex next = nrc.getNextChapter();
+        Chapter next = nrc.getNextChapter();
 
-        if(next == null){
+        if(next == null || next.getChapterIndex() == null){
             Toast.makeText(this, "Não tem capitulo posterior", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        if(nrc.getCurrentNextChapter() == null || nrc.getCurrentNextChapter().getChapterIndex() == null){
+            if(normalViewController.pageViewController != null){
+                normalViewController.pageViewController.addInvalidPage(1);
+                return;
+            }
         }
 
         mSeekBar.setProgress(nrc.getPosition());
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
-        getChapterContent = new GetChapterContent();
-        getChapterContent.execute(next);
+        loadChapter(1);
     }
 
-    public void goTo(ChapterIndex c){
+    public void goToChapter(int chapter){
         FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
-        int currentPosition = nrc.getPosition();
+        nrc.goToChapter(chapter);
 
         if(sideMenu.getVisibility() == View.VISIBLE){
             sideMenu.startAnimation(animTranslateSideOut);
             sideMenu.setVisibility(View.GONE);
         }
 
-        mSeekBar.setProgress(currentPosition);
+        mSeekBar.setProgress(nrc.getPosition());
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
-
-        getChapterContent = new GetChapterContent();
-        getChapterContent.execute(c);
+        loadChapter();
     }
 
     public void updateChapterList(String novelName, String novelSource){
@@ -485,27 +530,6 @@ public class ReaderActivity extends AppCompatActivity {
         finish();
     }
 
-    private void hideSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
-    }
-
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
 
     private class CheckForUpdateServiceRunningTask implements Runnable {
 
@@ -550,100 +574,7 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
-    private class GetChapterContent extends AsyncTask<ChapterIndex, Void, ChapterContent> {
-        private TextView chapterNameBottom;
-        private boolean hasInternet = true;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            chapterNameBottom = (TextView) findViewById(R.id.chapter_name_bottom);
-        }
-
-        @Override
-        protected ChapterContent doInBackground(ChapterIndex... chapter) {
-            ChapterContent chapterContent;
-
-            if(chapter[0].getDownloaded().equals("yes") || chapter[0].getDownloaded().equals("downloading")){
-                DBController db = new DBController(ReaderActivity.this);
-                chapterContent = db.getChapter(chapter[0].getId());
-
-                if(!chapterContent.getChapterContent().isEmpty()){
-                    chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
-                    return chapterContent;
-                }
-            }
-
-            if (!isNetworkAvailable(ctx)){
-                hasInternet = false;
-
-                return null;
-            }
-
-            ParserInterface parser = ParserFactory.getParserInstance(sourceName,ReaderActivity.this);
-            if(parser == null){
-                return null;
-            }
-
-            chapterContent = parser.getChapterContent(chapter[0].getChapterLink());
-            chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
-
-            return chapterContent;
-        }
-
-        @Override
-        protected void onPostExecute(ChapterContent chapterContent) {
-            super.onPostExecute(chapterContent);
-
-            if(chapterContent == null && !hasInternet ){
-                Toast.makeText(ReaderActivity.this, "Sem internet", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if(chapterContent == null || chapterContent.getChapterContent().isEmpty()){
-                Toast.makeText(ReaderActivity.this, "Falha ao acessar", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            currentChapterContent = chapterContent;
-
-
-            if(readerViewType == 1){
-                normalViewController.setChapterContent(chapterContent);
-            }else if(readerViewType == 2){
-                webViewController.goToAnotherChapter(nrc.getCurrentChapter(), chapterContent);
-            }
-
-            chapterNameBottom.setText(chapterContent.getChapterName());
-        }
-
-        public boolean isNetworkAvailable(final Context context) {
-            final ConnectivityManager cm = (ConnectivityManager)
-                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (cm == null) return false;
-            final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            // if no network is available networkInfo will be null
-            // otherwise check if we are connected
-            return (networkInfo != null && networkInfo.isConnected());
-        }
-
-
-        private String CleanChapter(String chapterContent){
-            String cleanedChapter = chapterContent;
-
-            while (novelCleaners == null){
-                SystemClock.sleep(100);
-            }
-
-            for(NovelCleaner cleaner : novelCleaners){
-                if(!cleaner.isActive()) continue;
-
-                cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
-            }
-
-            return cleanedChapter;
-        }
-    }
 
     private class GetCleaners extends AsyncTask<Void, Void, ArrayList<NovelCleaner>>{
 
@@ -659,6 +590,7 @@ public class ReaderActivity extends AppCompatActivity {
             super.onPostExecute(cleaners);
 
             novelCleaners = cleaners;
+            loadCurrentChapter();
         }
     }
 

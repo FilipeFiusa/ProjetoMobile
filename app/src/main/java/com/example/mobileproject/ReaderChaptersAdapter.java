@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mobileproject.model.Chapter;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
@@ -92,7 +93,7 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void updateChapterList(ArrayList<ChapterIndex> chapters){
         int i = 0;
 
-        ChapterIndex currentChapter = nrc.getCurrentChapter();
+        ChapterIndex currentChapter = nrc.getCurrentChapter().getChapterIndex();
 
         nrc.updateChaptersList(currentChapter, chapters);
 
@@ -160,8 +161,7 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mHolder.mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChapterIndex c = nrc.goToChapter(mHolder.getAdapterPosition());
-                readerActivity.goTo(c);
+                readerActivity.goToChapter(mHolder.getAdapterPosition());
 
                 mList.get(currentReadingPosition).setIsSelected(false);
                 notifyItemChanged(currentReadingPosition);

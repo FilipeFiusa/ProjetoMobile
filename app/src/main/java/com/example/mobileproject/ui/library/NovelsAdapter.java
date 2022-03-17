@@ -153,21 +153,13 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
         }
 
         if(currentItem.selected){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                holder.mContainer.setForeground(ContextCompat.getDrawable(ctx, R.drawable.border));
-                holder.mImageButton.setForeground(ContextCompat.getDrawable(ctx, R.drawable.selectable_item_background));
-            }else {
-                holder.mContainer.setBackground(ContextCompat.getDrawable(ctx, R.drawable.border));
-            }
+            holder.mContainer.setForeground(ContextCompat.getDrawable(ctx, R.drawable.border));
+            holder.mImageButton.setForeground(ContextCompat.getDrawable(ctx, R.drawable.selectable_item_background));
             holder.mTextView1.setBackgroundColor(ctx.getResources().getColor(R.color.transparent));
             holder.mImageButton.setBackgroundColor(ctx.getResources().getColor(R.color.transparent));
         }else{
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                holder.mContainer.setForeground(null);
-                holder.mImageButton.setForeground(null);
-            }else {
-                holder.mContainer.setBackground(null);
-            }
+            holder.mContainer.setForeground(null);
+            holder.mImageButton.setForeground(null);
 
             holder.mTextView1.setBackground(ContextCompat.getDrawable(ctx, R.drawable.gradient));
             holder.mImageButton.setBackground(ContextCompat.getDrawable(ctx, R.drawable.selectable_item_background));
