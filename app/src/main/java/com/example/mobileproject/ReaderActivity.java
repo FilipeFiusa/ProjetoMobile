@@ -40,6 +40,7 @@ import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.NovelReaderController;
+import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.services.CheckUpdateService;
@@ -97,6 +98,8 @@ public class ReaderActivity extends AppCompatActivity {
     private DownloadRAReceiver downloadReceiver;
     private CheckUpdatesRAReceiver updatesReceiver;
 
+    private UserReaderPreferences userReaderPreferences;
+
     private int readerViewType; // 1- Scroll View / 2- Web View / 3- Page View
 
     public TextView chapterNameBottom;
@@ -115,6 +118,8 @@ public class ReaderActivity extends AppCompatActivity {
         animTranslateBottomOut = AnimationUtils.loadAnimation(this, R.anim.translate_bottom_out);
         animTranslateSideIn = AnimationUtils.loadAnimation(this, R.anim.translate_side_in);
         animTranslateSideOut = AnimationUtils.loadAnimation(this, R.anim.translate_side_out);
+
+        userReaderPreferences = new UserReaderPreferences(this);
 
 
         Intent i = getIntent();
@@ -189,10 +194,10 @@ public class ReaderActivity extends AppCompatActivity {
 
         if(readerViewType == 1){
             normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
-                    sourceName, chapterNameBottom, novelCleaners, 1);
+                    sourceName, chapterNameBottom, novelCleaners, 1, userReaderPreferences);
         }else if (readerViewType == 3){
             normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
-                    sourceName, chapterNameBottom, novelCleaners, 2);
+                    sourceName, chapterNameBottom, novelCleaners, 2, userReaderPreferences);
         }
         container.addView(inflatedLayout);
     }
@@ -432,8 +437,10 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
+        userReaderPreferences.setUserReaderPreferences(font_size, font_name, font_color, background_color);
+
         if(normalViewController != null){
-            normalViewController.changeReaderSettings(font_size, font_name, font_color, background_color);
+            normalViewController.applyNewUserReaderPreferences();
         }
     }
 

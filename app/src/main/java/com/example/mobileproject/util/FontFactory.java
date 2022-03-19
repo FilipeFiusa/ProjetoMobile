@@ -19,11 +19,11 @@ public class FontFactory {
     public FontFactory() {
     }
 
-    public String[] GetAvailableFontsInString(){
+    public String[] getAvailableFontsInString(){
         return fonts;
     }
 
-    public Typeface GetFont(String font_name, Context ctx){
+    public Typeface getFont(String font_name, Context ctx){
         Typeface font = null;
 
         if(font_name.equals("Acme")){

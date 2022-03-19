@@ -11,21 +11,17 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.mobileproject.App;
 import com.example.mobileproject.R;
 import com.example.mobileproject.ReaderActivity;
 import com.example.mobileproject.model.Chapter;
-import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.NovelReaderController;
+import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.ViewPageItem;
 import com.example.mobileproject.util.FontFactory;
 
 import java.util.ArrayList;
-
-import javassist.bytecode.analysis.Frame;
 
 public class PageViewController {
     private FrameLayout container;
@@ -55,30 +51,27 @@ public class PageViewController {
 
     private PageViewAdapter vpAdapter;
 
-    public PageViewController(ReaderActivity ctx, NovelReaderController nrc, FrameLayout container) {
+    final private UserReaderPreferences userReaderPreferences;
+
+    public PageViewController(ReaderActivity ctx, NovelReaderController nrc, FrameLayout container, UserReaderPreferences userReaderPreferences) {
         this.container = container;
         this.ctx = ctx;
         this.nrc = nrc;
+        this.userReaderPreferences = userReaderPreferences;
 
         titleTempContainer = (TextView) container.findViewById(R.id.title_temp_container);
         textTempContainer = (TextView) container.findViewById(R.id.text_temp_container);
         textTempContainerWithTitle = (TextView) container.findViewById(R.id.text_temp_container2);
 
-        SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-        textTempContainer.setTextSize(preferences.getFloat("font_size", 18));
-        textTempContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-        textTempContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-
-        textTempContainerWithTitle.setTextSize(preferences.getFloat("font_size", 18));
-        textTempContainerWithTitle.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-        textTempContainerWithTitle.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-
-        titleTempContainer.setTextSize(preferences.getFloat("font_size", 20) + 15);
-        titleTempContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-        titleTempContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+        userReaderPreferences.applyPreferences(null, titleTempContainer, textTempContainerWithTitle);
+        userReaderPreferences.applyPreferences(null, null, textTempContainer);
 
         viewPager2 = container.findViewById(R.id.viewpager);
+    }
+
+    public void applyNewUserReaderPreferences(){
+        userReaderPreferences.applyPreferences(null, titleTempContainer, textTempContainerWithTitle);
+        userReaderPreferences.applyPreferences(null, null, textTempContainer);
     }
 
     public void onClicked(){
@@ -129,7 +122,7 @@ public class PageViewController {
         }
 
         if(firstLoad){
-            vpAdapter = new PageViewAdapter(separatedChapter, ctx, this);
+            vpAdapter = new PageViewAdapter(separatedChapter, ctx, this, userReaderPreferences);
             viewPager2.setAdapter(vpAdapter);
             int page = nrc.getCurrentPreviousChapter().getTotalPages();
             viewPager2.setCurrentItem(page, false);

@@ -14,39 +14,45 @@ import com.example.mobileproject.R;
 import com.example.mobileproject.ReaderActivity;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.NovelReaderController;
-import com.example.mobileproject.util.FontFactory;
+import com.example.mobileproject.model.UserReaderPreferences;
 
 public class ScrollViewController {
     private FrameLayout container;
     private ReaderActivity ctx;
     private NovelReaderController nrc;
 
-    private TextView chapterName;
-    private TextView chapterContentView;
+    private TextView titleTextView;
+    private TextView chapterTextView;
     private ScrollView scrollView;
+    private LinearLayout background;
 
+    final private UserReaderPreferences userReaderPreferences;
 
-    public ScrollViewController(FrameLayout container, ReaderActivity ctx, NovelReaderController nrc) {
+    public ScrollViewController(FrameLayout container, ReaderActivity ctx, NovelReaderController nrc,
+                                UserReaderPreferences userReaderPreferences) {
         this.container = container;
         this.ctx = ctx;
         this.nrc = nrc;
+
+        this.userReaderPreferences = userReaderPreferences;
 
         setUpLayout();
     }
 
     public void setUpLayout(){
-        chapterName = (TextView) container.findViewById(R.id.chapter_name);
-        chapterContentView = (TextView) container.findViewById(R.id.chapter_content);
+        titleTextView = (TextView) container.findViewById(R.id.chapter_name);
+        chapterTextView = (TextView) container.findViewById(R.id.chapter_content);
         scrollView = (ScrollView) container.findViewById(R.id.reader_scroll_view);
+        background = ctx.findViewById(R.id.reader_container);
 
-        chapterContentView.setOnClickListener(new View.OnClickListener() {
+        chapterTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ctx.toggleReaderMenu();
             }
         });
 
-        chapterName.setOnClickListener(new View.OnClickListener() {
+        titleTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ctx.toggleReaderMenu();
@@ -58,10 +64,6 @@ public class ScrollViewController {
             @Override
             public void onClick(View view) {
                 ctx.getPreviousChapter();
-/*
-
-                ChapterContent currentChapter = nrc.getCurrentChapter().getChapterContent();
-                setChapterContent(currentChapter);*/
             }
         });
 
@@ -70,44 +72,22 @@ public class ScrollViewController {
             @Override
             public void onClick(View view) {
                 ctx.getNextChapter();
-
-
-/*                ChapterContent currentChapter = nrc.getCurrentChapter().getChapterContent();
-
-                chapterName.setText(currentChapter.getChapterName());
-                chapterContentView.setText(currentChapter.getChapterContent());
-
-                scrollView.fullScroll(ScrollView.FOCUS_UP);
-                scrollView.pageScroll(ScrollView.FOCUS_UP);
-                scrollView.smoothScrollTo(0,0);*/
             }
         });
 
-        setReaderUserPreferences();
-    }
-
-    private void setReaderUserPreferences(){
-        SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-        LinearLayout background = ctx.findViewById(R.id.reader_container);
-        background.setBackgroundColor(Color.parseColor(preferences.getString("background_color", "#1F1B1B")));
-
-        TextView chapterContentView = (TextView) container.findViewById(R.id.chapter_content);
-        chapterContentView.setTextSize(preferences.getFloat("font_size", 18));
-        chapterContentView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-        chapterContentView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-        TextView chapterTitleView = (TextView) container.findViewById(R.id.chapter_name);
-        chapterTitleView.setTextSize(preferences.getFloat("font_size", 20) + 15);
-        chapterTitleView.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-        chapterTitleView.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+        userReaderPreferences.applyPreferences(background, titleTextView, chapterTextView);
     }
 
     public void setChapterContent(ChapterContent chapterContent){
-        chapterName.setText(chapterContent.getChapterName());
-        chapterContentView.setText(chapterContent.getChapterContent());
+        titleTextView.setText(chapterContent.getChapterName());
+        chapterTextView.setText(chapterContent.getChapterContent());
 
         scrollView.fullScroll(ScrollView.FOCUS_UP);
         scrollView.pageScroll(ScrollView.FOCUS_UP);
         scrollView.smoothScrollTo(0,0);
+    }
+
+    public void applyNewUserReaderPreferences(){
+        userReaderPreferences.applyPreferences(background, titleTextView, chapterTextView);
     }
 }

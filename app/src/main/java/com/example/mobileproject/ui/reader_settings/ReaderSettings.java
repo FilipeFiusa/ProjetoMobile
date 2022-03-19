@@ -1,8 +1,6 @@
 package com.example.mobileproject.ui.reader_settings;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,9 +14,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.azeesoft.lib.colorpicker.ColorPickerDialog;
 import com.example.mobileproject.R;
@@ -66,7 +61,7 @@ public class ReaderSettings {
         });
 
         Spinner dropdown2 = ReaderSettings.findViewById(R.id.reader_font_family_selector);
-        String[] items2 = new FontFactory().GetAvailableFontsInString();
+        String[] items2 = new FontFactory().getAvailableFontsInString();
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(ctx, android.R.layout.simple_spinner_dropdown_item, items2);
         dropdown2.setAdapter(adapter2);
         dropdown2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -78,7 +73,7 @@ public class ReaderSettings {
 
                 font = (String) parent.getItemAtPosition(position);
 
-                textPreview.setTypeface(new FontFactory().GetFont(font, ctx));
+                textPreview.setTypeface(new FontFactory().getFont(font, ctx));
             }
 
             @Override

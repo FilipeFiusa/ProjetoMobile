@@ -8,10 +8,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
-import android.view.View;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -25,8 +22,8 @@ import com.example.mobileproject.model.Chapter;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.NovelCleaner;
-import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelReaderController;
+import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.util.FontFactory;
@@ -38,9 +35,7 @@ public class ReaderNormalView {
     private FrameLayout layout;
     private ReaderActivity ctx;
 
-    private TextView chapterName;
-    private TextView chapterContentView;
-    private ScrollView scrollView;
+    final private UserReaderPreferences userReaderPreferences;
 
     private TextView bottomChapterNameView;
 
@@ -56,12 +51,13 @@ public class ReaderNormalView {
 
     public ReaderNormalView(FrameLayout layout, ReaderActivity ctx, NovelReaderController nrc,
                             String currentSourceName, TextView bottomChapterNameView,
-                            ArrayList<NovelCleaner> novelCleaners, int textViewType) {
+                            ArrayList<NovelCleaner> novelCleaners, int textViewType, UserReaderPreferences userReaderPreferences) {
         this.layout = layout;
         this.ctx = ctx;
         this.nrc = nrc;
         this.currentSourceName = currentSourceName;
         this.textViewType = textViewType;
+        this.userReaderPreferences = userReaderPreferences;
 
         if(bottomChapterNameView != null){
             this.bottomChapterNameView = bottomChapterNameView;
@@ -88,7 +84,7 @@ public class ReaderNormalView {
         container.removeAllViews();
         FrameLayout chapterContainer = (FrameLayout) ctx.getLayoutInflater()
                 .inflate(R.layout.reader_normal_view_scroll_view, container, false);
-        scrollViewController = new ScrollViewController(chapterContainer, ctx, nrc);
+        scrollViewController = new ScrollViewController(chapterContainer, ctx, nrc, userReaderPreferences);
         container.addView(chapterContainer);
     }
 
@@ -97,41 +93,18 @@ public class ReaderNormalView {
         container.removeAllViews();
         FrameLayout chapterContainer = (FrameLayout) ctx.getLayoutInflater()
                 .inflate(R.layout.reader_normal_view_page_view, container, false);
-        pageViewController = new PageViewController(ctx, nrc, chapterContainer);
+        pageViewController = new PageViewController(ctx, nrc, chapterContainer, userReaderPreferences);
         container.addView(chapterContainer);
     }
 
-    public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
-        SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
+    public void applyNewUserReaderPreferences(){
+        if(textViewType == 1){
+            scrollViewController.applyNewUserReaderPreferences();
+        }else if(textViewType == 2){
+            pageViewController.applyNewUserReaderPreferences();
 
-        if(background_color != null){
-            LinearLayout container = layout.findViewById(R.id.reader_container);
-            container.setBackgroundColor(Color.parseColor(background_color));
-            editor.putString("background_color", background_color);
+            initializeReaderView();
         }
-        TextView chapterContentView = (TextView) layout.findViewById(R.id.chapter_content);
-        TextView chapterTitleView = (TextView) layout.findViewById(R.id.chapter_name);
-
-        if(font_size != 0){
-            chapterContentView.setTextSize(font_size);
-            chapterTitleView.setTextSize(font_size + 15);
-            editor.putFloat("font_size", font_size);
-        }
-
-        if(font_name != null){
-            chapterContentView.setTypeface(new FontFactory().GetFont(font_name, ctx));
-            chapterTitleView.setTypeface(new FontFactory().GetFont(font_name, ctx));
-            editor.putString("font_name", font_name);
-        }
-
-        if(font_color != null) {
-            chapterContentView.setTextColor(Color.parseColor(font_color));
-            chapterTitleView.setTextColor(Color.parseColor(font_color));
-            editor.putString("font_color", font_color);
-        }
-
-        editor.apply();
     }
 
     public void setChapterContent(int direction){

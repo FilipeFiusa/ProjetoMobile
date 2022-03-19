@@ -1,23 +1,19 @@
 package com.example.mobileproject.ui.reader_normal_view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.R;
+import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.ViewPageItem;
 import com.example.mobileproject.util.FontFactory;
 
@@ -27,11 +23,14 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private ArrayList<ViewPageItem> viewPagerItemArrayList;
     final private AppCompatActivity ctx;
     final private PageViewController controllerReference;
+    final private UserReaderPreferences userReaderPreferences;
 
-    public PageViewAdapter(ArrayList<ViewPageItem> viewPagerItemArrayList, AppCompatActivity ctx, PageViewController controller) {
+    public PageViewAdapter(ArrayList<ViewPageItem> viewPagerItemArrayList, AppCompatActivity ctx,
+                           PageViewController controller, UserReaderPreferences userReaderPreferences) {
         this.viewPagerItemArrayList = viewPagerItemArrayList;
         this.ctx = ctx;
         this.controllerReference = controller;
+        this.userReaderPreferences = userReaderPreferences;
     }
 
     @NonNull
@@ -73,15 +72,7 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             textAndTitleHolder.textContainer.setText(currentItem.getChapterContent());
             textAndTitleHolder.titleContainer.setText(currentItem.getTitle());
 
-            SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-            textAndTitleHolder.textContainer.setTextSize(preferences.getFloat("font_size", 18));
-            textAndTitleHolder.textContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-            textAndTitleHolder.textContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
-
-            textAndTitleHolder.titleContainer.setTextSize(preferences.getFloat("font_size", 20) + 15);
-            textAndTitleHolder.titleContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-            textAndTitleHolder.titleContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+            userReaderPreferences.applyPreferences(null, textAndTitleHolder.titleContainer, textAndTitleHolder.textContainer);
 
             textAndTitleHolder.titleContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,11 +93,7 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             textOnlyHolder.textContainer.setText(currentItem.getChapterContent());
 
-            SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-            textOnlyHolder.textContainer.setTextSize(preferences.getFloat("font_size", 18));
-            textOnlyHolder.textContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-            textOnlyHolder.textContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+            userReaderPreferences.applyPreferences(null, null, textOnlyHolder.textContainer);
 
             textOnlyHolder.textContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -124,11 +111,7 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 textOnlyHolder.textContainer.setText("Sem internet");
             }
 
-            SharedPreferences preferences = ctx.getSharedPreferences("readerPreferences", Context.MODE_PRIVATE);
-
-            textOnlyHolder.textContainer.setTextSize(preferences.getFloat("font_size", 18));
-            textOnlyHolder.textContainer.setTypeface(new FontFactory().GetFont(preferences.getString("font_name", "Roboto"), ctx));
-            textOnlyHolder.textContainer.setTextColor(Color.parseColor(preferences.getString("font_color", "#FFFFFF")));
+            userReaderPreferences.applyPreferences(null, null, textOnlyHolder.textContainer);
 
             textOnlyHolder.textContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
