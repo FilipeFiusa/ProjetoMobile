@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 public class ReaderNormalView {
 
     private FrameLayout layout;
+    private FrameLayout loading;
     private ReaderActivity ctx;
 
     final private UserReaderPreferences userReaderPreferences;
@@ -58,6 +60,8 @@ public class ReaderNormalView {
         this.currentSourceName = currentSourceName;
         this.textViewType = textViewType;
         this.userReaderPreferences = userReaderPreferences;
+
+        loading = (FrameLayout) layout.findViewById(R.id.loading_screen);
 
         if(bottomChapterNameView != null){
             this.bottomChapterNameView = bottomChapterNameView;
@@ -93,7 +97,7 @@ public class ReaderNormalView {
         container.removeAllViews();
         FrameLayout chapterContainer = (FrameLayout) ctx.getLayoutInflater()
                 .inflate(R.layout.reader_normal_view_page_view, container, false);
-        pageViewController = new PageViewController(ctx, nrc, chapterContainer, userReaderPreferences);
+        pageViewController = new PageViewController(ctx, nrc, chapterContainer, userReaderPreferences, loading);
         container.addView(chapterContainer);
     }
 
@@ -141,6 +145,13 @@ public class ReaderNormalView {
     private class InitializeNovelReaderController extends AsyncTask<NovelReaderController, Void, Boolean> {
 
         private boolean hasInternet = true;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            loading.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected Boolean doInBackground(NovelReaderController... novelReaderControllers) {
@@ -237,6 +248,8 @@ public class ReaderNormalView {
                     }else{
                         Toast.makeText(ctx, "Sem internet", Toast.LENGTH_SHORT).show();
                     }
+
+                    loading.setVisibility(View.GONE);
                 }else if (textViewType == 2 && pageViewController != null){
                     pageViewController.updateChapters();
                 }

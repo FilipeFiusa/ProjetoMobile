@@ -32,6 +32,8 @@ public class PageViewController {
     private Chapter currentChapterOnSeparator;
     private Chapter currentChapter;
 
+    private final FrameLayout loading;
+
     private final TextView textTempContainer;
     private final TextView textTempContainerWithTitle;
     private final TextView titleTempContainer;
@@ -53,11 +55,12 @@ public class PageViewController {
 
     final private UserReaderPreferences userReaderPreferences;
 
-    public PageViewController(ReaderActivity ctx, NovelReaderController nrc, FrameLayout container, UserReaderPreferences userReaderPreferences) {
+    public PageViewController(ReaderActivity ctx, NovelReaderController nrc, FrameLayout container, UserReaderPreferences userReaderPreferences, FrameLayout loading) {
         this.container = container;
         this.ctx = ctx;
         this.nrc = nrc;
         this.userReaderPreferences = userReaderPreferences;
+        this.loading = loading;
 
         titleTempContainer = (TextView) container.findViewById(R.id.title_temp_container);
         textTempContainer = (TextView) container.findViewById(R.id.text_temp_container);
@@ -193,6 +196,8 @@ public class PageViewController {
                 moveToCurrentChapterFromMenu();
             }
         }
+
+        loading.setVisibility(View.GONE);
     }
 
     public void addChapter(int direction){
