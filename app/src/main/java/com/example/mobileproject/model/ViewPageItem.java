@@ -10,6 +10,8 @@ public class ViewPageItem {
     private String title;
     private String chapterContent;
 
+    private boolean isLastPage = false;
+
     public ViewPageItem(String title, String chapterContent, Chapter chapter) {
         this.title = title;
         this.chapterContent = chapterContent;
@@ -63,6 +65,13 @@ public class ViewPageItem {
         this.chapter = chapter;
     }
 
+    public boolean isLastPage() {
+        return isLastPage;
+    }
+
+    public void setLastPage(boolean lastPage) {
+        isLastPage = lastPage;
+    }
 
     @Override
     public boolean equals(Object o) {

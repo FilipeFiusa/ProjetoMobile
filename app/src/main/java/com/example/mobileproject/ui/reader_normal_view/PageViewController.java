@@ -24,10 +24,10 @@ import com.example.mobileproject.util.FontFactory;
 import java.util.ArrayList;
 
 public class PageViewController {
-    private FrameLayout container;
-    private ReaderActivity ctx;
+    final private FrameLayout container;
+    final private ReaderActivity ctx;
 
-    private NovelReaderController nrc;
+    final private NovelReaderController nrc;
 
     private Chapter currentChapterOnSeparator;
     private Chapter currentChapter;
@@ -111,6 +111,8 @@ public class PageViewController {
         int itemsAdded = tempSeparatedChapter.size();
         int position = viewPager2.getCurrentItem();
 
+        tempSeparatedChapter.get(tempSeparatedChapter.size() - 1).setLastPage(true);
+
         if(addType == 1){
             separatedChapter.addAll(tempSeparatedChapter);
         }else if (addType == 2){
@@ -137,10 +139,6 @@ public class PageViewController {
                 @Override
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
-                    if (lastSelectedPage == -1){
-                        lastSelectedPage = position;
-                    }
-
                     Chapter chapter = separatedChapter.get(position).getChapter();
 
                     if(chapter != null  && chapter.getChapterIndex() != null &&  !currentChapter.equals(chapter)){
@@ -156,6 +154,16 @@ public class PageViewController {
                         }
 
                         currentChapter = chapter;
+                    }
+
+                    if(separatedChapter.get(position).getType() == 3 || separatedChapter.get(position).getType() == 4){
+                        if (lastSelectedPage < position){
+                            ctx.lastChapterFinished();
+                        }
+                    }
+
+                    if (lastSelectedPage == -1){
+                        lastSelectedPage = position;
                     }
                 }
             });

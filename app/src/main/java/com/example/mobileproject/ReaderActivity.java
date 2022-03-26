@@ -509,6 +509,18 @@ public class ReaderActivity extends AppCompatActivity {
         loadChapter();
     }
 
+    public void lastChapterFinished(){
+        if(nrc.getCurrentChapter().exist() &&  !nrc.getCurrentNextChapter().exist()){
+            int currentChapter = nrc.getCurrentChapter().getChapterIndex().getId();
+
+            if(currentChapter != -1 && !chaptersReadied.contains(currentChapter)){
+                chaptersReadied.add(currentChapter);
+                DBController db = new DBController(this);
+                db.setChapterAsReaded(currentChapter);
+            }
+        }
+    }
+
     public void updateChapterList(String novelName, String novelSource){
         if(novelName.equals(this.novelName) && novelSource.equals(this.sourceName)){
             UpdateChaptersList updateChaptersList = new UpdateChaptersList();

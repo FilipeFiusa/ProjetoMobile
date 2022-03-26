@@ -88,6 +88,10 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             });
 
+            if (currentItem.isLastPage()){
+                textAndTitleHolder.titleContainer.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            }
+
         } else if (itemType == 2) {
             TextOnlyHolder textOnlyHolder = (TextOnlyHolder) holder;
 
@@ -102,6 +106,9 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             });
 
+            if (currentItem.isLastPage()){
+                textOnlyHolder.textContainer.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            }
         } else if (itemType == 3){
             NoAvailableChapter textOnlyHolder = (NoAvailableChapter) holder;
 
