@@ -511,7 +511,7 @@ public class ReaderActivity extends AppCompatActivity {
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
         loadChapter();
-        
+
         mAdapter.updateCurrentChapter();
     }
 

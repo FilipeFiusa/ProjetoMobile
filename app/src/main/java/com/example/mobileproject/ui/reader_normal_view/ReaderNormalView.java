@@ -291,7 +291,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes") || chapter.getDownloaded().equals("downloading"))){
+            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 
@@ -390,7 +390,6 @@ public class ReaderNormalView {
 
 
             pageViewController.addChapter(direction);
-            bottomChapterNameView.setText(chapterContent.getChapterName());
         }
 
         public boolean isNetworkAvailable(final Context context) {
@@ -422,7 +421,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes") || chapter.getDownloaded().equals("downloading"))){
+            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 
@@ -534,7 +533,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes") || chapter.getDownloaded().equals("downloading"))){
+            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 

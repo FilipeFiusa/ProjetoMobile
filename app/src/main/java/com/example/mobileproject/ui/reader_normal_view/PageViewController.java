@@ -155,9 +155,6 @@ public class PageViewController {
                     }
 
                     if(chapter != null  && chapter.getChapterIndex() != null &&  !currentChapter.equals(chapter)){
-                        System.out.println("---");
-                        ctx.chapterNameBottom.setText(chapter.getChapterIndex().getChapterName());
-
                         if(chapter.equals(nrc.getCurrentPreviousChapter())){
                             addType = 2;
                             ctx.getPreviousChapter();
