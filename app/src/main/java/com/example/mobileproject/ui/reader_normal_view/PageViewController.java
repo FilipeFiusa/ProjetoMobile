@@ -1,5 +1,6 @@
 package com.example.mobileproject.ui.reader_normal_view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.ViewPageItem;
 import com.example.mobileproject.util.FontFactory;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 
 public class PageViewController {
@@ -37,6 +39,8 @@ public class PageViewController {
     private final TextView textTempContainer;
     private final TextView textTempContainerWithTitle;
     private final TextView titleTempContainer;
+
+    private final TextView bottomChapterNameView;
 
     private ArrayList<ViewPageItem> separatedChapter = new ArrayList<>();
     private ArrayList<ViewPageItem> tempSeparatedChapter = new ArrayList<>();
@@ -61,6 +65,8 @@ public class PageViewController {
         this.nrc = nrc;
         this.userReaderPreferences = userReaderPreferences;
         this.loading = loading;
+
+        this.bottomChapterNameView =  ctx.findViewById(R.id.chapter_name_bottom);
 
         titleTempContainer = (TextView) container.findViewById(R.id.title_temp_container);
         textTempContainer = (TextView) container.findViewById(R.id.text_temp_container);
@@ -107,6 +113,7 @@ public class PageViewController {
         textTempContainer.setText(chapter);
     }
 
+    @SuppressLint("DefaultLocale")
     private void separatorFinished(){
         int itemsAdded = tempSeparatedChapter.size();
         int position = viewPager2.getCurrentItem();
@@ -134,12 +141,18 @@ public class PageViewController {
             firstLoad = false;
 
             currentChapter = nrc.getCurrentChapter();
+            bottomChapterNameView.setText(String.format("1 / %d", currentChapter.getTotalPages()));
 
             viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                 @Override
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
                     Chapter chapter = separatedChapter.get(position).getChapter();
+
+
+                    if(chapter!= null){
+                        bottomChapterNameView.setText(MessageFormat.format("{0} / {1}", separatedChapter.get(position).getCurrentPage(), chapter.getTotalPages()));
+                    }
 
                     if(chapter != null  && chapter.getChapterIndex() != null &&  !currentChapter.equals(chapter)){
                         System.out.println("---");
@@ -410,8 +423,8 @@ public class PageViewController {
                     return;
                 }
 
+                tempSeparatedChapter.add(new ViewPageItem(s, currentChapterOnSeparator, currentChapterOnSeparator.getTotalPages() + 1));
                 currentChapterOnSeparator.addPage();
-                tempSeparatedChapter.add(new ViewPageItem(s, currentChapterOnSeparator));
 
                 createNextPage(restOfString);
             }catch (NullPointerException e){

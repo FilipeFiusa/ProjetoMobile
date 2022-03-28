@@ -9,6 +9,7 @@ public class ViewPageItem {
 
     private String title;
     private String chapterContent;
+    private int currentPage;
 
     private boolean isLastPage = false;
 
@@ -16,14 +17,15 @@ public class ViewPageItem {
         this.title = title;
         this.chapterContent = chapterContent;
         this.chapter = chapter;
+        this.currentPage = 1;
 
         this.type = 1;
     }
 
-    public ViewPageItem(String chapterContent, Chapter chapter) {
+    public ViewPageItem(String chapterContent, Chapter chapter, int currentPage) {
         this.chapterContent = chapterContent;
-
         this.chapter = chapter;
+        this.currentPage = currentPage;
 
         this.type = 2;
     }
@@ -71,6 +73,14 @@ public class ViewPageItem {
 
     public void setLastPage(boolean lastPage) {
         isLastPage = lastPage;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
     }
 
     @Override

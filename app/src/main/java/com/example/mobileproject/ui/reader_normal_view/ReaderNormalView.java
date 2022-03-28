@@ -39,7 +39,7 @@ public class ReaderNormalView {
 
     final private UserReaderPreferences userReaderPreferences;
 
-    private TextView bottomChapterNameView;
+    private final TextView bottomChapterNameView;
 
     private int textViewType = 1;
 
@@ -249,15 +249,15 @@ public class ReaderNormalView {
                         Toast.makeText(ctx, "Sem internet", Toast.LENGTH_SHORT).show();
                     }
 
+                    if(hasInternet){
+                        bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterContent().getChapterName());
+                    }else{
+                        bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterIndex().getChapterName());
+                    }
+
                     loading.setVisibility(View.GONE);
                 }else if (textViewType == 2 && pageViewController != null){
                     pageViewController.updateChapters();
-                }
-
-                if(hasInternet){
-                    bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterContent().getChapterName());
-                }else{
-                    bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterIndex().getChapterName());
                 }
             }
         }
