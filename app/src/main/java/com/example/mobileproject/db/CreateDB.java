@@ -24,7 +24,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 5);
+        super(context, db_name, null, 6);
     }
 
     @Override
@@ -105,6 +105,9 @@ public class CreateDB extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(oldVersion <= 4 && newVersion > oldVersion){
             db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN finished_loading INTEGER DEFAULT 1");
+
+            db.execSQL("DELETE FROM " + Table4);
+            db.execSQL("DELETE FROM " + Table5);
         }
     }
 }

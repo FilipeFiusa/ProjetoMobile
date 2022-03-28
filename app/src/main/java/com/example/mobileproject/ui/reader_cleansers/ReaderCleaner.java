@@ -79,7 +79,8 @@ public class ReaderCleaner {
             }
         });
 
-        SetUpMainLayout();
+        //SetUpMainLayout();
+        SetUpSelectLayout(3);
     }
 
 
@@ -246,7 +247,8 @@ public class ReaderCleaner {
         if (layoutId == 1) {
             close();
         }else if(layoutId == 2){
-            SetUpMainLayout();
+            //SetUpMainLayout();
+            close();
         }else if(layoutId == 3){
             SetUpSelectLayout(type);
         }

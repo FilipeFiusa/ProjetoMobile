@@ -81,7 +81,7 @@ public class DBController {
                     values.put("isActive", 0);
                 }
 
-                result = db.insert("CleanerConnection", null, values);
+                //result = db.insert("CleanerConnection", null, values);
             }
         }
 

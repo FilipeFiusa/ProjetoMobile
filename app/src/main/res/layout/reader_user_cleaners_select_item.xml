@@ -22,7 +22,8 @@
         android:text="Remover hr"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:maxLines="2"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:paddingStart="10dp"/>
 
     <ImageButton
