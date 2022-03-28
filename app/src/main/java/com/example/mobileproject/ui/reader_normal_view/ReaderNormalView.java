@@ -30,6 +30,7 @@ import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.util.FontFactory;
 
 import java.util.ArrayList;
+import java.util.regex.PatternSyntaxException;
 
 public class ReaderNormalView {
 
@@ -282,7 +283,11 @@ public class ReaderNormalView {
             for(NovelCleaner cleaner : novelCleaners){
                 if(!cleaner.isActive()) continue;
 
-                cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
+                try{
+                    cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
+                }catch (PatternSyntaxException e){
+                    e.printStackTrace();
+                }
             }
 
             return cleanedChapter;
