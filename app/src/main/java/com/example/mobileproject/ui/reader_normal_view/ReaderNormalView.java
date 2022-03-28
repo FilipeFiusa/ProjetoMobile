@@ -183,6 +183,8 @@ public class ReaderNormalView {
 
                         previousChapter.setChapterContent(chapterContent);
                         db.setChapterContent(previousChapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+
+                        ctx.setChapterAsDownloaded(previousChapter.getChapterIndex().getId());
                     }else{
                         previousChapter.setExist(false);
                         previousChapter.setInvalidType(2);
@@ -205,6 +207,8 @@ public class ReaderNormalView {
 
                         currentChapter.setChapterContent(chapterContent);
                         db.setChapterContent(currentChapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+
+                        ctx.setChapterAsDownloaded(currentChapter.getChapterIndex().getId());
                     }else{
 
                         currentChapter.setExist(false);
@@ -228,6 +232,8 @@ public class ReaderNormalView {
 
                         nextChapter.setChapterContent(chapterContent);
                         db.setChapterContent(nextChapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+
+                        ctx.setChapterAsDownloaded(nextChapter.getChapterIndex().getId());
                     }else{
                         nextChapter.setExist(false);
                         nextChapter.setInvalidType(2);
@@ -365,6 +371,7 @@ public class ReaderNormalView {
             chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
 
             db.setChapterContent(chapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+            ctx.setChapterAsDownloaded(chapter.getChapterIndex().getId());
 
             chapter.setChapterContent(chapterContent);
 
@@ -487,6 +494,7 @@ public class ReaderNormalView {
 
             chapter.setChapterContent(chapterContent);
             db.setChapterContent(chapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+            ctx.setChapterAsDownloaded(chapter.getChapterIndex().getId());
 
             return chapterContent;
         }

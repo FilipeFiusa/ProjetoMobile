@@ -69,6 +69,7 @@ public class ReaderActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private final ArrayList<Integer> chaptersReadied = new ArrayList<>();
+    private final ArrayList<Integer> chaptersDownloaded = new ArrayList<>();
     private ArrayList<NovelCleaner> novelCleaners = null;
 
     private SeekBar mSeekBar;
@@ -221,6 +222,7 @@ public class ReaderActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent data = new Intent();
                 data.putExtra("readiedChapters", chaptersReadied);
+                data.putExtra("downloadedChapters", chaptersDownloaded);
                 data.putExtra("currentReaderViewType", readerViewType);
                 setResult(RESULT_OK,data);
 
@@ -537,6 +539,14 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
+    public void setChapterAsDownloaded(int chapterId){
+        if(!chaptersDownloaded.contains(chapterId)){
+            chaptersDownloaded.add(chapterId);
+
+            ChapterDownloaded(chapterId);
+        }
+    }
+
     public void ChapterDownloaded(int chapterId){
         mAdapter.ChapterDownloaded(chapterId);
     }
@@ -545,6 +555,7 @@ public class ReaderActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent data = new Intent();
         data.putExtra("readiedChapters", chaptersReadied);
+        data.putExtra("downloadedChapters", chaptersDownloaded);
         data.putExtra("currentReaderViewType", readerViewType);
         setResult(RESULT_OK,data);
 

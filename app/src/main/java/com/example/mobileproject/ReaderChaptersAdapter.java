@@ -135,18 +135,11 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void ChapterDownloaded(int id){
-        if(!exist){
-            return;
-        }
-
-        Log.d("------ ", "ChapterDownloaded - Id: " + id);
-
         for (int i = 1; i < mList.size(); i++) {
             ChapterIndex c = mList.get(i).getChapterIndex();
 
             if(id == c.getId()){
                 c.setDownloaded("yes");
-                Log.d("------ ", "ID achado na lista");
                 notifyItemChanged(i);
             }
         }

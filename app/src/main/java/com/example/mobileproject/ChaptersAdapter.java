@@ -369,6 +369,23 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    public void putChapterAsDownloaded(ArrayList<Integer> chaptersDownloaded){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            for (Integer id : chaptersDownloaded) {
+                String chapter_id = String.valueOf(c.getId());
+                String idReadied = String.valueOf(id);
+
+                if(chapter_id.equals(idReadied)) {
+                    c.setDownloaded("yes");
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

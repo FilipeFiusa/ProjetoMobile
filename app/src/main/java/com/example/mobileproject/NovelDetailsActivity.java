@@ -162,12 +162,10 @@ public class NovelDetailsActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(data != null){
             ArrayList<Integer> readiedChapters = data.getIntegerArrayListExtra("readiedChapters");
-
-            for(int id : readiedChapters){
-                Log.i("id lidos", String.valueOf(id));
-            }
-
             mAdapter.putChapterAsReadied(readiedChapters);
+
+            ArrayList<Integer> downloadedChapters = data.getIntegerArrayListExtra("downloadedChapters");
+            mAdapter.putChapterAsDownloaded(downloadedChapters);
 
             currentNovel.setReaderViewType(data.getIntExtra("currentReaderViewType", 1));
         }
