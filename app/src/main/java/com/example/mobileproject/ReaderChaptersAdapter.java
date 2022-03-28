@@ -78,6 +78,28 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+    public void updateCurrentChapter(){
+        Chapter currentChapter = nrc.getCurrentChapter();
+
+        for (int i = 0; i < mList.size(); i++) {
+            ReaderMenuItem item = mList.get(i);
+
+            if(item.getIsSelected()){
+                item.setIsSelected(false);
+
+                notifyItemChanged(i);
+            }
+
+            if (item.getChapterIndex().equals(currentChapter.getChapterIndex())){
+                item.setIsSelected(true);
+
+                notifyItemChanged(i);
+            }
+        }
+
+
+    }
+
     public void setDownloadReceiver(DownloadRAReceiver d){
         this.downloadReceiver = d;
 

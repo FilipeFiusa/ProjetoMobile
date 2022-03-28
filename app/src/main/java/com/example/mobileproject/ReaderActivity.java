@@ -463,6 +463,8 @@ public class ReaderActivity extends AppCompatActivity {
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
         loadChapter(2);
+
+        mAdapter.updateCurrentChapter();
     }
 
     public void getNextChapter() {
@@ -492,6 +494,8 @@ public class ReaderActivity extends AppCompatActivity {
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
         loadChapter(1);
+
+        mAdapter.updateCurrentChapter();
     }
 
     public void goToChapter(int chapter){
@@ -507,6 +511,8 @@ public class ReaderActivity extends AppCompatActivity {
         chapterProgress.setText(new StringBuilder().append(nrc.getPosition()).append("/").append(nrc.getSize()).toString());
 
         loadChapter();
+        
+        mAdapter.updateCurrentChapter();
     }
 
     public void lastChapterFinished(){
