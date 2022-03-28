@@ -34,6 +34,8 @@ public class NovelDetails implements Serializable {
 
     private ArrayList<ChapterIndex> chapterIndexes = null;
 
+    private int finishedLoading = 1;
+
     private String orderType = "DSC";
 
     public NovelDetails(){
@@ -193,5 +195,13 @@ public class NovelDetails implements Serializable {
 
     public void setReaderViewType(int readerViewType) {
         this.readerViewType = readerViewType;
+    }
+
+    public int getFinishedLoading() {
+        return finishedLoading;
+    }
+
+    public void setFinishedLoading(int finishedLoading) {
+        this.finishedLoading = finishedLoading;
     }
 }

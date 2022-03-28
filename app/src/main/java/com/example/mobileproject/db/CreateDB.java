@@ -24,7 +24,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 4);
+        super(context, db_name, null, 5);
     }
 
     @Override
@@ -42,6 +42,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "novel_image" + " text,"
                 + "order_type " + " text,"
                 + "status " + " integer,"
+                + "finished_loading " + " integer,"
                 + "UNIQUE(novel_name, novel_source)"
                 +");";
 
@@ -101,13 +102,9 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        db.execSQL("DROP TABLE IF EXISTS " + Table1);
-        db.execSQL("DROP TABLE IF EXISTS " + Table2);
-        db.execSQL("DROP TABLE IF EXISTS " + Table3);
-        db.execSQL("DROP TABLE IF EXISTS " + Table4);
-        db.execSQL("DROP TABLE IF EXISTS " + Table5);
-
-        onCreate(db);
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if(oldVersion <= 4 && newVersion > oldVersion){
+            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN finished_loading INTEGER DEFAULT 1");
+        }
     }
 }

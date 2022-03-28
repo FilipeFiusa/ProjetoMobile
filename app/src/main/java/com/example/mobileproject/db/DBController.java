@@ -55,6 +55,7 @@ public class DBController {
         values.put("order_type", "DSC");
         values.put("novel_link", n.getNovelLink());
         values.put("status", n.getStatus());
+        values.put("finished_loading", 0);
 
         try (FileOutputStream fos = ctx.openFileOutput(n.getNovelName() + "_" + n.getSource() + "_" + "image.png", Context.MODE_PRIVATE)) {
             n.getNovelImage().compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -83,6 +84,21 @@ public class DBController {
                 result = db.insert("CleanerConnection", null, values);
             }
         }
+
+        db.close();
+
+        return result;
+    }
+
+    public synchronized long finishedLoading(String novelName, String novelSource){
+        ContentValues values = new ContentValues();
+        long result;
+
+        db = database.getWritableDatabase();
+
+
+        values.put("finished_loading", 1);
+        result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
         db.close();
 
@@ -369,6 +385,7 @@ public class DBController {
             novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
             novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
             novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+            novel.setFinishedLoading(result.getInt(result.getColumnIndexOrThrow("finished_loading")));
 
 
 

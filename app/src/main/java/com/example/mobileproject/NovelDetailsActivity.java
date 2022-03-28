@@ -413,7 +413,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
 
             if(n != null){
-                if((System.currentTimeMillis() - n.getLastReadied()) < (60 * 60 * 1000) || n.getIsFavorite().equals("yes")){
+                if( ((System.currentTimeMillis() - n.getLastReadied()) < (60 * 60 * 1000) && n.getFinishedLoading() == 1)
+                        || n.getIsFavorite().equals("yes")){
                     novelLink = novelDetails[0];
                     novelName = novelDetails[1];
                     novelSource = novelDetails[2];
@@ -449,6 +450,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 db.insertChapters(n.getNovelName(), n.getSource(), _c);
             }
 
+            db.finishedLoading(n.getNovelName(), n.getSource());
+
             return c;
         }
 
@@ -464,8 +467,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<ChapterIndex> chapterIndexes) {
             super.onPostExecute(chapterIndexes);
-
-            System.out.println(chapterIndexes);
 
             if(chapterIndexes == null && novelName == null){
                 mSwipeRefreshLayout.setRefreshing(false);
