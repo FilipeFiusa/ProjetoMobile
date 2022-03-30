@@ -300,9 +300,6 @@ public class PageViewController {
     }
 
     private boolean chapterAlreadyExist(Chapter c){
-        System.out.println(separatedChapter.get(separatedChapter.size() - 1).getType());
-        System.out.println(separatedChapter.get(0).getType());
-
         if(!c.exist() && (separatedChapter.get(separatedChapter.size() - 1).getType() == 3 ||
                 separatedChapter.get(0).getType() == 3)){
             Toast.makeText(ctx, "No chapter", Toast.LENGTH_SHORT).show();
@@ -360,11 +357,7 @@ public class PageViewController {
                 try {
                     restOfString = textTempContainerWithTitle.getText().toString().substring(end + 1, textTempContainerWithTitle.getText().length());
                 }catch (StringIndexOutOfBoundsException e){
-                    System.out.println("CABOU \n\n");
-
                     textTempContainerWithTitle.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                    //finalizou();
                     return;
                 }
                 textTempContainerWithTitle.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -377,9 +370,7 @@ public class PageViewController {
 
                 createNextPage(restOfString);
             }catch (NullPointerException e){
-                System.out.println("Finalizou");
                 e.printStackTrace();
-                //finalizou();
             }
         }
     };
@@ -420,8 +411,6 @@ public class PageViewController {
                 try {
                     restOfString = textTempContainer.getText().toString().substring(end + 1, textTempContainer.getText().length());
                 }catch (StringIndexOutOfBoundsException e){
-                    System.out.println("CABOU \n\n");
-
                     textTempContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                     separatorFinished();

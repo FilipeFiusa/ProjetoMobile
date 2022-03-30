@@ -219,7 +219,6 @@ public class CheckUpdateService extends Service {
                 }
 
                 if (!updated) {
-                    System.out.println(currentItem.getChapterName());
                     currentItem.setId(-1);
                     newChapters.add(currentItem);
                 }

@@ -199,9 +199,6 @@ public class LibraryFragment extends Fragment {
                     Parser currentParser = ParserFactory.checkIfSourceExistsWithLink(ctx, currentUrl);
 
                     if (currentParser != null){
-                        System.out.println(currentParser.getSourceName());
-                        System.out.println(currentUrl.getPath());
-
                         Intent intent = new Intent(ctx, NovelDetailsActivity.class);
 
                         intent.putExtra("novelLink", currentUrl.getPath());

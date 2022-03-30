@@ -225,7 +225,6 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
                     libraryFragment.update();
                 }
 
-                System.out.println(selectedNovels.size());
                 return true;
             }
         });

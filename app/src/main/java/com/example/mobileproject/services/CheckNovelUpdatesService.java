@@ -191,7 +191,6 @@ public class CheckNovelUpdatesService extends JobService {
                 }
 
                 if (!updated) {
-                    System.out.println(currentItem.getChapterName());
                     currentItem.setId(-1);
                     newChapters.add(currentItem);
                 }

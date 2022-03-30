@@ -463,8 +463,6 @@ public class DBController {
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
         db = database.getReadableDatabase();
-        System.out.println(novelName);
-        System.out.println(novelSource);
 
         String query = "SELECT id, chapter_link, chapter_name, downloaded, readed, source_id FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
@@ -819,8 +817,6 @@ public class DBController {
                 + "AND novel_source = '" + novelSource + "' "
                 + "" + _query + " AND TRUE";
 
-        System.out.println(query);
-
         result = db.rawQuery(query, new String[]{});
 
         result.moveToFirst();
@@ -841,8 +837,6 @@ public class DBController {
                 + "AND novel_source = '" + novelSource + "' "
                 + " AND source_id < " + lowerSourceId;
 
-        System.out.println(query);
-
         result = db.rawQuery(query, new String[]{});
 
         result.moveToFirst();
@@ -860,8 +854,6 @@ public class DBController {
         values.put("order_type", orderType);
 
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
-
-        System.out.println(result);
 
         db.close();
     }
@@ -1018,8 +1010,6 @@ public class DBController {
                 "INNER JOIN CleanerConnection ON Cleaners.id = CleanerConnection.cleaner_id " +
                 "WHERE CleanerConnection.novel_name=? AND CleanerConnection.novel_source=?";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
-
-        System.out.println(query);
 
         if(result.getCount() > 0){
             result.moveToFirst();

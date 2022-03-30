@@ -27,8 +27,6 @@ public class CheckUpdatesRAReceiver extends ResultReceiver {
         ArrayList<CheckUpdatesItem> items = (ArrayList<CheckUpdatesItem>) resultData.getSerializable("updatedNovelsList");
 
         for (CheckUpdatesItem item : items){
-            System.out.println(item.getNovelDetails().getNovelName());
-
             readerActivity.updateChapterList(item.getNovelDetails().getNovelName(), item.getNovelDetails().getSource());
         }
 

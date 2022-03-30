@@ -178,13 +178,11 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if(currentItem.equals(aux)){
                     currentItem.updateSelf(aux);
                     updated = true;
-                    System.out.println(currentItem.getId());
                     break;
                 }
             }
 
             if(!updated){
-                System.out.println(currentItem.getId());
                 currentItem.setId(-1);
             }
         }
@@ -266,8 +264,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void readAllAntecedents(int lowerPosition){
-        System.out.println(orderType);
-
         if(orderType.equals("DSC")){
             for(int i = mChapterList.size() - 1; i > lowerPosition; i--){
                 ChapterIndex c = mChapterList.get(i).getChapterIndex();
@@ -505,10 +501,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                         }
 
-                        System.out.println("---");
-                        System.out.println(currentItem.position);
-                        System.out.println(lowestValue);
-
                         for(int i = 0; i <= lowestValue - currentItem.position; i++){
                             mChapterList.get(lowestValuePosition - i).getChapterIndex().selected = true;
                             if(selectedChapters.contains(mChapterList.get(lowestValuePosition - i).getChapterIndex())){
@@ -534,10 +526,6 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 break;
                             }
                         }
-
-                        System.out.println("-");
-                        System.out.println(currentItem.position);
-                        System.out.println(highestValue);
 
                         for(int i = 0; i <= currentItem.position - highestValue; i++){
                             mChapterList.get((highestValuePosition == -1) ? 1 : highestValuePosition + i).getChapterIndex().selected = true;

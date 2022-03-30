@@ -170,7 +170,6 @@ public class DownloaderService extends Service {
         DBController d = new DBController(getApplicationContext());
         downloader = d.getDownloadingNovels();
 
-        System.out.println(downloader);
         isCheckingDB = false;
     }
 

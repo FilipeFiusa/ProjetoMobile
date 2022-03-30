@@ -30,7 +30,6 @@ public class NovelReaderController implements Serializable {
 
                 if(position + 1 < chapterIndices.size()){
                     nextChapter = new Chapter(chapterIndices.get(position + 1), null);
-                    System.out.println(nextChapter.getChapterIndex().getChapterName());
                 }
 
                 return c;

@@ -287,8 +287,6 @@ public class NovelDetailsActivity extends AppCompatActivity {
         if(selectedChaptersReference.isEmpty()){
             hideSelectMenu();
         }
-
-        System.out.println(selectedChaptersReference.size());
     }
 
     private boolean checkIfThereIsAnNoReadiedChapter(){
@@ -525,21 +523,16 @@ public class NovelDetailsActivity extends AppCompatActivity {
             if(novelDetails[0] == null || novelDetails[1] == null){
                 return null;
             }
-            System.out.println(1);
+
             if(!novelDetails[0].isEmpty()){
-                System.out.println(2.1);
                 novel = db.getNovel(novelDetails[0], novelDetails[1]);
             }else if (!novelDetails[2].isEmpty()){
-                System.out.println(2.2);
                 novel = db.getNovelWithNovelLink(novelDetails[1], novelDetails[2]);
             }else{
-                System.out.println(2.3);
                 return null;
             }
-            System.out.println(3);
 
             if(novel == null){
-                System.out.println(4);
                 return null;
             }
 
