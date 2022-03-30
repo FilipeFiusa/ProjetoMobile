@@ -19,4 +19,45 @@
             android:text="center"
             android:textSize="18sp"/>
     </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/previous_page_view_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:id="@+id/menu_page_view_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:id="@+id/next_page_view_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
+
+        </LinearLayout>
+
+
+    </FrameLayout>
 </FrameLayout>

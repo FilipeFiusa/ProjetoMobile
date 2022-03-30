@@ -19,7 +19,7 @@ import com.example.mobileproject.util.FontFactory;
 
 import java.util.ArrayList;
 
-public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PageViewAdapter extends RecyclerView.Adapter<PageViewAdapter.ViewPagerCustomItem> {
     private ArrayList<ViewPageItem> viewPagerItemArrayList;
     final private AppCompatActivity ctx;
     final private PageViewController controllerReference;
@@ -35,7 +35,7 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewPagerCustomItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = null;
 
         if (viewType == 1) {
@@ -53,14 +53,28 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewPagerCustomItem holder, int position) {
         final int itemType = getItemViewType(position);
         ViewPageItem currentItem = viewPagerItemArrayList.get(position);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.previousButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controllerReference.onClicked();
+                controllerReference.onPreviousViewButtonClicked();
+            }
+        });
+
+        holder.menuButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                controllerReference.onMenuViewButtonClicked();
+            }
+        });
+
+        holder.nextButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                controllerReference.onNextViewButtonClicked();
             }
         });
 
@@ -74,20 +88,6 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             userReaderPreferences.applyPreferences(null, textAndTitleHolder.titleContainer, textAndTitleHolder.textContainer);
 
-            textAndTitleHolder.titleContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    controllerReference.onClicked();
-                }
-            });
-
-            textAndTitleHolder.textContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    controllerReference.onClicked();
-                }
-            });
-
             if (currentItem.isLastPage()){
                 textAndTitleHolder.titleContainer.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             }
@@ -98,13 +98,6 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             textOnlyHolder.textContainer.setText(currentItem.getChapterContent());
 
             userReaderPreferences.applyPreferences(null, null, textOnlyHolder.textContainer);
-
-            textOnlyHolder.textContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    controllerReference.onClicked();
-                }
-            });
 
             if (currentItem.isLastPage()){
                 textOnlyHolder.textContainer.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
@@ -119,13 +112,6 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             userReaderPreferences.applyPreferences(null, null, textOnlyHolder.textContainer);
-
-            textOnlyHolder.textContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    controllerReference.onClicked();
-                }
-            });
         }
     }
 
@@ -140,7 +126,21 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return viewPagerItemArrayList.size();
     }
 
-    public class TextOnlyHolder extends RecyclerView.ViewHolder{
+    public abstract class ViewPagerCustomItem extends RecyclerView.ViewHolder{
+        View previousButtonView;
+        View menuButtonView;
+        View nextButtonView;
+
+        public ViewPagerCustomItem(@NonNull View itemView) {
+            super(itemView);
+
+            previousButtonView = itemView.findViewById(R.id.previous_page_view_button);
+            menuButtonView = itemView.findViewById(R.id.menu_page_view_button);
+            nextButtonView = itemView.findViewById(R.id.next_page_view_button);
+        }
+    }
+
+    public class TextOnlyHolder extends ViewPagerCustomItem{
         TextView textContainer;
 
         public TextOnlyHolder(@NonNull View itemView) {
@@ -149,7 +149,7 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public class TextAndTitleHolder extends RecyclerView.ViewHolder{
+    public class TextAndTitleHolder extends ViewPagerCustomItem{
         TextView textContainer;
         TextView titleContainer;
 
@@ -161,13 +161,17 @@ public class PageViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public class NoAvailableChapter extends RecyclerView.ViewHolder{
+    public class NoAvailableChapter extends ViewPagerCustomItem{
         TextView textContainer;
 
         public NoAvailableChapter(@NonNull View itemView) {
             super(itemView);
 
             textContainer = itemView.findViewById(R.id.chapter_content);
+
+            previousButtonView = itemView.findViewById(R.id.previous_page_view_button);
+            menuButtonView = itemView.findViewById(R.id.menu_page_view_button);
+            nextButtonView = itemView.findViewById(R.id.next_page_view_button);
         }
     }
 }

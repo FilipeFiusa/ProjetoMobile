@@ -83,8 +83,16 @@ public class PageViewController {
         userReaderPreferences.applyPreferences(null, null, textTempContainer);
     }
 
-    public void onClicked(){
+    public void onPreviousViewButtonClicked(){
+        viewPager2.setCurrentItem(viewPager2.getCurrentItem() - 1);
+    }
+
+    public void onMenuViewButtonClicked(){
         ctx.toggleReaderMenu();
+    }
+
+    public void onNextViewButtonClicked(){
+        viewPager2.setCurrentItem(viewPager2.getCurrentItem() + 1);
     }
 
     private void startSeparator(Chapter c){
