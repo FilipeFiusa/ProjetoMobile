@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -58,10 +59,12 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
     }
 
     public void updateNovelsList(ArrayList<NovelDetails> chapterList){
-        this.mNovelList = new ArrayList<>();
+        final NovelListDiffCallback diffCallback = new NovelListDiffCallback(this.mNovelList, chapterList);
+        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
 
-        this.mNovelList = chapterList;
-        notifyDataSetChanged();
+        this.mNovelList.clear();
+        this.mNovelList.addAll(chapterList);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public void resetSelectedList(){
