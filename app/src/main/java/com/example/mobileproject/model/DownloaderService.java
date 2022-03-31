@@ -51,7 +51,7 @@ public class DownloaderService extends Service {
 
             while (!downloader.isEmpty()){
                 DownloaderClass currentNovel = downloader.get(0);
-                String title = currentNovel.getNovelName().substring(0, 10);
+                String title = currentNovel.getNovelName();
                 String chapterName = currentNovel.getChapterToDownload().getChapterName();
 
                 notification
@@ -98,13 +98,10 @@ public class DownloaderService extends Service {
         mHandler = new Handler();
         notificationManager = NotificationManagerCompat.from(this);
 
-        Log.d(TAG, "onCreate");
-
         PowerManager powerManager =  (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "ExampleApp:WakeLock");
         wakeLock.acquire();
-        Log.d(TAG, "WakeLock acquired");
 
         notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Downloading")
@@ -151,13 +148,13 @@ public class DownloaderService extends Service {
         super.onDestroy();
 
         notification
+                .setContentTitle("Download Finished")
                 .setContentText("Download Finished")
                 .setOngoing(false)
                 .setProgress(0, 0, false);
         notificationManager.notify(1, notification.build());
 
         wakeLock.release();
-        Log.d(TAG, "WakeLock released");
     }
 
     @Override
