@@ -354,6 +354,14 @@ public class ReaderActivity extends AppCompatActivity {
             }
         });
 
+        View closeMenu = findViewById(R.id.close_menu);
+        closeMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleReaderMenu();
+            }
+        });
+
         ImageButton reloadChapterButton = (ImageButton) findViewById(R.id.reload_chapter_content);
         reloadChapterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -363,17 +371,23 @@ public class ReaderActivity extends AppCompatActivity {
         });
 
         ImageButton toggleReaderViewType = (ImageButton) findViewById(R.id.open_chapter_on_web_view);
-        if(readerViewType == 1){
+/*        if(readerViewType == 1){
             toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
         }else if(readerViewType == 2){
             toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
         }else if(readerViewType == 3){
             toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
+        }*/
+        if(readerViewType == 1){
+            toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
+        }else if(readerViewType == 3){
+            toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
         }
+
         toggleReaderViewType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(readerViewType == 1){
+/*                if(readerViewType == 1){
                     readerViewType = 2;
                     setUpWebView();
                     toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
@@ -385,6 +399,16 @@ public class ReaderActivity extends AppCompatActivity {
                     readerViewType = 1;
                     setUpNormalView();
                     toggleReaderViewType.setImageResource(R.drawable.ic_baseline_public_24);
+                }*/
+
+                if(readerViewType == 1){
+                    readerViewType = 3;
+                    setUpNormalView();
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_menu_book_24);
+                }else if(readerViewType == 3){
+                    readerViewType = 1;
+                    setUpNormalView();
+                    toggleReaderViewType.setImageResource(R.drawable.ic_baseline_library_books_24);
                 }
 
                 toggleReaderMenu();
@@ -402,6 +426,7 @@ public class ReaderActivity extends AppCompatActivity {
         FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
         FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
         FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
+        FrameLayout closeMenu = findViewById(R.id.close_menu);
 
         if(readerSettings != null){
             FrameLayout temp = readerSettings.getFrameLayout();
@@ -424,6 +449,7 @@ public class ReaderActivity extends AppCompatActivity {
 
             topMenu.setVisibility(View.VISIBLE);
             bottomMenu.setVisibility(View.VISIBLE);
+            closeMenu.setVisibility(View.VISIBLE);
 
             topMenu.startAnimation(animTranslateIn);
             bottomMenu.startAnimation(animTranslateBottomIn);
@@ -433,6 +459,7 @@ public class ReaderActivity extends AppCompatActivity {
             topMenu.startAnimation(animTranslateOut);
             bottomMenu.startAnimation(animTranslateBottomOut);
 
+            closeMenu.setVisibility(View.GONE);
             topMenu.setVisibility(View.GONE);
             bottomMenu.setVisibility(View.GONE);
         }

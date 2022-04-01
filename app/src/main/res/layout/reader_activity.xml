@@ -60,6 +60,13 @@
     </LinearLayout>
 
     <FrameLayout
+        android:id="@+id/close_menu"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
         android:id="@+id/reader_top_menu"
         android:layout_width="match_parent"
         android:layout_height="70dp"
