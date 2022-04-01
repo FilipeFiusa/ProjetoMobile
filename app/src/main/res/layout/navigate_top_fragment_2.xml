@@ -12,14 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
+        <ImageButton
             android:id="@+id/return_button"
-            app:icon="@drawable/ic_baseline_keyboard_arrow_left_40"
-            android:padding="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_height="match_parent"
-            android:layout_width="40dp"
-            android:backgroundTint="@color/secodary_dark_theme"/>
+            android:background="@drawable/selectable_item_background"
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_40"
+            android:layout_width="60dp"
+            android:layout_height="match_parent" />
 
         <EditText
             android:id="@+id/search_text"
@@ -27,31 +25,19 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:hint="Pesquisar em todos"
+            android:maxLines="1"
+            android:inputType="text"
             android:textColorHint="@color/white"
             android:textSize="18sp"
-            android:layout_marginStart="10dp"
             android:textColor="@color/white"
-            android:backgroundTint="@color/secodary_dark_theme"
-            />
+            android:backgroundTint="@color/secodary_dark_theme" />
 
-        <!--
-        <com.google.android.material.button.MaterialButton
-            android:layout_gravity="right"
-            app:icon="@drawable/ic_baseline_reorder_64"
-            app:iconGravity="top"
-            android:layout_height="match_parent"
-            android:layout_width="60dp"
-            android:backgroundTint="@color/secodary_dark_theme"/> -->
-
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/searchSomething"
-            android:layout_gravity="right"
-            app:icon="@drawable/ic_baseline_search_40"
-            app:iconGravity="top"
-            android:gravity="left"
-            android:layout_height="match_parent"
+            android:background="@drawable/selectable_item_background"
+            android:src="@drawable/ic_baseline_search_40"
             android:layout_width="60dp"
-            android:backgroundTint="@color/secodary_dark_theme"/>
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </FrameLayout>

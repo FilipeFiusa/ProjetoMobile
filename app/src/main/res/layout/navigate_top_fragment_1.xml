@@ -17,22 +17,18 @@
             android:text="Navegar"
             android:layout_gravity="start"
             android:textSize="24sp"
-            android:layout_marginStart="15dp"
+            android:paddingStart="15dp"
             android:gravity="center_vertical"
             android:textColor="@color/white"
             android:layout_height="match_parent"
             android:layout_width="0dp" />
 
-
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/goToSearch"
-            android:layout_gravity="right"
-            app:icon="@drawable/ic_baseline_search_40"
-            app:iconGravity="top"
-            android:gravity="left"
-            android:layout_height="match_parent"
+            android:background="@drawable/selectable_item_background"
+            android:src="@drawable/ic_baseline_search_40"
             android:layout_width="60dp"
-            android:backgroundTint="@color/secodary_dark_theme"/>
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </FrameLayout>

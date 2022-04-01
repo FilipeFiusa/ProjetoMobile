@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,7 @@ public class TopFragment1 extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.visit_source_top_fragment_1, container, false);
 
-        Button simpleButton1 = (Button) root.findViewById(R.id.return_activity_s);
+        ImageButton simpleButton1 = (ImageButton) root.findViewById(R.id.return_activity_s);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -40,7 +41,7 @@ public class TopFragment1 extends Fragment {
         TextView textView = (TextView) root.findViewById(R.id.source_name);
         textView.setText(sourceName);
 
-        Button simpleButton3 = (Button) root.findViewById(R.id.go_to_search_in_source);
+        ImageButton simpleButton3 = (ImageButton) root.findViewById(R.id.go_to_search_in_source);
         simpleButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

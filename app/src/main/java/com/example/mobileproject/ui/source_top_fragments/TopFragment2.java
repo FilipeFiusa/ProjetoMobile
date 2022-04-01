@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -43,9 +45,22 @@ public class TopFragment2 extends Fragment {
         View root = inflater.inflate(R.layout.visit_source_top_fragment_2, container, false);
 
         EditText text = (EditText) root.findViewById(R.id.novel_search_s);
+        text.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
+                    String searchValue = text.getText().toString();
+                    text.clearFocus();
+
+                    mainActivity.SearchNovel(searchValue);
+                    return true;
+                }
+                return false;
+            }
+        });
         text.requestFocus();
 
-        Button simpleButton1 = (Button) root.findViewById(R.id.return_fragment_s);
+        ImageButton simpleButton1 = (ImageButton) root.findViewById(R.id.return_fragment_s);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -54,7 +69,7 @@ public class TopFragment2 extends Fragment {
         });
 
 
-        Button simpleButton2 = (Button) root.findViewById(R.id.search_in_source);
+        ImageButton simpleButton2 = (ImageButton) root.findViewById(R.id.search_in_source);
         simpleButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,15 +77,6 @@ public class TopFragment2 extends Fragment {
                 text.clearFocus();
 
                 mainActivity.SearchNovel(searchValue);
-
-/*                SearchNovelsFromThisSource s = new SearchNovelsFromThisSource();
-                //LinearLayout isLoading = (LinearLayout) requireActivity().findViewById(R.id.isLoading);
-
-*//*                if(isLoading.getChildCount() != 0){
-                    return;
-                }*//*
-
-                s.execute(searchValue);*/
             }
         });
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -22,7 +23,7 @@ public class TopFragment1 extends Fragment {
         View root = inflater.inflate(R.layout.navigate_top_fragment_1, container, false);
 
 
-        Button simpleButton1 = (Button) root.findViewById(R.id.goToSearch);
+        ImageButton simpleButton1 = (ImageButton) root.findViewById(R.id.goToSearch);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

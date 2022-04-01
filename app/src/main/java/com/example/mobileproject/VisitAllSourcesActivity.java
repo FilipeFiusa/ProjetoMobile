@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -52,7 +53,7 @@ public class VisitAllSourcesActivity  extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        Button simpleButton1 = (Button) findViewById(R.id.return_activity);
+        ImageButton simpleButton1 = (ImageButton) findViewById(R.id.return_activity);
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,6 +62,19 @@ public class VisitAllSourcesActivity  extends AppCompatActivity {
         });
 
         EditText editText = (EditText) findViewById(R.id.search_text);
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
+                    String searchValue = editText.getText().toString();
+                    editText.clearFocus();
+
+                    startSearch(searchValue);
+                    return true;
+                }
+                return false;
+            }
+        });
         editText.setText(searchText);
 
         ImageButton simpleButton2 = (ImageButton) findViewById(R.id.search_button);
