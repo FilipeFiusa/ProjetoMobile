@@ -7,6 +7,7 @@ import com.example.mobileproject.model.parser.english.FoxaholicParser;
 import com.example.mobileproject.model.parser.english.LightNovelPubParser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 import com.example.mobileproject.model.parser.english.RoyalRoadParser;
+import com.example.mobileproject.model.parser.english.WoopreadParser;
 import com.example.mobileproject.model.parser.english.WuxiaBlogParser;
 
 import org.reflections.Reflections;
@@ -41,7 +42,8 @@ public class ParserFactory {
                 new LightNovelPubParser(ctx),
                 new WuxiaBlogParser(ctx),
                 new RoyalRoadParser(ctx),
-                new FoxaholicParser(ctx)
+                new FoxaholicParser(ctx),
+                new WoopreadParser(ctx)
         );
     }
 
