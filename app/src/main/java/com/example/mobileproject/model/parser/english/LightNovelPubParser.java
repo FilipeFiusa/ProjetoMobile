@@ -103,6 +103,8 @@ public class LightNovelPubParser extends Parser {
 
             if(status.equals("Completed Status")){
                 novelDetails.setStatus(2);
+            }else {
+                novelDetails.setStatus(1);
             }
 
             return novelDetails;

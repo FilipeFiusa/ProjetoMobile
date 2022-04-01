@@ -609,6 +609,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }else if(currentNovel.getStatus() == 2){
             novelDetailsHolder.mTextView5.setVisibility(View.VISIBLE);
             novelDetailsHolder.mTextView5.setText("Completo - " + currentNovel.getSource());
+        }else{
+            novelDetailsHolder.mTextView5.setVisibility(View.INVISIBLE);
         }
 
         SetUpFavoriteButtons(novelDetailsHolder, currentNovel.getIsFavorite());

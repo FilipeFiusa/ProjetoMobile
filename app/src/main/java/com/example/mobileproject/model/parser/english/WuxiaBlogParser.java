@@ -82,6 +82,7 @@ public class WuxiaBlogParser extends Parser {
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource(SourceName);
             novelDetails.setNovelLink(novelLink);
+            novelDetails.setStatus(1);
 
             return novelDetails;
         } catch (IOException e) {

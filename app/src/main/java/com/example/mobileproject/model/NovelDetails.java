@@ -19,7 +19,7 @@ public class NovelDetails implements Serializable {
     private String source;
     private String novelLink;
 
-    private int status = 1; // 1- Ongoing / 2- Completed
+    private int status = 0; // 1- Ongoing / 2- Completed
     private int readerViewType = 1; // 1- Ongoing / 2- Completed
 
     private int chapterToReadQuantity = 0;

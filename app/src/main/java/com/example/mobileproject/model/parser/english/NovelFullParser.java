@@ -85,6 +85,8 @@ public class NovelFullParser extends Parser {
 
             if(status.equals("Status:Completed") || status.equals("Status: Completed")){
                 novelDetails.setStatus(2);
+            }else{
+                novelDetails.setStatus(1);
             }
 
             return novelDetails;
