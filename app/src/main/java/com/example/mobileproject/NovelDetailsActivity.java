@@ -448,7 +448,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             db.finishedLoading(n.getNovelName(), n.getSource());
 
-            return c;
+            return db.getChaptersFromANovel(n.getNovelName(), n.getSource());
         }
 
         @Override
