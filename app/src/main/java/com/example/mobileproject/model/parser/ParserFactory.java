@@ -3,6 +3,7 @@ package com.example.mobileproject.model.parser;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.mobileproject.model.parser.english.FoxaholicParser;
 import com.example.mobileproject.model.parser.english.LightNovelPubParser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 import com.example.mobileproject.model.parser.english.RoyalRoadParser;
@@ -39,7 +40,8 @@ public class ParserFactory {
                 new NovelFullParser(ctx),
                 new LightNovelPubParser(ctx),
                 new WuxiaBlogParser(ctx),
-                new RoyalRoadParser(ctx)
+                new RoyalRoadParser(ctx),
+                new FoxaholicParser(ctx)
         );
     }
 

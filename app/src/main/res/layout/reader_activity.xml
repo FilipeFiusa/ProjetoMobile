@@ -60,6 +60,7 @@
     </LinearLayout>
 
     <FrameLayout
+        android:visibility="gone"
         android:id="@+id/close_menu"
         android:clickable="true"
         android:focusable="true"
