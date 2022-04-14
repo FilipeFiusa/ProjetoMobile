@@ -121,11 +121,13 @@ public class FoxaholicParser extends Parser {
                         element.attr("href").replace(URL_BASE, ""),
                         chapterIndices.size());
 
-                c.setId(chapterIndices.size());
                 chapterIndices.add(c);
             }
 
             Collections.reverse(chapterIndices);
+            for (int i = 0; i < chapterIndices.size(); i++) {
+                chapterIndices.get(i).setSourceId(i);
+            }
 
             return chapterIndices;
         }catch (IOException e){
@@ -263,6 +265,14 @@ public class FoxaholicParser extends Parser {
                 .replaceAll("<div(.*?)></div>", "")
                 .replaceAll("<div(.*?)>", "")
                 .replaceAll("</div>", "")
+                .replaceAll("<b(.*?)>", "")
+                .replaceAll("</b>", "")
+                .replaceAll("<img(.*?)>", "")
+                .replaceAll("</img>", "")
+                .replaceAll("<a(.*?)>", "")
+                .replaceAll("</a>", "")
+                .replaceAll("<p(.*?)>", "")
+                .replaceAll("</p>", "")
                 .replaceAll("<!--(.*?)-->", "")
                 .replaceAll("\n\n\n", "\n\n")
                 .trim();
