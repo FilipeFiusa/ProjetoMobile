@@ -428,6 +428,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
 
             n = parser.getNovelDetails(novelDetails[0]);
+            n.setLastPageSearched(parser.getLastPageSearched());
 
             try {
                 id = db.insertNovel(n);
@@ -446,7 +447,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 db.insertChapters(n.getNovelName(), n.getSource(), _c);
             }
 
-            db.finishedLoading(n.getNovelName(), n.getSource());
+            db.finishedLoading(n.getNovelName(), n.getSource(), parser.getLastPageSearched());
 
             return db.getChaptersFromANovel(n.getNovelName(), n.getSource());
         }

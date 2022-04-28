@@ -174,29 +174,73 @@ public class CheckNovelUpdatesService extends JobService {
             DBController db = new DBController(getApplicationContext());
             ParserInterface parser = ParserFactory.getParserInstance(novelDetails.getSource(), getApplicationContext());
 
-            List<ChapterIndex> chapterList = db.getChaptersFromANovel(novelDetails.getNovelName(), novelDetails.getSource());
-            ArrayList<ChapterIndex> tempList = parser.getAllChaptersIndex(novelDetails.getNovelLink());
+            ArrayList<ChapterIndex> chapterList = db.getChaptersFromANovel(novelDetails.getNovelName(), novelDetails.getSource());
+            ArrayList<ChapterIndex> tempList = parser.checkNewChapters(novelDetails.getNovelLink(), novelDetails.getLastPageSearched());
 
-            for (int i = 0; i < tempList.size(); i++) {
-                boolean updated = false;
-                ChapterIndex currentItem = tempList.get(i);
+            if(parser.getSourceType() == 1){
+                for (int i = 0; i < tempList.size(); i++) {
+                    boolean updated = false;
+                    ChapterIndex currentItem = tempList.get(i);
 
-                for (ChapterIndex o : chapterList) {
-                    ChapterIndex aux = o;
-                    if (currentItem.equals(aux)) {
-                        currentItem.updateSelf(aux);
-                        updated = true;
-                        break;
+                    for (ChapterIndex o : chapterList) {
+                        ChapterIndex aux = o;
+                        if (currentItem.equals(aux)) {
+                            currentItem.updateSelf(aux);
+                            updated = true;
+                            break;
+                        }
+                    }
+
+                    if (!updated) {
+                        currentItem.setId(-1);
+                        newChapters.add(currentItem);
+                    }
+                }
+            }else if(parser.getSourceType() == 2){
+                int count = 0;
+                while (true){
+                    boolean alreadyExists = false;
+                    ChapterIndex currentItem = tempList.get(count);
+
+                    for (int j = 0; j < chapterList.size(); j++) {
+                        ChapterIndex aux = chapterList.get(j);
+                        if (currentItem.equals(aux)) {
+                            tempList.remove(currentItem);
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+
+                    if(alreadyExists){
+                        count = 0;
+
+                        if(tempList.size() == 0){
+                            break;
+                        }
+                    }else{
+                        count++;
+
+                        if(tempList.size() == count){
+                            break;
+                        }
                     }
                 }
 
-                if (!updated) {
-                    currentItem.setId(-1);
-                    newChapters.add(currentItem);
-                }
-            }
+                if (tempList.size() > 0){
+                    newChapters.addAll(tempList);
+                    chapterList.addAll(tempList);
 
-            db.updateChapters(novelDetails.getNovelName(), novelDetails.getSource(), tempList);
+                    for (int i = 0; i < chapterList.size(); i++) {
+                        ChapterIndex currentItem = chapterList.get(i);
+                        currentItem.setSourceId(i);
+                    }
+
+                    novelDetails.setLastPageSearched(parser.getLastPageSearched());
+                    db.updateChapters(novelDetails.getNovelName(), novelDetails.getSource(), chapterList, parser.getLastPageSearched());
+                }
+
+                db.updateLastPageSearched(novelDetails.getNovelName(), novelDetails.getSource(), parser.getLastPageSearched());
+            }
 
             return new CheckUpdatesItem(novelDetails, newChapters);
         }

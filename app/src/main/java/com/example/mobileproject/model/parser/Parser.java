@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
+import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.Languages;
 import com.example.mobileproject.ui.navigate.SourceItemAdapter;
 
@@ -11,11 +12,16 @@ import org.intellij.lang.annotations.Language;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 
+import java.util.ArrayList;
+
 public abstract class Parser implements ParserInterface {
     protected String URL_BASE = "";
     protected String SourceName = "";
     protected Drawable Icon;
     protected Languages language;
+
+    protected int sourceType = 1; // 1- Normal update, 2- Paginated update
+    protected int lastPageSearched = 1;
 
     protected Context ctx;
 
@@ -40,6 +46,21 @@ public abstract class Parser implements ParserInterface {
     }
 
     public String getURL_BASE(){ return URL_BASE; }
+
+    @Override
+    public ArrayList<ChapterIndex> checkNewChapters(String novelLink, int page) {
+        if(sourceType == 1){
+            return getAllChaptersIndex(novelLink);
+        }else if(sourceType == 2){
+            return getPaginatedChapters(novelLink, page);
+        }
+
+        return new ArrayList<>();
+    }
+
+    protected ArrayList<ChapterIndex> getPaginatedChapters(String novelLink, int page){
+        return new ArrayList<>();
+    }
 
     protected void removeComments(Node node) {
         for (int i = 0; i < node.childNodeSize();) {
@@ -86,5 +107,15 @@ public abstract class Parser implements ParserInterface {
 
     public Languages getLanguage() {
         return language;
+    }
+
+    @Override
+    public int getLastPageSearched() {
+        return lastPageSearched;
+    }
+
+    @Override
+    public int getSourceType() {
+        return sourceType;
     }
 }

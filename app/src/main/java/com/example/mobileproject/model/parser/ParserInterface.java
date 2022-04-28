@@ -15,6 +15,9 @@ public interface ParserInterface {
     public ArrayList<NovelDetailsMinimum> getHotNovels();
     public ArrayList<NovelDetailsMinimum> searchNovels(String searchValue);
     public ChapterContent getChapterContent(String chapterUrl);
+    public ArrayList<ChapterIndex> checkNewChapters(String novelLink, int page);
+    public int getLastPageSearched();
+    public int getSourceType();
 
     public ParserInterface getParserInstance();
 }

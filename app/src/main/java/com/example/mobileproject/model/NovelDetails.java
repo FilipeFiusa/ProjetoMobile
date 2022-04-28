@@ -34,6 +34,7 @@ public class NovelDetails implements Serializable {
 
     private ArrayList<ChapterIndex> chapterIndexes = null;
 
+    private int lastPageSearched = 1;
     private int finishedLoading = 1;
 
     private String orderType = "DSC";
@@ -203,5 +204,13 @@ public class NovelDetails implements Serializable {
 
     public void setFinishedLoading(int finishedLoading) {
         this.finishedLoading = finishedLoading;
+    }
+
+    public int getLastPageSearched() {
+        return lastPageSearched;
+    }
+
+    public void setLastPageSearched(int lastPageSearched) {
+        this.lastPageSearched = lastPageSearched;
     }
 }

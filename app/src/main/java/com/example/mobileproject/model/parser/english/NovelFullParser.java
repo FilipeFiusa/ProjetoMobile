@@ -34,6 +34,7 @@ public class NovelFullParser extends Parser {
         SourceName = "NovelFull";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_novelfull);
         language = Languages.ENGLISH;
+        sourceType = 2;
     }
 
     @Override
@@ -120,6 +121,58 @@ public class NovelFullParser extends Parser {
                 }
 
                 Thread.sleep(500);
+            }
+
+            lastPageSearched = (Integer.parseInt(data_page) + 1);
+
+            return chapterIndices;
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    protected ArrayList<ChapterIndex> getPaginatedChapters(String novelLink, int page){
+        ArrayList<ChapterIndex> chapterIndices = new ArrayList<>();
+        Document d;
+
+        lastPageSearched = page;
+
+        try {
+
+            while (true){
+                ArrayList<ChapterIndex> tempChapterIndices = new ArrayList<>();
+
+                Thread.sleep(500);
+                System.out.println("Page count: " + lastPageSearched);
+
+                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + page).userAgent("Mozilla/5.0").get();
+
+                Elements allLinks = d.select("#list-chapter .row a");
+
+                for(Element e : allLinks){
+                    ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"), chapterIndices.size());
+                    c.setId(chapterIndices.size());
+                    tempChapterIndices.add(c);
+                }
+
+                if(tempChapterIndices.size() < 50){
+                    chapterIndices.addAll(tempChapterIndices);
+                    break;
+                }
+
+                for(ChapterIndex currentChapterIndex : tempChapterIndices){
+                    for (int i = 0; i < chapterIndices.size(); i++) {
+                        if(currentChapterIndex.getChapterLink().equals(chapterIndices.get(i).getChapterLink())){
+                            lastPageSearched = lastPageSearched - 1;
+                            return chapterIndices;
+                        }
+                    }
+                }
+
+                chapterIndices.addAll(tempChapterIndices);
+                lastPageSearched = lastPageSearched + 1;
             }
 
             return chapterIndices;

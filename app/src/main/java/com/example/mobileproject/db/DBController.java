@@ -48,6 +48,7 @@ public class DBController {
         values.put("last_readed", new Date().getTime());//last_readed
         values.put("on_library", 0);//last_readed
         values.put("readerViewType", 1);//last_readed
+        values.put("last_page_searched", n.getLastPageSearched());//last_readed
         values.put("novel_name", n.getNovelName());
         values.put("novel_author", n.getNovelAuthor());
         values.put("novel_description", n.getNovelDescription());
@@ -90,14 +91,14 @@ public class DBController {
         return result;
     }
 
-    public synchronized long finishedLoading(String novelName, String novelSource){
+    public synchronized long finishedLoading(String novelName, String novelSource, int page){
         ContentValues values = new ContentValues();
         long result;
 
         db = database.getWritableDatabase();
 
-
         values.put("finished_loading", 1);
+        values.put("last_page_searched", page);
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
         db.close();
@@ -198,6 +199,23 @@ public class DBController {
         }
     }
 
+    public synchronized void updateChapters(String novelName, String novelSource, ArrayList<ChapterIndex> c, int page){
+        updateLastPageSearched(novelName, novelSource, page);
+        updateChapters(novelName, novelSource, c);
+    }
+
+    public synchronized void updateLastPageSearched(String novelName, String novelSource, int page){
+        db = database.getReadableDatabase();
+
+        ContentValues values = new ContentValues();
+        Cursor cursor;
+
+        values.put("last_page_searched", page);
+        long result = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+        db.close();
+    }
+
     public synchronized void deleteNovel(String novelName, String novelSource){
         db = database.getWritableDatabase();
 
@@ -244,6 +262,7 @@ public class DBController {
                 novelDetails.setNovelLink(result.getString(result.getColumnIndexOrThrow("novel_link")));
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+                novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -292,6 +311,8 @@ public class DBController {
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+                System.out.println("--" + result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
+                novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -340,6 +361,7 @@ public class DBController {
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+                novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -386,6 +408,7 @@ public class DBController {
             novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
             novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
             novel.setFinishedLoading(result.getInt(result.getColumnIndexOrThrow("finished_loading")));
+            novel.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
 
 
 
@@ -432,6 +455,7 @@ public class DBController {
             novel.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
             novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
             novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
+            novel.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
 

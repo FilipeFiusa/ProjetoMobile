@@ -24,7 +24,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 6);
+        super(context, db_name, null, 7);
     }
 
     @Override
@@ -34,6 +34,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "last_readed" + " integer,"
                 + "on_library" + " integer,"
                 + "readerViewType" + " integer,"
+                + "last_page_searched" + " integer,"
                 + "novel_name" + " text,"
                 + "novel_author" + " text,"
                 + "novel_description" + " text,"
@@ -108,6 +109,8 @@ public class CreateDB extends SQLiteOpenHelper {
 
             db.execSQL("DELETE FROM " + Table4);
             db.execSQL("DELETE FROM " + Table5);
+        }if(oldVersion <= 6 && newVersion > oldVersion){
+            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN last_page_searched INTEGER DEFAULT 1");
         }
     }
 }
