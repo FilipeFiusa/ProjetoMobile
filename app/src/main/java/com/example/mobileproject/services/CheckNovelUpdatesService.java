@@ -131,26 +131,6 @@ public class CheckNovelUpdatesService extends JobService {
             if(!checkUpdatesItems.isEmpty()){
                 showNewChaptersNotification();
 
-/*                StringBuilder message = new StringBuilder();
-                for (int i = 0; i < checkUpdatesItems.size(); i++) {
-                    String m = checkUpdatesItems.get(i).toString();
-                    if(i==0){
-                        message.append("  ");
-                    }else{
-                        message.append("\n  ");
-                    }
-                    message.append(m);
-                }
-
-                notification
-                        .setContentTitle("Novos capitulos: ")
-                        .setOngoing(false)
-                        .setProgress(0, 0, false)
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(message));
-
-                notificationManager.notify(2, notification.build());*/
-
                 PutChaptersToDownload();
 
                 Intent serviceIntent = new Intent(getApplicationContext(), DownloaderService.class);
@@ -196,6 +176,8 @@ public class CheckNovelUpdatesService extends JobService {
                         newChapters.add(currentItem);
                     }
                 }
+
+                db.updateChapters(novelDetails.getNovelName(), novelDetails.getSource(), tempList);
             }else if(parser.getSourceType() == 2){
                 int count = 0;
                 while (true){
@@ -238,8 +220,6 @@ public class CheckNovelUpdatesService extends JobService {
                     novelDetails.setLastPageSearched(parser.getLastPageSearched());
                     db.updateChapters(novelDetails.getNovelName(), novelDetails.getSource(), chapterList, parser.getLastPageSearched());
                 }
-
-                db.updateLastPageSearched(novelDetails.getNovelName(), novelDetails.getSource(), parser.getLastPageSearched());
             }
 
             return new CheckUpdatesItem(novelDetails, newChapters);
