@@ -140,14 +140,12 @@ public class NovelFullParser extends Parser {
         lastPageSearched = page;
 
         try {
-
             while (true){
                 ArrayList<ChapterIndex> tempChapterIndices = new ArrayList<>();
 
                 Thread.sleep(500);
-                System.out.println("Page count: " + lastPageSearched);
 
-                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + page).userAgent("Mozilla/5.0").get();
+                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + lastPageSearched).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select("#list-chapter .row a");
 
@@ -155,11 +153,6 @@ public class NovelFullParser extends Parser {
                     ChapterIndex c = new ChapterIndex(e.text(), e.attr("href"), chapterIndices.size());
                     c.setId(chapterIndices.size());
                     tempChapterIndices.add(c);
-                }
-
-                if(tempChapterIndices.size() < 50){
-                    chapterIndices.addAll(tempChapterIndices);
-                    break;
                 }
 
                 for(ChapterIndex currentChapterIndex : tempChapterIndices){
@@ -175,7 +168,6 @@ public class NovelFullParser extends Parser {
                 lastPageSearched = lastPageSearched + 1;
             }
 
-            return chapterIndices;
         }catch (IOException | InterruptedException e){
             e.printStackTrace();
         }

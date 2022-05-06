@@ -15,6 +15,8 @@ import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.DownloaderClass;
 import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.NovelDetails;
+import com.example.mobileproject.model.epub.BookDetails;
+import com.example.mobileproject.model.epub.EpubChapter;
 
 import org.jsoup.safety.Cleaner;
 
@@ -46,6 +48,7 @@ public class DBController {
         values = new ContentValues();
 
         values.put("last_readed", new Date().getTime());//last_readed
+        values.put("novel_type", 1);
         values.put("on_library", 0);//last_readed
         values.put("readerViewType", 1);//last_readed
         values.put("last_page_searched", n.getLastPageSearched());//last_readed
@@ -89,6 +92,86 @@ public class DBController {
         db.close();
 
         return result;
+    }
+
+    public synchronized long insertEpub(BookDetails b){
+        ContentValues values;
+        long result;
+
+        db = database.getWritableDatabase();
+        values = new ContentValues();
+
+        values.put("last_readed", new Date().getTime());//last_readed
+        values.put("on_library", 0);
+        values.put("novel_type", 2);
+        values.put("readerViewType", 1);
+        values.put("last_page_searched", 0);
+        values.put("novel_name", b.getBookName());
+        values.put("novel_author", b.getBookAuthor());
+        values.put("novel_description", "");
+        values.put("novel_source", b.getBookPublisher());
+        values.put("order_type", "DSC");
+        values.put("novel_link", "epub");
+        values.put("status", 3);
+        values.put("finished_loading", 1);
+
+        try (FileOutputStream fos = ctx.openFileOutput(b.getBookName() + "_epub_image.png", Context.MODE_PRIVATE)) {
+            b.getBookCover().compress(Bitmap.CompressFormat.PNG, 100, fos);
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        values.put("novel_image", b.getBookName() + "_epub_image.png");
+
+        result = db.insert("Novels", null, values);
+
+        //If book is stored, then add chapters
+        if(result > -1){
+            b.setId((int) result);
+
+            for(int i = 0; i < b.getChapterList().size(); i ++){
+                EpubChapter currentChapter = b.getChapterList().get(i);
+
+                values = new ContentValues();
+
+                values.put("novel_name", b.getBookName());
+                values.put("novel_source", b.getBookPublisher());
+                values.put("source_id", i);
+                values.put("chapter_name", currentChapter.getChapterName());
+                values.put("chapter_link", "epub");
+                values.put("chapter_content", currentChapter.getChapterContent());
+                values.put("raw_chapter", currentChapter.getRawChapterContent());
+                values.put("readed", "no");
+                values.put("downloaded", "yes");
+
+                result = db.insert("Chapters", null, values);
+
+                if(result !=  -1){
+                    currentChapter.setId((int) result);
+                }
+            }
+        }
+
+        db.close();
+
+        return result;
+    }
+
+    public synchronized boolean checkIfEpubAlreadyExists(BookDetails b){
+        Cursor result;
+        NovelDetails novel = new NovelDetails();
+
+        db = database.getReadableDatabase();
+
+        String query = "SELECT * FROM Novels WHERE novel_name=? AND novel_source=?";
+        result = db.rawQuery(query, new String[]{b.getBookName(), b.getBookPublisher()});
+        if(result.getCount() > 0){
+            db.close();
+            return true;
+        }
+
+        db.close();
+        return false;
     }
 
     public synchronized long finishedLoading(String novelName, String novelSource, int page){
@@ -263,6 +346,7 @@ public class DBController {
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
+                novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
@@ -311,9 +395,8 @@ public class DBController {
                 novelDetails.setOrderType(result.getString(result.getColumnIndexOrThrow("order_type")));
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
-                System.out.println("--" + result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
-
+                novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
@@ -362,7 +445,7 @@ public class DBController {
                 novelDetails.setStatus(result.getInt(result.getColumnIndexOrThrow("status")));
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
-
+                novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
                 String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
@@ -409,7 +492,7 @@ public class DBController {
             novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
             novel.setFinishedLoading(result.getInt(result.getColumnIndexOrThrow("finished_loading")));
             novel.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
-
+            novel.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
@@ -456,6 +539,7 @@ public class DBController {
             novel.setLastReadied(result.getLong(result.getColumnIndexOrThrow("last_readed")));
             novel.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
             novel.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
+            novel.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
             int is_favorite = result.getInt(result.getColumnIndexOrThrow("on_library"));
 

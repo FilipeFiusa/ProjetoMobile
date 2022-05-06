@@ -38,6 +38,29 @@ public class NovelReaderController implements Serializable {
         return null;
     }
 
+    public ChapterIndex setStartedChapter(int sourceId){
+        for (int i = 0; i < chapterIndices.size(); i++) {
+            ChapterIndex c = chapterIndices.get(i);
+
+            if(c.getSourceId() == sourceId){
+                position = i;
+
+                currentChapter = new Chapter(c, null);
+
+                if(position - 1 >= 0){
+                    previousChapter = new Chapter(chapterIndices.get(position - 1), null);
+                }
+
+                if(position + 1 < chapterIndices.size()){
+                    nextChapter = new Chapter(chapterIndices.get(position + 1), null);
+                }
+
+                return c;
+            }
+        }
+        return null;
+    }
+
     /*public ChapterIndex getCurrentChapter(){
         if(chapterIndices.size() == 0) return new ChapterIndex();
         return chapterIndices.get(position);

@@ -131,7 +131,6 @@ public class WoopreadParser extends Parser {
 
         try (Response response = client.newCall(request).execute()) {
             String temp = response.body().string();
-            System.out.println(temp);
             html = temp;
 
             if(html.equals("")){

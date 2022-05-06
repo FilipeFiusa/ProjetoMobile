@@ -3,6 +3,7 @@ package com.example.mobileproject.ui.reader_normal_view;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -10,11 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.core.text.HtmlCompat;
+
 import com.example.mobileproject.R;
 import com.example.mobileproject.ReaderActivity;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.UserReaderPreferences;
+import com.example.mobileproject.util.TagReplacerHelper;
 
 public class ScrollViewController {
     private FrameLayout container;
@@ -80,7 +84,8 @@ public class ScrollViewController {
 
     public void setChapterContent(ChapterContent chapterContent){
         titleTextView.setText(chapterContent.getChapterName());
-        chapterTextView.setText(chapterContent.getChapterContent());
+        chapterTextView.setText(TagReplacerHelper.replaceAll(ctx, chapterContent.getChapterContent()));
+        chapterTextView.setMovementMethod(LinkMovementMethod.getInstance());
 
         scrollView.fullScroll(ScrollView.FOCUS_UP);
         scrollView.pageScroll(ScrollView.FOCUS_UP);

@@ -573,6 +573,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     Intent intent = new Intent(ctx, ReaderActivity.class);
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
                     intent.putExtra("chapterLink", currentItem.getChapterLink());
+                    intent.putExtra("sourceId", currentItem.getSourceId());
+                    intent.putExtra("novelType", currentNovel.getNovelType());
                     intent.putExtra("novelName", currentNovel.getNovelName());
                     intent.putExtra("sourceName", currentNovel.getSource());
                     intent.putExtra("readerViewType", currentNovel.getReaderViewType());
@@ -609,7 +611,11 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }else if(currentNovel.getStatus() == 2){
             novelDetailsHolder.mTextView5.setVisibility(View.VISIBLE);
             novelDetailsHolder.mTextView5.setText("Completo - " + currentNovel.getSource());
-        }else{
+        }else if(currentNovel.getStatus() == 3){
+            novelDetailsHolder.mTextView5.setVisibility(View.VISIBLE);
+            novelDetailsHolder.mTextView5.setText("Epub - " + currentNovel.getSource());
+        }
+        else{
             novelDetailsHolder.mTextView5.setVisibility(View.INVISIBLE);
         }
 

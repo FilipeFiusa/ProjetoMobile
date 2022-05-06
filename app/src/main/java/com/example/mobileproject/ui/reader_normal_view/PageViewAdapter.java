@@ -3,6 +3,7 @@ package com.example.mobileproject.ui.reader_normal_view;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +14,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.R;
+import com.example.mobileproject.ReaderActivity;
 import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.ViewPageItem;
 import com.example.mobileproject.util.FontFactory;
+import com.example.mobileproject.util.TagReplacerHelper;
 
 import java.util.ArrayList;
 
 public class PageViewAdapter extends RecyclerView.Adapter<PageViewAdapter.ViewPagerCustomItem> {
     private ArrayList<ViewPageItem> viewPagerItemArrayList;
-    final private AppCompatActivity ctx;
+    final private ReaderActivity ctx;
     final private PageViewController controllerReference;
     final private UserReaderPreferences userReaderPreferences;
 
-    public PageViewAdapter(ArrayList<ViewPageItem> viewPagerItemArrayList, AppCompatActivity ctx,
+    public PageViewAdapter(ArrayList<ViewPageItem> viewPagerItemArrayList, ReaderActivity ctx,
                            PageViewController controller, UserReaderPreferences userReaderPreferences) {
         this.viewPagerItemArrayList = viewPagerItemArrayList;
         this.ctx = ctx;
@@ -83,8 +86,10 @@ public class PageViewAdapter extends RecyclerView.Adapter<PageViewAdapter.ViewPa
         if (itemType == 1) {
             TextAndTitleHolder textAndTitleHolder = (TextAndTitleHolder) holder;
 
-            textAndTitleHolder.textContainer.setText(currentItem.getChapterContent());
             textAndTitleHolder.titleContainer.setText(currentItem.getTitle());
+            textAndTitleHolder.textContainer.setText(TagReplacerHelper.replaceAll(ctx, currentItem.getChapterContent()));
+            textAndTitleHolder.textContainer.setMovementMethod(LinkMovementMethod.getInstance());
+
 
             userReaderPreferences.applyPreferences(null, textAndTitleHolder.titleContainer, textAndTitleHolder.textContainer);
 
@@ -95,7 +100,8 @@ public class PageViewAdapter extends RecyclerView.Adapter<PageViewAdapter.ViewPa
         } else if (itemType == 2) {
             TextOnlyHolder textOnlyHolder = (TextOnlyHolder) holder;
 
-            textOnlyHolder.textContainer.setText(currentItem.getChapterContent());
+            textOnlyHolder.textContainer.setText(TagReplacerHelper.replaceAll(ctx, currentItem.getChapterContent()));
+            textOnlyHolder.textContainer.setMovementMethod(LinkMovementMethod.getInstance());
 
             userReaderPreferences.applyPreferences(null, null, textOnlyHolder.textContainer);
 

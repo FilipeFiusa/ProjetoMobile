@@ -50,17 +50,21 @@ public class ReaderNormalView {
     private NovelReaderController nrc;
     private String currentSourceName;
 
+    private int novelType;
+
     private final ArrayList<NovelCleaner> novelCleaners;
 
     public ReaderNormalView(FrameLayout layout, ReaderActivity ctx, NovelReaderController nrc,
                             String currentSourceName, TextView bottomChapterNameView,
-                            ArrayList<NovelCleaner> novelCleaners, int textViewType, UserReaderPreferences userReaderPreferences) {
+                            ArrayList<NovelCleaner> novelCleaners, int textViewType, UserReaderPreferences userReaderPreferences,
+                            int novelType) {
         this.layout = layout;
         this.ctx = ctx;
         this.nrc = nrc;
         this.currentSourceName = currentSourceName;
         this.textViewType = textViewType;
         this.userReaderPreferences = userReaderPreferences;
+        this.novelType = novelType;
 
         loading = (FrameLayout) layout.findViewById(R.id.loading_screen);
 
@@ -164,7 +168,7 @@ public class ReaderNormalView {
             }
 
             ParserInterface parser = ParserFactory.getParserInstance(currentSourceName,ctx);
-            if(parser == null){
+            if(parser == null && novelType != 2){
                 return false;
             }
 

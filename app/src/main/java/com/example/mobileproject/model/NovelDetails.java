@@ -10,6 +10,8 @@ import java.util.Objects;
 public class NovelDetails implements Serializable {
     private int db_id;
 
+    private int novelType;  // 1- novel, 2- Epub
+
     private Bitmap novelImage;
 
     private String novelName;
@@ -19,7 +21,7 @@ public class NovelDetails implements Serializable {
     private String source;
     private String novelLink;
 
-    private int status = 0; // 1- Ongoing / 2- Completed
+    private int status = 0; // 1- Ongoing / 2- Completed / 3- Epub
     private int readerViewType = 1; // 1- Ongoing / 2- Completed
 
     private int chapterToReadQuantity = 0;
@@ -33,6 +35,7 @@ public class NovelDetails implements Serializable {
     private int chapterQuantity = 0;
 
     private ArrayList<ChapterIndex> chapterIndexes = null;
+    private ArrayList<Chapter> chapterList = null;
 
     private int lastPageSearched = 1;
     private int finishedLoading = 1;
@@ -40,6 +43,15 @@ public class NovelDetails implements Serializable {
     private String orderType = "DSC";
 
     public NovelDetails(){
+    }
+
+    public NovelDetails(Bitmap novelImage, String novelName, String novelDescription, String novelAuthor, String source, String novelLink) {
+        this.novelImage = novelImage;
+        this.novelName = novelName;
+        this.novelDescription = novelDescription;
+        this.novelAuthor = novelAuthor;
+        this.source = source;
+        this.novelLink = novelLink;
     }
 
     public NovelDetails(Bitmap novel_image, String novel_name, String novel_description, String novel_author) {
@@ -212,5 +224,21 @@ public class NovelDetails implements Serializable {
 
     public void setLastPageSearched(int lastPageSearched) {
         this.lastPageSearched = lastPageSearched;
+    }
+
+    public ArrayList<Chapter> getChapterList() {
+        return chapterList;
+    }
+
+    public void setChapterList(ArrayList<Chapter> chapterList) {
+        this.chapterList = chapterList;
+    }
+
+    public int getNovelType() {
+        return novelType;
+    }
+
+    public void setNovelType(int novelType) {
+        this.novelType = novelType;
     }
 }

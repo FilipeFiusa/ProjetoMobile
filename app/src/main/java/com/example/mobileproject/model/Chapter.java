@@ -44,7 +44,7 @@ public class Chapter implements Serializable {
 
     public boolean isChapterEmpty(){
         if (chapterContent == null) return false;
-        return chapterContent.getChapterContent().isEmpty();
+        return chapterContent.getChapterContent().length() == 0;
     }
 
     public boolean exist() {

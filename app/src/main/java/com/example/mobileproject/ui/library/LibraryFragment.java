@@ -2,6 +2,7 @@ package com.example.mobileproject.ui.library;
 
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 import static com.example.mobileproject.App.CHECK_UPDATES_SERVICE_ID;
+import static com.example.mobileproject.MainActivity.PICK_EPUB_FILE;
 
 import android.app.ActivityManager;
 import android.app.job.JobInfo;
@@ -46,9 +47,14 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.services.CheckNovelUpdatesService;
 import com.example.mobileproject.services.receivers.CheckUpdatesLFReceiver;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LibraryFragment extends Fragment {
     public MainActivity ctx;
@@ -71,20 +77,6 @@ public class LibraryFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.library_fragment, container, false);
         ctx = (MainActivity) requireActivity();
-
-/*        Button mButton1 = root.findViewById(R.id.sort_novels);
-        mButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(true){
-                    return;
-                }
-                System.out.println("Apertou");
-                Intent serviceIntent = new Intent(ctx, CheckUpdateService.class);
-                ctx.startService(serviceIntent);
-            }
-        });*/
-
 
         mSwipeRefreshLayout = root.findViewById(R.id.librarySwipeRefresh);
         mSwipeRefreshLayout.setRefreshing(true);
@@ -154,7 +146,10 @@ public class LibraryFragment extends Fragment {
         epubOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(ctx, "Não disponivel ainda", Toast.LENGTH_SHORT).show();
+                popup.setVisibility(View.GONE);
+                selectTypeMenu.setVisibility(View.GONE);
+
+                ctx.openEpubPicker();
             }
         });
 

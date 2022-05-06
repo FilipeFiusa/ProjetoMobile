@@ -3,6 +3,8 @@ package com.example.mobileproject;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -19,6 +21,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -55,8 +58,11 @@ import com.example.mobileproject.util.FontFactory;
 import com.example.mobileproject.util.ServiceHelper;
 import com.example.mobileproject.util.SystemUiHelper;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+
+import javassist.bytecode.analysis.Frame;
 
 
 public class ReaderActivity extends AppCompatActivity {
@@ -75,7 +81,7 @@ public class ReaderActivity extends AppCompatActivity {
     private SeekBar mSeekBar;
     private TextView chapterProgress;
 
-    Animation animTranslateIn;
+    private Animation animTranslateIn;
     Animation animTranslateOut;
     Animation animTranslateBottomIn;
     Animation animTranslateBottomOut;
@@ -102,6 +108,7 @@ public class ReaderActivity extends AppCompatActivity {
     private UserReaderPreferences userReaderPreferences;
 
     private int readerViewType; // 1- Scroll View / 2- Web View / 3- Page View
+    private int novelType;
 
     public TextView chapterNameBottom;
 
@@ -126,10 +133,17 @@ public class ReaderActivity extends AppCompatActivity {
         Intent i = getIntent();
         String chapterLink = i.getStringExtra("chapterLink");
         readerViewType = i.getIntExtra("readerViewType", 1);
+        novelType = i.getIntExtra("novelType", 1);
         sourceName = i.getStringExtra("sourceName");
         novelName = i.getStringExtra("novelName");
         nrc = (NovelReaderController) i.getSerializableExtra("NovelReaderController");
-        nrc.setStartedChapter(chapterLink);
+
+        if(chapterLink.equals("epub")){
+            int sourceId = i.getIntExtra("sourceId", 1);
+            nrc.setStartedChapter(sourceId);
+        }else{
+            nrc.setStartedChapter(chapterLink);
+        }
 
         mRecyclerView = findViewById(R.id.reader_menu_recycle_view);
         mRecyclerView.setHasFixedSize(true);
@@ -195,10 +209,10 @@ public class ReaderActivity extends AppCompatActivity {
 
         if(readerViewType == 1){
             normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
-                    sourceName, chapterNameBottom, novelCleaners, 1, userReaderPreferences);
+                    sourceName, chapterNameBottom, novelCleaners, 1, userReaderPreferences, novelType);
         }else if (readerViewType == 3){
             normalViewController = new ReaderNormalView(inflatedLayout, ReaderActivity.this, nrc,
-                    sourceName, chapterNameBottom, novelCleaners, 2, userReaderPreferences);
+                    sourceName, chapterNameBottom, novelCleaners, 2, userReaderPreferences, novelType);
         }
         container.addView(inflatedLayout);
     }
@@ -426,6 +440,12 @@ public class ReaderActivity extends AppCompatActivity {
         FrameLayout topMenu = (FrameLayout) findViewById(R.id.reader_top_menu);
         FrameLayout bottomMenu = (FrameLayout) findViewById(R.id.reader_bottom_menu);
         FrameLayout sideMenu = (FrameLayout) findViewById(R.id.reader_side_menu);
+        FrameLayout imageLoaderContainer = (FrameLayout) findViewById(R.id.image_loader);
+        FrameLayout progressBar = findViewById(R.id.progress_bar_loader);
+        ImageView imageViewer = findViewById(R.id.image_viewer);
+        progressBar.setVisibility(View.GONE);
+
+        progressBar.setVisibility(View.VISIBLE);
         FrameLayout closeMenu = findViewById(R.id.close_menu);
 
         if(readerSettings != null){
@@ -462,7 +482,19 @@ public class ReaderActivity extends AppCompatActivity {
             closeMenu.setVisibility(View.GONE);
             topMenu.setVisibility(View.GONE);
             bottomMenu.setVisibility(View.GONE);
+
+            imageLoaderContainer.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            imageViewer.setImageBitmap(null);
         }
+    }
+
+    public void loadImage(String imageSrc){
+        FrameLayout imageLoaderContainer = (FrameLayout) findViewById(R.id.image_loader);
+        imageLoaderContainer.setVisibility(View.VISIBLE);
+
+        LoadImageTask loadImageTask = new LoadImageTask();
+        loadImageTask.execute(imageSrc);
     }
 
     public void changeReaderSettings(float font_size, String font_name, String font_color, String background_color){
@@ -637,7 +669,28 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
+    private class LoadImageTask extends AsyncTask<String, Void, Bitmap>{
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            String filePath = novelName.replace(" ", "_") + "/" + strings[0];
+            File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+            String imagePath = mSaveBit.getPath();
 
+            return BitmapFactory.decodeFile(imagePath);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+
+/*            FrameLayout progressBar = findViewById(R.id.progress_bar_loader);
+            progressBar.setVisibility(View.GONE);*/
+
+            ImageView imageViewer = findViewById(R.id.image_viewer);
+
+            imageViewer.setImageBitmap(bitmap);
+        }
+    }
 
     private class GetCleaners extends AsyncTask<Void, Void, ArrayList<NovelCleaner>>{
 

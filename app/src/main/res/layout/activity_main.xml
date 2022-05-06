@@ -19,6 +19,36 @@
         android:layout_weight="1"
         app:navGraph="@navigation/navigation_graph" />
 
+    <FrameLayout
+        android:id="@+id/epub_load_screen"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#BF000000">
+
+        <LinearLayout
+            android:visibility="visible"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true" />
+
+            <TextView
+                android:id="@+id/epub_loading_state"
+                android:layout_marginTop="20dp"
+                android:textSize="22sp"
+                android:textColor="@color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading"/>
+        </LinearLayout>
+    </FrameLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_gravity="end"
         android:id="@+id/bottom_navigation"
