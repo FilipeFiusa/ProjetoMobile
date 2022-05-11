@@ -267,6 +267,7 @@
                 android:paddingVertical="10dp"
                 android:layout_marginHorizontal="15dp"
                 android:paddingStart="5dp"
+                android:textColor="@color/black"
                 android:maxLines="1" />
 
             <LinearLayout

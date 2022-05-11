@@ -86,7 +86,10 @@ public class PageViewAdapter extends RecyclerView.Adapter<PageViewAdapter.ViewPa
         if (itemType == 1) {
             TextAndTitleHolder textAndTitleHolder = (TextAndTitleHolder) holder;
 
+            String firstCapitalizedLetter = currentItem.getTitle().substring(0,1).toUpperCase();
+            textAndTitleHolder.titleContainer.setText(String.format("%s%s", firstCapitalizedLetter, currentItem.getTitle().substring(1)));
             textAndTitleHolder.titleContainer.setText(currentItem.getTitle());
+
             textAndTitleHolder.textContainer.setText(TagReplacerHelper.replaceAll(ctx, currentItem.getChapterContent()));
             textAndTitleHolder.textContainer.setMovementMethod(LinkMovementMethod.getInstance());
 

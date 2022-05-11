@@ -83,7 +83,8 @@ public class ScrollViewController {
     }
 
     public void setChapterContent(ChapterContent chapterContent){
-        titleTextView.setText(chapterContent.getChapterName());
+        String firstCapitalizedLetter = chapterContent.getChapterName().substring(0,1).toUpperCase();
+        titleTextView.setText(String.format("%s%s", firstCapitalizedLetter, chapterContent.getChapterName().substring(1)));
         chapterTextView.setText(TagReplacerHelper.replaceAll(ctx, chapterContent.getChapterContent()));
         chapterTextView.setMovementMethod(LinkMovementMethod.getInstance());
 

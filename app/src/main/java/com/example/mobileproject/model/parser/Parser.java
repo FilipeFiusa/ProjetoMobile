@@ -89,6 +89,7 @@ public abstract class Parser implements ParserInterface {
         document.select("ins").remove();
         document.select("script").remove();
         document.select("style").remove();
+        document.select("iframe").remove();
     }
 
     protected String cleanChapter(String content){
