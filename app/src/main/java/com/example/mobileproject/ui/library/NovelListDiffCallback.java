@@ -38,7 +38,8 @@ public class NovelListDiffCallback extends DiffUtil.Callback {
         final NovelDetails oldEmployee = mOldNovelDetailsList.get(oldItemPosition);
         final NovelDetails newEmployee = mNewNovelDetailsList.get(newItemPosition);
 
-        return oldEmployee.getChapterToReadQuantity() == newEmployee.getChapterToReadQuantity();
+        return oldEmployee.getChapterToReadQuantity() == newEmployee.getChapterToReadQuantity()
+                && oldEmployee.getNovelName().equals(newEmployee.getNovelName());
     }
 
     @Nullable

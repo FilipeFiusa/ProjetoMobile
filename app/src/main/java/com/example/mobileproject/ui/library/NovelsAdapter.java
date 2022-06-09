@@ -59,8 +59,7 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
     }
 
     public void updateNovelsList(ArrayList<NovelDetails> chapterList){
-        final NovelListDiffCallback diffCallback = new NovelListDiffCallback(this.mNovelList, chapterList);
-        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new NovelListDiffCallback(this.mNovelList, chapterList), true);
 
         this.mNovelList.clear();
         this.mNovelList.addAll(chapterList);
