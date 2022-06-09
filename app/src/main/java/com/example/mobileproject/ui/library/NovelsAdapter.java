@@ -28,7 +28,6 @@ import com.example.mobileproject.model.NovelDetailsAdapterObject;
 import java.util.ArrayList;
 
 public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetailsViewHolder> {
-
     private ArrayList<NovelDetails> mNovelList;
     private AppCompatActivity ctx;
     private LibraryFragment libraryFragment;
@@ -56,6 +55,21 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
         this.mNovelList = chapterList;
         this.ctx = ctx;
         this.libraryFragment = libraryFragment;
+    }
+
+    public void updateItem(NovelDetails novel){
+        for (int i = 0; i < mNovelList.size(); i++){
+            NovelDetails currentItem = mNovelList.get(i);
+
+            if(currentItem.getDb_id() == novel.getDb_id()){
+                currentItem.setNovelImage(novel.getNovelImage());
+
+                notifyItemChanged(i);
+
+                break;
+            }
+
+        }
     }
 
     public void updateNovelsList(ArrayList<NovelDetails> chapterList){

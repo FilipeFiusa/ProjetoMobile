@@ -63,11 +63,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        libraryFragment = new LibraryFragment();
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
-                libraryFragment).commit();
     }
 
     private final BottomNavigationView.OnItemSelectedListener navListener =

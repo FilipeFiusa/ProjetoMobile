@@ -338,6 +338,7 @@ public class DBController {
             do {
                 NovelDetails novelDetails = new NovelDetails();
 
+                novelDetails.setDb_id(result.getInt(result.getColumnIndexOrThrow("id")));
                 novelDetails.setNovelAuthor(result.getString(result.getColumnIndexOrThrow("novel_author")));
                 novelDetails.setNovelName(result.getString(result.getColumnIndexOrThrow("novel_name")));
                 novelDetails.setNovelDescription(result.getString(result.getColumnIndexOrThrow("novel_description")));
@@ -347,14 +348,15 @@ public class DBController {
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
                 novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
+                novelDetails.setNovelImageLink(result.getString(result.getColumnIndexOrThrow("novel_image")));
 
 
-                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+/*                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
                 String imagePath = mSaveBit.getPath();
                 Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
 
-                novelDetails.setNovelImage(bitmap);
+                novelDetails.setNovelImage(bitmap);*/
 
                 query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
                 Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
@@ -398,12 +400,12 @@ public class DBController {
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
                 novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
-                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+/*                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
                 String imagePath = mSaveBit.getPath();
                 Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
 
-                novelDetails.setNovelImage(bitmap);
+                novelDetails.setNovelImage(bitmap);*/
 
                 query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
                 Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
@@ -447,12 +449,12 @@ public class DBController {
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
                 novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
 
-                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
+/*                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
                 String imagePath = mSaveBit.getPath();
                 Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
 
-                novelDetails.setNovelImage(bitmap);
+                novelDetails.setNovelImage(bitmap);*/
 
                 query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
                 Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});

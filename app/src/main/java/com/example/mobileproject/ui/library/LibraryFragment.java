@@ -10,6 +10,8 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -382,7 +384,50 @@ public class LibraryFragment extends Fragment {
 
             mAdapter.updateNovelsList(novelDetailsArr);
             mSwipeRefreshLayout.setRefreshing(false);
+
+            LoadNovelImageTask loadNovelImageTask = new LoadNovelImageTask();
+            loadNovelImageTask.execute(novelDetailsArr.toArray(new NovelDetails[0]));
         }
+    }
+
+    private class LoadNovelImageTask extends AsyncTask<NovelDetails, NovelDetails, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(NovelDetails... novels) {
+            ArrayList<NovelDetails> novelDetailsArr;
+
+            for(NovelDetails novel : novels){
+                String filePath = novel.getNovelImageLink();
+                File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+                String imagePath = mSaveBit.getPath();
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+
+                novel.setNovelImage(bitmap);
+
+                publishProgress(novel);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(NovelDetails... values) {
+            super.onProgressUpdate(values);
+
+            mAdapter.updateItem(values[0]);
+        }
+
+/*        @Override
+        protected void onPostExecute(ArrayList<NovelDetails> novelDetailsArr) {
+            super.onPostExecute(novelDetailsArr);
+
+            mAdapter.updateNovelsList(novelDetailsArr);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }*/
     }
 
     private class DeleteNovelTask extends AsyncTask<ArrayList<NovelDetails>, Void, Void> {

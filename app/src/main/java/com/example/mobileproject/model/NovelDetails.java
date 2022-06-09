@@ -13,6 +13,7 @@ public class NovelDetails implements Serializable {
     private int novelType;  // 1- novel, 2- Epub
 
     private Bitmap novelImage;
+    private String novelImageLink;
 
     private String novelName;
     private String novelDescription;
@@ -240,5 +241,13 @@ public class NovelDetails implements Serializable {
 
     public void setNovelType(int novelType) {
         this.novelType = novelType;
+    }
+
+    public String getNovelImageLink() {
+        return novelImageLink;
+    }
+
+    public void setNovelImageLink(String novelImageLink) {
+        this.novelImageLink = novelImageLink;
     }
 }
