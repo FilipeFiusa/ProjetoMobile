@@ -40,8 +40,8 @@ public class ParserFactory {
 
     public static List<Parser> getAllParsers(Context ctx){
         return Arrays.asList(
-               // new NovelFullParser(ctx),
-                new LightNovelPubParser(ctx),
+                new NovelFullParser(ctx),
+                //new LightNovelPubParser(ctx),
                 new WuxiaBlogParser(ctx),
                 new RoyalRoadParser(ctx),
                 new FoxaholicParser(ctx),
@@ -72,6 +72,8 @@ public class ParserFactory {
 
         return parsers;
     }
+
+    //Academy undecorver - 32
 
     public static Parser checkIfSourceExistsWithLink(Context ctx, URL novelLink) throws MalformedURLException {
         List<Parser> allParsers = getAllParsers(ctx);

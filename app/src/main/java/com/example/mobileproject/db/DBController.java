@@ -937,9 +937,18 @@ public class DBController {
     }
 
     public synchronized boolean SetAntecedentChaptersAsReadied(String novelName, String novelSource, int lowerSourceId){
+        ContentValues values = new ContentValues();
         Cursor result;
 
         db = database.getReadableDatabase();
+
+        values.put("last_readed", new Date().getTime());//last_readed
+        long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+        if(result2 == -1){
+            db.close();
+            return false;
+        }
 
         String query = "UPDATE Chapters"
                 + " SET readed = 'yes'"

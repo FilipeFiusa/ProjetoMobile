@@ -136,7 +136,7 @@ public class RoyalRoadParser extends Parser {
             e.printStackTrace();
         }
 
-        return null;
+        return chapterIndices;
     }
 
     @Override

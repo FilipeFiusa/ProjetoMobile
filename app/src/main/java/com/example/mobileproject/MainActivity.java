@@ -130,8 +130,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if(libraryFragment != null){
-            libraryFragment.UpdateNovels();
+        if(libraryFragment != null && resultCode == RESULT_OK){
+            if (data != null){
+                boolean canUpdate = data.getBooleanExtra("atLeastOneChapterReadied", false);
+                if (canUpdate){
+                    libraryFragment.UpdateNovels();
+                }
+            }
         }
     }
 

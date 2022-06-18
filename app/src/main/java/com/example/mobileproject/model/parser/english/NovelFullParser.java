@@ -130,7 +130,7 @@ public class NovelFullParser extends Parser {
             e.printStackTrace();
         }
 
-        return null;
+        return chapterIndices;
     }
 
     protected ArrayList<ChapterIndex> getPaginatedChapters(String novelLink, int page){
@@ -172,7 +172,7 @@ public class NovelFullParser extends Parser {
             e.printStackTrace();
         }
 
-        return null;
+        return chapterIndices;
     }
 
     @Override

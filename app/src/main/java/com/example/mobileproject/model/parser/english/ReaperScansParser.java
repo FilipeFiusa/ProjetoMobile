@@ -3,6 +3,7 @@ package com.example.mobileproject.model.parser.english;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.SystemClock;
 
 import androidx.core.content.ContextCompat;
 
@@ -18,6 +19,8 @@ import com.example.mobileproject.model.parser.ParserInterface;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,7 +40,7 @@ public class ReaperScansParser extends Parser {
     public ReaperScansParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://reaperscans.com/";
+        URL_BASE = "https://reaperscans.com";
         SourceName = "ReaperScans";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_reaperscans);
         language = Languages.ENGLISH;
@@ -115,6 +118,8 @@ public class ReaperScansParser extends Parser {
         ArrayList<ChapterIndex> chapterIndices = new ArrayList<>();
         Document d;
 
+        SystemClock.sleep(3000);
+
         try {
             d = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
 
@@ -144,11 +149,11 @@ public class ReaperScansParser extends Parser {
             }
 
             return chapterIndices;
-        }catch (IOException e){
+        } catch(IOException e){
             e.printStackTrace();
         }
 
-        return null;
+        return chapterIndices;
     }
 
     @Override
@@ -248,6 +253,8 @@ public class ReaperScansParser extends Parser {
                 .replaceAll("<br>", "\n")
                 .replaceAll("<strong>", "")
                 .replaceAll("</strong>", "")
+                .replaceAll("<em>", "")
+                .replaceAll("</em>", "")
                 .replaceAll("<p>", "\n")
                 .replaceAll("</p>", "\n")
                 .replaceAll("<p(.*?)>", "\n")

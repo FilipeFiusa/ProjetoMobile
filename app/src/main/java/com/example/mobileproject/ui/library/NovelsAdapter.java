@@ -73,10 +73,23 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
     }
 
     public void updateNovelsList(ArrayList<NovelDetails> chapterList){
+        for(NovelDetails novel : chapterList){
+            for(NovelDetails novel1 : mNovelList){
+                if(novel.getDb_id() == novel1.getDb_id()){
+                    if(novel1.getNovelImage() != null){
+                        novel.setNovelImage(novel1.getNovelImage());
+                    }
+
+                    break;
+                }
+            }
+        }
+
         final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new NovelListDiffCallback(this.mNovelList, chapterList), true);
 
         this.mNovelList.clear();
         this.mNovelList.addAll(chapterList);
+
         diffResult.dispatchUpdatesTo(this);
     }
 
@@ -165,6 +178,7 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
         if(currentItem.getChapterToReadQuantity() == 0){
             holder.mTextView2.setVisibility(View.GONE);
         }else{
+            holder.mTextView2.setVisibility(View.VISIBLE);
             holder.mTextView2.setText(String.valueOf(currentItem.getChapterToReadQuantity()));
         }
 

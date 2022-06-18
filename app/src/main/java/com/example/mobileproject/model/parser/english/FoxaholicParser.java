@@ -134,7 +134,7 @@ public class FoxaholicParser extends Parser {
             e.printStackTrace();
         }
 
-        return null;
+        return chapterIndices;
     }
 
     @Override

@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class NovelDetailsActivity extends AppCompatActivity {
-
     private RecyclerView mRecyclerView;
     private ChaptersAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -53,6 +52,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
     private ArrayList<ChapterIndex> selectedChaptersReference;
 
     private boolean CanUnRead = false;
+    private boolean atLeastOneChapterReadied = false;
 
     private getNovelDetailsFromDB contentDB;
     private getNovelDetails content;
@@ -93,8 +93,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent data = new Intent();
-                setResult(RESULT_OK,data);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("atLeastOneChapterReadied", atLeastOneChapterReadied);
+                setResult(RESULT_OK, resultIntent);
 
                 if(content != null && content.getStatus() == AsyncTask.Status.RUNNING){
                     content.cancel(true);
@@ -160,8 +161,12 @@ public class NovelDetailsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(data != null){
             ArrayList<Integer> readiedChapters = data.getIntegerArrayListExtra("readiedChapters");
+            if(!readiedChapters.isEmpty()){
+                atLeastOneChapterReadied = true;
+            }
             mAdapter.putChapterAsReadied(readiedChapters);
 
             ArrayList<Integer> downloadedChapters = data.getIntegerArrayListExtra("downloadedChapters");
@@ -201,6 +206,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 hideSelectMenu();
 
+                atLeastOneChapterReadied = true;
+
                 if(!CanUnRead){
                     SetChaptersReadied task = new SetChaptersReadied();
                     task.execute();
@@ -229,6 +236,8 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 }
 
                 mAdapter.readAllAntecedents(lowerPosition);
+
+                atLeastOneChapterReadied = true;
 
                 SetAntecedentChaptersAsReadied setAntecedentChaptersAsReadied = new SetAntecedentChaptersAsReadied();
                 setAntecedentChaptersAsReadied.execute(lowerSourceId);
@@ -338,8 +347,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent data = new Intent();
-        setResult(RESULT_OK,data);
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("atLeastOneChapterReadied", atLeastOneChapterReadied);
+        setResult(RESULT_OK,resultIntent);
 
         if(content != null && content.getStatus() == AsyncTask.Status.RUNNING){
             content.cancel(true);

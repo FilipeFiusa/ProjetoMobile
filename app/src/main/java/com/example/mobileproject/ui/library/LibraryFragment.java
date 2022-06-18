@@ -401,14 +401,16 @@ public class LibraryFragment extends Fragment {
             ArrayList<NovelDetails> novelDetailsArr;
 
             for(NovelDetails novel : novels){
-                String filePath = novel.getNovelImageLink();
-                File mSaveBit = new File(ctx.getFilesDir(), filePath);;
-                String imagePath = mSaveBit.getPath();
-                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                if(novel.getNovelImage() == null){
+                    String filePath = novel.getNovelImageLink();
+                    File mSaveBit = new File(ctx.getFilesDir(), filePath);;
+                    String imagePath = mSaveBit.getPath();
+                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
 
-                novel.setNovelImage(bitmap);
+                    novel.setNovelImage(bitmap);
 
-                publishProgress(novel);
+                    publishProgress(novel);
+                }
             }
 
             return null;
