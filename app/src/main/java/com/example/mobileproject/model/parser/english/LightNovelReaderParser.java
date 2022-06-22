@@ -62,32 +62,10 @@ public class LightNovelReaderParser extends Parser {
             String title = document.select(".novel-title").first().text();
 
             // Get novel description
-            String description = document.select(".empty-box")
-                    .get(1)
-                    .html()
-                    .replaceAll("<!--(.*?)-->", "")
-                    .replaceAll("\\\\n", "\n")
-                    .replaceAll("<div(.*?)>", "")
-                    .replaceAll("</div>", "")
-                    .replaceAll("<a(.*?)>", "")
-                    .replaceAll("</a>", "")
-                    .replaceAll("<p> </p>", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("\" ", "")
-                    .replaceAll(" \"", "")
-                    .replaceAll("' ", "")
-                    .replaceAll(" '", "")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("</p>", "\n")
-                    .replaceAll("<br>", "\n")
-                    .replaceAll("</br>", "\n")
-                    .replaceAll("<hr>", "")
-                    .trim();
+            String description = document.select(".empty-box").get(1).html();
 
             // Cleaning Description
-            description = cleanHTMLEntities(description);
+            description = cleanDescription(description);
 
             // Get status
 
@@ -251,11 +229,16 @@ public class LightNovelReaderParser extends Parser {
                 .replaceAll("<span(.*)</span>", "")
                 .replaceAll("<br>", "\n")
                 .replaceAll("<p>", "\n")
+                .replaceAll("<em>", "\n")
+                .replaceAll("</em>", "\n")
+                .replaceAll("<p(.*?)>", "\n")
                 .replaceAll("<strong>", "")
                 .replaceAll("</strong>", "")
                 .replaceAll("</p>", "\n")
                 .replaceAll("<div(.*?)>", "\n")
                 .replaceAll("</div>", "\n")
+                .replaceAll("<a(.*?)>", "\n")
+                .replaceAll("</a>", "\n")
                 .replaceAll("\\n\\s+(.*?)", "\n\n")
                 .trim();
     }

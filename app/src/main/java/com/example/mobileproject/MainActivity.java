@@ -63,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        libraryFragment = new LibraryFragment();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
+                libraryFragment).commit();
     }
 
     private final BottomNavigationView.OnItemSelectedListener navListener =
@@ -117,9 +122,12 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        System.out.println("returned");
 
         if(requestCode == PICK_EPUB_FILE && resultCode == RESULT_OK){
+            System.out.println("Entrou no 1");
             if(data == null){
+                System.out.println("Saiu no 1");
                 return;
             }
 
@@ -130,8 +138,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        System.out.println(libraryFragment == null);
+
         if(libraryFragment != null && resultCode == RESULT_OK){
+            System.out.println("Entrou no 2");
             if (data != null){
+                System.out.println("2 not null");
                 boolean canUpdate = data.getBooleanExtra("atLeastOneChapterReadied", false);
                 if (canUpdate){
                     libraryFragment.UpdateNovels();

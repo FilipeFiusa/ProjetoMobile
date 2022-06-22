@@ -14,6 +14,7 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.example.mobileproject.util.HtmlCleaner;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -49,21 +50,8 @@ public class NovelFullParser extends Parser {
             String title = document.select(".title").first().text();
 
             // Get novel description
-            String description = document.select(".desc-text")
-                    .first()
-                    .html()
-                    .replaceAll("\\\\n", "\n")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("\" ", "")
-                    .replaceAll(" \"", "")
-                    .replaceAll("\' ", "")
-                    .replaceAll(" \'", "")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("<br>", "\n")
-                    .replaceAll("</br>", "\n")
-                    .replaceAll("</p>", "\n")
-                    .trim();
-            description = cleanHTMLEntities(description);
+            String description = document.select(".desc-text").first().html();
+            description = cleanDescription(description);
 
             // Get status
             String status = document.select(".info div").get(4).text();
@@ -250,69 +238,12 @@ public class NovelFullParser extends Parser {
 
             String title = document.select(".chapter-text").first().text();
 
-            document.select("script").remove();
-            document.select("ins").remove();
-            document.select("h1").remove();
-            document.select("h2").remove();
-            document.select("h3").remove();
-            document.select("h4").remove();
-            document.select("h5").remove();
-            document.select(".google-auto-placed").remove();
-            document.select(".ap_container").remove();
-            document.select(".ads").remove();
-            document.select(".ads-holder").remove();
-            document.select(".ads-middle").remove();
-            document.select("[align]").remove();
-            removeComments(document);
+            String chapterContent = document.select("#chapter-content").first().html();
 
-            String chapterContent = document.select("#chapter-content")
-                    .first()
-                    .html()
-                    .replaceAll("  ", "")
-                    .replaceAll("\r", "\n")
-                    .replaceAll("\n", "\n")
-                    .replaceAll("\n\n", "\n")
-                    .replaceAll("\n\n\n", "\n")
-                    .replaceAll("<p></p>\n", "")
-                    .replaceAll("<p></p>\r", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<p>", "")
-                    .replaceAll("</p>\n", "\n\n")
-                    .replaceAll("</p>\r", "\n\n")
-                    .replaceAll("</p>", "\n\n")
-                    .replaceAll("<em>", "")
-                    .replaceAll("</em>", "")
-                    .replaceAll("&nbsp;", " ")
-                    .replaceAll("&ZeroWidthSpace;", " ")
-                    .replaceAll("&zeroWidthSpace;", " ")
-                    .replaceAll("<br>", "")
-                    .replaceAll("<hr>", "")
-                    .replaceAll("<i>", "")
-                    .replaceAll("</i>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("</br>", "")
-                    .replaceAll("<div></div>\n", "")
-                    .replaceAll("<div></div>\r", "")
-                    .replaceAll("<div></div>", "")
-                    .replaceAll("<div>\r", "")
-                    .replaceAll("<div>\n", "")
-                    .replaceAll("<div>", "")
-                    .replaceAll("</div>\r", "")
-                    .replaceAll("</div>\n", "")
-                    .replaceAll("</div>", "")
-                    .replaceAll("<span>", "")
-                    .replaceAll("</span>", "")
-                    .replaceAll("\n  ", "\n")
-                    .replaceAll("\n ", "\n")
-                    .replaceAll("\\n\\s+(.*?)", "\n\n")
-                    .trim();
+            chapterContent = cleanChapter(chapterContent);
 
-            chapterContent = cleanHTMLEntities(chapterContent);
+            return new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
 
-            ChapterContent content = new ChapterContent(chapterContent, title, chapterUrl, rawChapter);
-
-            return content;
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -329,21 +260,5 @@ public class NovelFullParser extends Parser {
         return searchValue.replaceAll(" ", "+");
     }
 
-    private Bitmap getNovelImage(Document document) {
-        Bitmap bitmap;
-
-        try {
-            Element img = document.select(".book img").first();
-            java.lang.String imgSrc = img.absUrl("src");
-            InputStream input = new java.net.URL(imgSrc).openStream();
-            bitmap = BitmapFactory.decodeStream(input);
-
-            return bitmap;
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 
 }

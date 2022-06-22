@@ -57,32 +57,10 @@ public class WoopreadParser extends Parser {
             String title = document.select(".post-title h1").first().text();
 
             // Get novel description
-            String description = document.select(".summary__content")
-                    .first()
-                    .html()
-                    .replaceAll("<!--(.*?)-->", "")
-                    .replaceAll("\\\\n", "\n")
-                    .replaceAll("<div(.*?)>", "")
-                    .replaceAll("</div>", "")
-                    .replaceAll("<a(.*?)>", "")
-                    .replaceAll("</a>", "")
-                    .replaceAll("<p> </p>", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("\" ", "")
-                    .replaceAll(" \"", "")
-                    .replaceAll("\' ", "")
-                    .replaceAll(" \'", "")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("</p>", "\n")
-                    .replaceAll("<br>", "\n")
-                    .replaceAll("</br>", "\n")
-                    .replaceAll("<hr>", "")
-                    .trim();
+            String description = document.select(".summary__content").first().html();
 
             // Cleaning Description
-            description = cleanHTMLEntities(description);
+            description = cleanDescription(description);
 
             // Get status
 
@@ -294,72 +272,7 @@ public class WoopreadParser extends Parser {
     @Override
     protected String cleanChapter(String content){
         return cleanHTMLEntities(content)
-                .replaceAll("  ", "")
-                .replaceAll("<p>&nbsp;</p>", "")
-                .replaceAll("<p> </p>", "")
-                .replaceAll("<p></p>\n", "")
-                .replaceAll("<p></p>\r", "")
-                .replaceAll("<p></p>", "")
-                .replaceAll("<p>", "")
-                .replaceAll("</p>\n", "\n\n")
-                .replaceAll("</p>\r", "\n\n")
-                .replaceAll("</p>", "\n\n")
-                .replaceAll("<em>", "")
-                .replaceAll("</em>", "")
-                .replaceAll("&ZeroWidthSpace;", " ")
-                .replaceAll("&zeroWidthSpace;", " ")
-                .replaceAll("<br>", "")
-                .replaceAll("<i>", "")
-                .replaceAll("</i>", "")
-                .replaceAll("<strong>", "")
-                .replaceAll("</strong>", "")
-                .replaceAll("</br>", "")
-                .replaceAll("<div></div>\n", "")
-                .replaceAll("<div></div>\r", "")
-                .replaceAll("<div></div>", "")
-                .replaceAll("<div>\r", "")
-                .replaceAll("<div>\n", "")
-                .replaceAll("<div>", "")
-                .replaceAll("</div>\r", "")
-                .replaceAll("</div>\n", "")
-                .replaceAll("</div>", "")
-                .replaceAll("<span>", "")
-                .replaceAll("<span(.*?)>", "")
-                .replaceAll("</span>", "")
-                .replaceAll("<div(.*?)></div>", "")
-                .replaceAll("<div(.*?)>", "")
-                .replaceAll("</div>", "")
-                .replaceAll("<!--(.*?)-->", "")
-                .replaceAll("<style(.*?)>(.*?)</style>", "")
-                .replaceAll("<style (.*?)>(.*?)</style>", "")
-                .replaceAll("<h1>", "")
-                .replaceAll("</h1>", "\n")
-                .replaceAll("<h2>", "")
-                .replaceAll("</h2>", "\n")
-                .replaceAll("<h3>", "")
-                .replaceAll("</h3>", "\n")
-                .replaceAll("<h4>", "")
-                .replaceAll("</h4>", "\n")
-                .replaceAll("<h5>", "")
-                .replaceAll("</h5>", "\n")
-                .replaceAll("<h6>", "")
-                .replaceAll("</h6>", "\n")
-                .replaceAll("<b(.*?)>", "")
-                .replaceAll("</b>", "")
-                .replaceAll("<img(.*?)>", "")
-                .replaceAll("</img>", "")
-                .replaceAll("<a(.*?)>", "")
-                .replaceAll("</a>", "")
-                .replaceAll("<p(.*?)>", "")
-                .replaceAll("</p>", "")
-                .replaceAll("\r", "\n")
-                .replaceAll("   \n", "\n")
-                .replaceAll("  \n", "\n")
-                .replaceAll(" \n", "\n")
-                .replaceAll("\n\n", "\n")
-                .replaceAll("\n\n\n", "\n")
-                .replaceAll("\n\n\n", "\n\n")
-                .trim();
+                .replaceAll("<!--(.*?)-->", "");
     }
 
     private String removeSpaces(String searchValue) {

@@ -35,11 +35,11 @@ public class NovelListDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        final NovelDetails oldEmployee = mOldNovelDetailsList.get(oldItemPosition);
-        final NovelDetails newEmployee = mNewNovelDetailsList.get(newItemPosition);
+        final NovelDetails oldNovelDetails = mOldNovelDetailsList.get(oldItemPosition);
+        final NovelDetails newNovelDetails = mNewNovelDetailsList.get(newItemPosition);
 
-        return oldEmployee.getChapterToReadQuantity() == newEmployee.getChapterToReadQuantity()
-                && oldEmployee.getNovelName().equals(newEmployee.getNovelName());
+        return oldNovelDetails.getChapterToReadQuantity() == newNovelDetails.getChapterToReadQuantity()
+                && oldNovelDetails.getNovelName().equals(newNovelDetails.getNovelName());
     }
 
     @Nullable

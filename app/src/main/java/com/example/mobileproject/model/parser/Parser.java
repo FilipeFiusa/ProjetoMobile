@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.Languages;
 import com.example.mobileproject.ui.navigate.SourceItemAdapter;
+import com.example.mobileproject.util.HtmlCleaner;
 
 import org.intellij.lang.annotations.Language;
 import org.jsoup.nodes.Document;
@@ -92,8 +93,12 @@ public abstract class Parser implements ParserInterface {
         document.select("iframe").remove();
     }
 
+    protected String cleanDescription(String content){
+        return HtmlCleaner.CleanText(cleanHTMLEntities(content));
+    }
+
     protected String cleanChapter(String content){
-        return cleanHTMLEntities(content);
+        return HtmlCleaner.CleanText(cleanHTMLEntities(content).replaceAll("\r", "\n"));
     }
 
     protected String cleanHTMLEntities(String Content){

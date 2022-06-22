@@ -61,32 +61,10 @@ public class ReaperScansParser extends Parser {
             String title = document.select(".post-title h1").first().text();
 
             // Get novel description
-            String description = document.select(".summary__content")
-                    .first()
-                    .html()
-                    .replaceAll("<!--(.*?)-->", "")
-                    .replaceAll("\\\\n", "\n")
-                    .replaceAll("<div(.*?)>", "")
-                    .replaceAll("</div>", "")
-                    .replaceAll("<a(.*?)>", "")
-                    .replaceAll("</a>", "")
-                    .replaceAll("<p> </p>", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("\" ", "")
-                    .replaceAll(" \"", "")
-                    .replaceAll("' ", "")
-                    .replaceAll(" '", "")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("</p>", "\n")
-                    .replaceAll("<br>", "\n")
-                    .replaceAll("</br>", "\n")
-                    .replaceAll("<hr>", "")
-                    .trim();
+            String description = document.select(".summary__content").first().html();
 
             // Cleaning Description
-            description = cleanHTMLEntities(description);
+            description = cleanDescription(description);
 
             // Get status
 
@@ -245,27 +223,6 @@ public class ReaperScansParser extends Parser {
     @Override
     public ParserInterface getParserInstance() {
         return new ReaperScansParser(ctx);
-    }
-
-    @Override
-    protected String cleanChapter(String content) {
-        return super.cleanChapter(content)
-                .replaceAll("<br>", "\n")
-                .replaceAll("<strong>", "")
-                .replaceAll("</strong>", "")
-                .replaceAll("<em>", "")
-                .replaceAll("</em>", "")
-                .replaceAll("<p>", "\n")
-                .replaceAll("</p>", "\n")
-                .replaceAll("<p(.*?)>", "\n")
-                .replaceAll("<div(.*?)>", "\n")
-                .replaceAll("</div>", "\n")
-                .replaceAll("<b(.*?)>", "")
-                .replaceAll("</b>", "")
-                .replaceAll("<span(.*?)>", "")
-                .replaceAll("</span>", "")
-                .replaceAll("\\n\\s+(.*?)", "\n\n")
-                .trim();
     }
 
     private String readAll(Reader rd) throws IOException {

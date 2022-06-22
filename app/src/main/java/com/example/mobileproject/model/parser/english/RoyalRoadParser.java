@@ -14,6 +14,7 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
+import com.example.mobileproject.util.HtmlCleaner;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,23 +51,8 @@ public class RoyalRoadParser extends Parser {
             String title = document.select("h1").first().text();
 
             // Get novel description
-            String description = document.select("[property='description']")
-                    .first()
-                    .html()
-                    .replaceAll("\\\\n", "\n")
-                    .replaceAll("<p> </p>", "")
-                    .replaceAll("<p></p>", "")
-                    .replaceAll("<strong>", "")
-                    .replaceAll("</strong>", "")
-                    .replaceAll("\" ", "")
-                    .replaceAll(" \"", "")
-                    .replaceAll("\' ", "")
-                    .replaceAll(" \'", "")
-                    .replaceAll("<p>", "\n")
-                    .replaceAll("</p>", "\n")
-                    .replaceAll("<br>", "\n")
-                    .replaceAll("</br>", "\n")
-                    .trim();
+            String description = document.select("[property='description']").first().html();
+            description = cleanDescription(description);
 
             // Cleaning Description
             description = cleanHTMLEntities(description);
@@ -237,50 +223,6 @@ public class RoyalRoadParser extends Parser {
     @Override
     public ParserInterface getParserInstance() {
         return new RoyalRoadParser(ctx);
-    }
-
-    @Override
-    protected String cleanChapter(String content){
-        return super.cleanChapter(content)
-                .replaceAll("  ", "")
-                .replaceAll("\r", "\n")
-                .replaceAll("\n", "\n")
-                .replaceAll("\n\n", "\n")
-                .replaceAll("\n\n\n", "\n")
-                .replaceAll("<p>&nbsp;</p>", "")
-                .replaceAll("<p> </p>", "")
-                .replaceAll("<p></p>\n", "")
-                .replaceAll("<p></p>\r", "")
-                .replaceAll("<p></p>", "")
-                .replaceAll("<p>", "")
-                .replaceAll("</p>\n", "\n")
-                .replaceAll("</p>\r", "\n")
-                .replaceAll("</p>", "\n")
-                .replaceAll("<em>", "")
-                .replaceAll("</em>", "")
-                .replaceAll("&ZeroWidthSpace;", " ")
-                .replaceAll("&zeroWidthSpace;", " ")
-                .replaceAll("<br>", "")
-                .replaceAll("<i>", "")
-                .replaceAll("</i>", "")
-                .replaceAll("<strong>", "")
-                .replaceAll("</strong>", "")
-                .replaceAll("</br>", "")
-                .replaceAll("<div></div>\n", "")
-                .replaceAll("<div></div>\r", "")
-                .replaceAll("<div></div>", "")
-                .replaceAll("<div>\r", "")
-                .replaceAll("<div>\n", "")
-                .replaceAll("<div>", "")
-                .replaceAll("</div>\r", "")
-                .replaceAll("</div>\n", "")
-                .replaceAll("</div>", "")
-                .replaceAll("<span>", "")
-                .replaceAll("<span(.*?)>", "")
-                .replaceAll("</span>", "")
-                .replaceAll("\n\n\n", "\n\n")
-                .trim()
-                ;
     }
 
     private String removeSpaces(String searchValue) {

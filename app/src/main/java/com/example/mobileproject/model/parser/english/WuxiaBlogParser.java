@@ -268,6 +268,9 @@ public class WuxiaBlogParser extends Parser {
                     .replaceAll("<p></p>\r", "")
                     .replaceAll("<p></p>", "")
                     .replaceAll("<p>", "")
+                    .replaceAll("<em>", "\n")
+                    .replaceAll("</em>", "\n")
+                    .replaceAll("<p(.*?)>", "\n")
                     .replaceAll("</p>\n", "\n\n")
                     .replaceAll("</p>\r", "\n\n")
                     .replaceAll("</p>", "\n\n")
@@ -297,6 +300,7 @@ public class WuxiaBlogParser extends Parser {
                     .replaceAll("\n", "\n")
                     .replaceAll("\n\n", "\n")
                     .replaceAll("\n\n\n", "\n")
+                    .replaceAll("\\n\\s+(.*?)", "\n\n")
                     .trim();
 
             chapterContent = cleanHTMLEntities(chapterContent);
