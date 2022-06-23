@@ -1,10 +1,18 @@
 package com.example.mobileproject.db;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
+
+import com.example.mobileproject.model.ChapterStatus;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateDB extends SQLiteOpenHelper {
     private static final String db_name = "reader_db";
@@ -24,7 +32,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 8);
+        super(context, db_name, null, 9);
     }
 
     @Override
@@ -60,7 +68,8 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "raw_chapter" + " text,"
                 + "chapter_content" + " text,"
                 + "readed" + " text,"
-                + "downloaded" + " text,"
+                //+ "downloaded" + " text,"
+                + "status" + " integer DEFAULT 1,"
                 + "FOREIGN KEY(novel_name) REFERENCES Novels(novel_name),"
                 + "FOREIGN KEY(novel_source) REFERENCES Novels(novel_source)"
                 +")";
@@ -105,17 +114,119 @@ public class CreateDB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion <= 4 && newVersion > oldVersion){
-            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN finished_loading INTEGER DEFAULT 1");
+        if(oldVersion <= 9 && newVersion > oldVersion){
+            System.out.println("Salvando dados");
+            //db.execSQL("ALTER TABLE " + Table2 + " ADD COLUMN status INTEGER DEFAULT 1");
 
-            db.execSQL("DELETE FROM " + Table4);
-            db.execSQL("DELETE FROM " + Table5);
+            ArrayList<tempChap> chapters = new ArrayList<>();
+            String query = "SELECT id, downloaded FROM Chapters";
+            Cursor result = db.rawQuery(query, new String[]{});
+
+            if(result.getCount() > 0){
+                result.moveToFirst();
+
+                do {
+                    int id = result.getInt(result.getColumnIndexOrThrow("id"));
+
+                    String status = result.getString(result.getColumnIndexOrThrow("downloaded"));
+
+                    if (status.equals("no")){
+                        chapters.add(new tempChap(id, ChapterStatus.EMPTY));
+                    }else if (status.equals("downloading")){
+                        chapters.add(new tempChap(id, ChapterStatus.DOWNLOADING));
+                    }else if (status.equals("yes")){
+                        chapters.add(new tempChap(id, ChapterStatus.DOWNLOADED));
+                    }else {
+                        chapters.add(new tempChap(id, ChapterStatus.ERROR));
+                    }
+                }while (result.moveToNext());
+            }
+
+            System.out.println("Dados salvos. Quantidade: " + chapters.size());
+            System.out.println("Iniciando Transaction");
+
+            String temporaryTable = "CREATE TEMPORARY TABLE chapters_backup ("
+                    + "id integer primary key autoincrement,"
+                    + "source_id integer,"
+                    + "novel_name text,"
+                    + "novel_source text,"
+                    + "chapter_name" + " text,"
+                    + "chapter_link" + " text,"
+                    + "raw_chapter" + " text,"
+                    + "chapter_content" + " text,"
+                    + "readed" + " text,"
+                    //+ "downloaded" + " text,"
+                    //+ "status" + " integer,"
+                    + "FOREIGN KEY(novel_name) REFERENCES Novels(novel_name),"
+                    + "FOREIGN KEY(novel_source) REFERENCES Novels(novel_source)"
+                    +")";
+
+            String createTableAgain = "CREATE TABLE "+ Table2 + " ("
+                    + "id integer primary key autoincrement,"
+                    + "source_id integer,"
+                    + "novel_name text,"
+                    + "novel_source text,"
+                    + "chapter_name" + " text,"
+                    + "chapter_link" + " text,"
+                    + "raw_chapter" + " text,"
+                    + "chapter_content" + " text,"
+                    + "readed" + " text,"
+                    //+ "downloaded" + " text,"
+                    + "status" + " integer DEFAULT 1,"
+                    + "FOREIGN KEY(novel_name) REFERENCES Novels(novel_name),"
+                    + "FOREIGN KEY(novel_source) REFERENCES Novels(novel_source)"
+                    +")";
+
+            db.execSQL("BEGIN TRANSACTION");
+            db.execSQL(temporaryTable);
+            db.execSQL("INSERT INTO chapters_backup " +
+                    "SELECT id, source_id, novel_name, novel_source, chapter_name, chapter_link, raw_chapter, chapter_content, readed " +
+                    "FROM Chapters");
+            db.execSQL("DROP TABLE Chapters");
+            db.execSQL(createTableAgain);
+            db.execSQL("INSERT INTO Chapters " +
+                    "SELECT id, source_id, novel_name, novel_source, chapter_name, chapter_link, raw_chapter, chapter_content, readed, 1 " +
+                    "FROM chapters_backup");
+            db.execSQL("DROP TABLE chapters_backup");
+            db.execSQL("COMMIT");
+
+            System.out.println("Transaction finalizada");
+
+            for (tempChap c : chapters){
+                ContentValues values = new ContentValues();
+
+                values.put("status", c.getStatus().getNumVal());
+                db.update(Table2, values, "id=? ", new String[]{String.valueOf(c.getId())});
+            }
+
+            System.out.println("Upgrade finalizado");
         }
-        if(oldVersion <= 6 && newVersion > oldVersion){
-            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN last_page_searched INTEGER DEFAULT 1");
+    }
+
+    private static class tempChap{
+        private int id;
+        private ChapterStatus status;
+
+        public tempChap(int id, ChapterStatus status) {
+            this.id = id;
+
+            this.status = status;
         }
-        if(oldVersion <= 8 && newVersion > oldVersion){
-            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN novel_type INTEGER DEFAULT 1");
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public ChapterStatus getStatus() {
+            return status;
+        }
+
+        public void setStatus(ChapterStatus status) {
+            this.status = status;
         }
     }
 }

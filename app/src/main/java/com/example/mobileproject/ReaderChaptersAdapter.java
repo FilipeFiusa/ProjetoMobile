@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobileproject.model.Chapter;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.ChapterStatus;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelReaderController;
@@ -134,12 +135,16 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyItemRangeChanged(0, mList.size());
     }
 
-    public void ChapterDownloaded(int id){
+    public void ChapterDownloaded(int id, boolean hadError){
         for (int i = 1; i < mList.size(); i++) {
             ChapterIndex c = mList.get(i).getChapterIndex();
 
             if(id == c.getId()){
-                c.setDownloaded("yes");
+                if(hadError){
+                    c.setStatus(ChapterStatus.ERROR);
+                }else {
+                    c.setStatus(ChapterStatus.DOWNLOADED);
+                }
                 notifyItemChanged(i);
             }
         }
@@ -167,7 +172,7 @@ public class ReaderChaptersAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mHolder.mTextView.setTextColor(Color.YELLOW);
         }
 
-        if (item.getChapterIndex().getDownloaded().equals("yes")){
+        if (item.getChapterIndex().getStatus() == ChapterStatus.DOWNLOADED){
             mHolder.mImageView.setVisibility(View.VISIBLE);
         }else{
             mHolder.mImageView.setVisibility(View.GONE);

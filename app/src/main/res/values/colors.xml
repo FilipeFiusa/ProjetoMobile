@@ -15,4 +15,6 @@
     <color name="color_ripple">#FFFFFF</color>
     <color name="transparent">#00FFFFFF</color>
 
+    <color name="diferent_red">#FF3434</color>
+
 </resources>

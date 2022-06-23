@@ -35,13 +35,14 @@ public class DownloadReceiver extends ResultReceiver {
         super.onReceiveResult(resultCode, resultData);
 
         int chapter_id = resultData.getInt("chapter_id");
+        boolean hadError = resultData.getBoolean("error");
 
         if(mAdapter != null){
-            mAdapter.ChapterDownloaded(chapter_id);
+            mAdapter.ChapterDownloaded(chapter_id, hadError);
         }
 
         if(mReaderAdapter != null) {
-            mReaderAdapter.ChapterDownloaded(chapter_id);
+            mReaderAdapter.ChapterDownloaded(chapter_id, hadError);
         }
 
     }

@@ -34,6 +34,7 @@ import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterAdapterReference;
 import com.example.mobileproject.model.ChapterInDownload;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.ChapterStatus;
 import com.example.mobileproject.model.DownloadReceiver;
 import com.example.mobileproject.model.DownloaderService;
 import com.example.mobileproject.model.NovelDetails;
@@ -237,10 +238,10 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void resetSelectedList(){
         for(ChapterIndex c : selectedChapters){
             c.selected = false;
+            notifyItemChanged(c.position);
         }
 
         selectedChapters = new ArrayList<>();
-        notifyItemRangeChanged(1, mChapterList.size());
     }
 
     public void readSelectedItems(){
@@ -324,9 +325,27 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         for (int i = 1; i < mChapterList.size(); i++) {
             ChapterIndex c = mChapterList.get(i).getChapterIndex();
 
-            if(selectedChapters.contains(c) && c.getDownloaded().equals("no")){
+            if(selectedChapters.contains(c) && c.getStatus() == ChapterStatus.EMPTY){
                 c.selected = false;
-                c.setDownloaded("downloading");
+                c.setStatus(ChapterStatus.DOWNLOADING);
+                notifyItemChanged(i);
+            }
+        }
+
+        selectedChapters = new ArrayList<>();
+        ctx.update();
+    }
+
+    public void deleteSelectedChapters(){
+        for (int i = 1; i < mChapterList.size(); i++) {
+            ChapterIndex c = mChapterList.get(i).getChapterIndex();
+
+            if(selectedChapters.contains(c) &&
+                    (c.getStatus() == ChapterStatus.DOWNLOADED
+                            || c.getStatus() == ChapterStatus.DOWNLOADING)
+                            || c.getStatus() == ChapterStatus.ERROR){
+                c.selected = false;
+                c.setStatus(ChapterStatus.EMPTY);
                 notifyItemChanged(i);
             }
         }
@@ -358,11 +377,12 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 if(chapter_id.equals(idReadied)) {
                     c.setReaded("yes");
+
+                    notifyItemChanged(i);
                     break;
                 }
             }
         }
-        notifyDataSetChanged();
     }
 
     public void putChapterAsDownloaded(ArrayList<Integer> chaptersDownloaded){
@@ -374,12 +394,13 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 String idReadied = String.valueOf(id);
 
                 if(chapter_id.equals(idReadied)) {
-                    c.setDownloaded("yes");
+                    c.setStatus(ChapterStatus.DOWNLOADED);
+
+                    notifyItemChanged(i);
                     break;
                 }
             }
         }
-        notifyDataSetChanged();
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -421,7 +442,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
             chapterViewHolder.mTextView1.setText(currentItem.getChapterName());
-            if(currentItem.getReaded().equals("yes")){
+            if(currentItem.getReaded().equals("yes") && !currentItem.selected){
                 chapterViewHolder.mTextView1.setTextColor(Color.GRAY);
             }else {
                 chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
@@ -429,12 +450,15 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             if(currentItem.selected){
                 chapterViewHolder.mButton.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
             }else{
                 chapterViewHolder.mButton.setBackground(ContextCompat.getDrawable(ctx, R.drawable.ripple_effect));
             }
 
-            if(currentItem.getDownloaded().equals("no")){
+            if(currentItem.getStatus() == ChapterStatus.EMPTY){
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_outline_arrow_circle_down_40);
+                chapterViewHolder.mImageButton.setColorFilter(ContextCompat.getColor(ctx, R.color.white), android.graphics.PorterDuff.Mode.SRC_IN);
+
                 chapterViewHolder.mImageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -443,17 +467,33 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             return;
                         }
 
-                        currentItem.setDownloaded("downloading");
+                        currentItem.setStatus(ChapterStatus.DOWNLOADING);
+
                         notifyItemChanged(chapterViewHolder.getAdapterPosition());
                         PutChapterOnDownloadList p = new PutChapterOnDownloadList(chapterViewHolder.mImageButton);
                         p.execute(currentItem.getId());
                     }
                 });
-
-            }else if(currentItem.getDownloaded().equals("downloading")){
+            }else if(currentItem.getStatus() == ChapterStatus.DOWNLOADING){
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_outline_cancel_40);
-            }else{
+                chapterViewHolder.mImageButton.setColorFilter(ContextCompat.getColor(ctx, R.color.white), android.graphics.PorterDuff.Mode.SRC_IN);
+            }else if(currentItem.getStatus() == ChapterStatus.DOWNLOADED){
                 chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_round_check_circle_40);
+                chapterViewHolder.mImageButton.setColorFilter(ContextCompat.getColor(ctx, R.color.white), android.graphics.PorterDuff.Mode.SRC_IN);
+            }else if(currentItem.getStatus() == ChapterStatus.ERROR){
+                chapterViewHolder.mImageButton.setImageResource(R.drawable.ic_baseline_error_24);
+                chapterViewHolder.mImageButton.setColorFilter(ContextCompat.getColor(ctx, R.color.diferent_red), android.graphics.PorterDuff.Mode.SRC_IN);
+
+                chapterViewHolder.mImageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        currentItem.setStatus(ChapterStatus.DOWNLOADING);
+
+                        notifyItemChanged(chapterViewHolder.getAdapterPosition());
+                        PutChapterOnDownloadList p = new PutChapterOnDownloadList(chapterViewHolder.mImageButton);
+                        p.execute(currentItem.getId());
+                    }
+                });
             }
 
 
@@ -467,6 +507,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(selectedChapters.size() == 0){
                         currentItem.selected = true;
                         v.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                        chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
+
                         selectedChapters.add(currentItem);
 
                         ctx.openSelectMenu(selectedChapters);
@@ -552,6 +594,8 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(!selectedChapters.isEmpty() && !currentItem.selected){
                         currentItem.selected = true;
                         chapterViewHolder.mButton.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                        chapterViewHolder.mTextView1.setTextColor(Color.WHITE);
+
                         if(selectedChapters.contains(currentItem)){
                             return;
                         }
@@ -738,19 +782,20 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public void ChapterDownloaded(int id){
+    public void ChapterDownloaded(int id, boolean hadError){
         if(!exist){
             return;
         }
-
-        Log.d("------ ", "ChapterDownloaded - Id: " + id);
 
         for (int i = 1; i < mChapterList.size(); i++) {
             ChapterIndex c = mChapterList.get(i).getChapterIndex();
 
             if(id == c.getId()){
-                c.setDownloaded("yes");
-                Log.d("------ ", "ID achado na lista");
+                if (hadError){
+                    c.setStatus(ChapterStatus.ERROR);
+                }else {
+                    c.setStatus(ChapterStatus.DOWNLOADED);
+                }
                 notifyItemChanged(i);
             }
         }

@@ -1,6 +1,5 @@
 package com.example.mobileproject;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -33,8 +31,6 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.example.mobileproject.services.CheckUpdateService;
-import com.example.mobileproject.services.receivers.CheckUpdatesNDReceiver;
 import com.example.mobileproject.util.ServiceHelper;
 
 import java.util.ArrayList;
@@ -277,11 +273,24 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton deleteChapterContentSelected = (ImageButton) findViewById(R.id.delete_chapter_content);
+        deleteChapterContentSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.deleteSelectedChapters();
+                hideSelectMenu();
+
+                DeleteMultipleChapterContentsTask task = new DeleteMultipleChapterContentsTask();
+                task.execute();
+            }
+        });
+
         update();
     }
 
     public void update(){
         ImageButton readSelected = (ImageButton) findViewById(R.id.read_selected);
+
         if(checkIfThereIsAnNoReadiedChapter()){
             readSelected.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_done_20));
             CanUnRead = false;
@@ -290,7 +299,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             CanUnRead = true;
         }
 
-        TextView selectedQuantity = (TextView) findViewById(R.id.selected_quantity);
+        TextView selectedQuantity = (TextView) findViewById(R.id.selected_quantity_n);
         selectedQuantity.setText(String.valueOf(selectedChaptersReference.size()));
 
         if(selectedChaptersReference.isEmpty()){
@@ -672,6 +681,24 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
         }
     }
+
+    private class DeleteMultipleChapterContentsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DBController db = new DBController(ctx);
+
+            db.DeleteMultipleChaptersContent(new ArrayList<>(selectedChaptersReference));
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void voids) {
+            super.onPostExecute(voids);
+        }
+    }
+
 
     private class deleteNovelTask extends AsyncTask<Void, Void, Void> {
 

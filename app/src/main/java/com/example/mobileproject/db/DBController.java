@@ -12,6 +12,7 @@ import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterInDownload;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.ChapterStatus;
 import com.example.mobileproject.model.DownloaderClass;
 import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.NovelDetails;
@@ -142,7 +143,7 @@ public class DBController {
                 values.put("chapter_content", currentChapter.getChapterContent());
                 values.put("raw_chapter", currentChapter.getRawChapterContent());
                 values.put("readed", "no");
-                values.put("downloaded", "yes");
+                values.put("status", "yes");
 
                 result = db.insert("Chapters", null, values);
 
@@ -236,7 +237,7 @@ public class DBController {
         values.put("chapter_content", "");
         values.put("raw_chapter", "");
         values.put("readed", "no");
-        values.put("downloaded", "no");
+        values.put("status", ChapterStatus.EMPTY.getNumVal());
 
         result = db.insert("Chapters", null, values);
         db.close();
@@ -567,14 +568,13 @@ public class DBController {
         return novel;
     }
 
-
     public synchronized ArrayList<ChapterIndex> getChaptersFromANovel(String novelName, String novelSource){
         Cursor result;
         ArrayList<ChapterIndex> chapterIndexes = new ArrayList<>();
 
         db = database.getReadableDatabase();
 
-        String query = "SELECT id, chapter_link, chapter_name, downloaded, readed, source_id FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
+        String query = "SELECT id, chapter_link, chapter_name, status, readed, source_id FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
 
         if(result.getCount() > 0){
@@ -587,7 +587,9 @@ public class DBController {
                 c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
                 c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
 
-                c.setDownloaded(result.getString(result.getColumnIndexOrThrow("downloaded")));
+                ChapterStatus status = ChapterStatus.EMPTY;
+                c.setStatus(status.setValue(result.getInt(result.getColumnIndexOrThrow("status"))));
+
                 c.setReaded(result.getString(result.getColumnIndexOrThrow("readed")));
 
                 c.setSourceId(result.getInt(result.getColumnIndexOrThrow("source_id")));
@@ -611,9 +613,9 @@ public class DBController {
                 "Chapters.id, Chapters.chapter_name,Chapters.novel_name, Novels.novel_image " +
                 "FROM Chapters " +
                 "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
-                "WHERE Chapters.downloaded=?";
+                "WHERE Chapters.status=?";
 
-        result = db.rawQuery(query, new String[]{"downloading"});
+        result = db.rawQuery(query, new String[]{String.valueOf(ChapterStatus.DOWNLOADING.getNumVal())});
 
         if(result.getCount() > 0){
             result.moveToFirst();
@@ -646,7 +648,7 @@ public class DBController {
 
         db = database.getReadableDatabase();
 
-        values.put("downloaded", "downloading");
+        values.put("status", "downloading");
 
         result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
@@ -672,7 +674,7 @@ public class DBController {
 
         db = database.getReadableDatabase();
 
-        values.put("downloaded", "downloading");
+        values.put("status", ChapterStatus.DOWNLOADING.getNumVal());
         result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
         if(result ==  -1){
@@ -701,15 +703,16 @@ public class DBController {
 
         for(ChapterIndex c : chapters){
             db = database.getReadableDatabase();
-            String query = "SELECT downloaded FROM Chapters WHERE id=" + c.getId() + " ";
+            String query = "SELECT status FROM Chapters WHERE id=" + c.getId() + " ";
             Cursor result = db.rawQuery(query, new String[]{});
 
             if(result.getCount() > 0) {
                 result.moveToFirst();
 
-                String isDownloaded = result.getString(result.getColumnIndexOrThrow("downloaded"));
+                ChapterStatus status = ChapterStatus.EMPTY;
+                status = status.setValue(result.getInt(result.getColumnIndexOrThrow("status")));
 
-                if(isDownloaded.equals("no")){
+                if(status == ChapterStatus.EMPTY){
                    putChapterOnDownload(novelName, novelSource, c.getChapterLink());
 
                    haveAnChapterToDownload = true;
@@ -720,6 +723,21 @@ public class DBController {
         }
 
         return haveAnChapterToDownload;
+    }
+
+    public synchronized void DeleteMultipleChaptersContent(ArrayList<ChapterIndex> chapters){
+        db = database.getReadableDatabase();
+
+        for(ChapterIndex c : chapters){
+            ContentValues values = new ContentValues();
+
+            values.put("chapter_content", "");
+            values.put("status", "no");
+
+            db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.getId())});
+        }
+
+        db.close();
     }
 
     public synchronized boolean setChapterAsReaded(int id){
@@ -818,10 +836,10 @@ public class DBController {
                 "FROM Chapters " +
                 "INNER JOIN Novels on Novels.novel_name = Chapters.novel_name AND Novels.novel_source = Chapters.novel_source " +
                 "INNER JOIN DownloadQueue on DownloadQueue.chapter_id = Chapters.id " +
-                "WHERE Chapters.downloaded=?" +
+                "WHERE Chapters.status=?" +
                 "ORDER BY DownloadQueue.id ASC";
 
-        result = db.rawQuery(query, new String[]{"downloading"});
+        result = db.rawQuery(query, new String[]{String.valueOf(ChapterStatus.DOWNLOADING.getNumVal())});
 
         if(result.getCount() > 0){
             result.moveToFirst();
@@ -832,7 +850,7 @@ public class DBController {
                 c.setId(result.getInt(result.getColumnIndexOrThrow("id")));
                 c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
                 c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
-                c.setDownloaded("downloading");
+                c.setStatus(ChapterStatus.DOWNLOADING);
 
                 String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
                 String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
@@ -897,7 +915,31 @@ public class DBController {
         ContentValues values = new ContentValues();;
         values.put("chapter_content", chapterContent);
         values.put("raw_chapter", rawChapter);
-        values.put("downloaded", "yes");
+        values.put("status", ChapterStatus.DOWNLOADED.getNumVal());
+
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
+
+        if(result ==  -1){
+            return false;
+        }
+
+        result = db.delete("DownloadQueue", "chapter_id=?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        if(result ==  -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public synchronized boolean setChapterError(int id){
+        long result;
+        db = database.getReadableDatabase();
+
+        ContentValues values = new ContentValues();;
+        values.put("status", ChapterStatus.ERROR.getNumVal());
 
         result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 

@@ -182,6 +182,24 @@ public class DownloaderService extends Service {
 
         ChapterContent chapterContent = p.getChapterContent(chapterIndex.getChapterLink());
 
+        if (chapterContent == null){
+            boolean result = db.setChapterError(chapterIndex.getId());
+
+            Bundle resultData = new Bundle();
+            resultData.putInt("chapter_id" ,(int) chapterIndex.getId());
+            resultData.putBoolean("error" , true);
+
+            if(downloadReceiver != null){
+                downloadReceiver.send(0, resultData);
+            }
+
+            if(downloadReceiver2 != null){
+                downloadReceiver2.send(0, resultData);
+            }
+
+            return;
+        }
+
         boolean result = db.setChapterContent(chapterIndex.getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
 
         if(!result){
@@ -190,17 +208,14 @@ public class DownloaderService extends Service {
 
         Bundle resultData = new Bundle();
         resultData.putInt("chapter_id" ,(int) chapterIndex.getId());
+        resultData.putBoolean("error" , false);
 
         if(downloadReceiver != null){
             downloadReceiver.send(0, resultData);
         }
 
-        Bundle resultData2 = new Bundle();
-        resultData2.putInt("chapter_id" ,(int) chapterIndex.getId());
-
-
         if(downloadReceiver2 != null){
-            downloadReceiver2.send(0, resultData2);
+            downloadReceiver2.send(0, resultData);
         }
 
     }

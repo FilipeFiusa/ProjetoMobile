@@ -80,7 +80,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/selected_quantity"
+                    android:id="@+id/selected_quantity_n"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="1"
@@ -260,6 +260,7 @@
          -->
         <!--</androidx.recyclerview.widget.RecyclerView> -->
     </LinearLayout>
+
     <FrameLayout
         android:id="@+id/bottom_normal_menu"
         android:layout_width="wrap_content"
@@ -311,6 +312,17 @@
                 android:layout_width="0dp"
                 android:src="@drawable/download"
                 />
+
+            <ImageButton
+                android:id="@+id/delete_chapter_content"
+                android:padding="0dp"
+                android:background="@drawable/ripple_effect"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:src="@drawable/ic_baseline_delete_outline_30"
+                />
+
             <ImageButton
                 android:id="@+id/bookmark_selected"
                 android:padding="0dp"
@@ -320,6 +332,7 @@
                 android:layout_width="0dp"
                 android:src="@drawable/ic_baseline_bookmark_border_30"
                 />
+
             <ImageButton
                 android:id="@+id/read_selected"
                 android:padding="0dp"
@@ -329,6 +342,7 @@
                 android:layout_width="0dp"
                 android:src="@drawable/ic_baseline_done_20"
                 />
+
             <ImageButton
                 android:id="@+id/read_bellow_selected"
                 android:padding="0dp"

@@ -602,12 +602,12 @@ public class ReaderActivity extends AppCompatActivity {
         if(!chaptersDownloaded.contains(chapterId)){
             chaptersDownloaded.add(chapterId);
 
-            ChapterDownloaded(chapterId);
+            ChapterDownloaded(chapterId, false);
         }
     }
 
-    public void ChapterDownloaded(int chapterId){
-        mAdapter.ChapterDownloaded(chapterId);
+    public void ChapterDownloaded(int chapterId, boolean hadError){
+        mAdapter.ChapterDownloaded(chapterId, hadError);
     }
 
     @Override

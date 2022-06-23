@@ -37,7 +37,7 @@
         android:layout_gravity="center"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_outline_arrow_circle_down_40"
-        app:tint="@color/white" />
+         />
 
 
 </LinearLayout>

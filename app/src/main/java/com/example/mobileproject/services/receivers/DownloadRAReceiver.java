@@ -21,9 +21,10 @@ public class DownloadRAReceiver extends ResultReceiver {
         super.onReceiveResult(resultCode, resultData);
 
         int chapter_id = resultData.getInt("chapter_id");
+        boolean hadError = resultData.getBoolean("error");
 
         if(readerActivity != null){
-            readerActivity.ChapterDownloaded(chapter_id);
+            readerActivity.ChapterDownloaded(chapter_id, hadError);
         }
     }
 }

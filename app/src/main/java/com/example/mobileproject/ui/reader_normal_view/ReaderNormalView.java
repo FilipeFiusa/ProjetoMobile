@@ -22,6 +22,7 @@ import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.Chapter;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
+import com.example.mobileproject.model.ChapterStatus;
 import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.UserReaderPreferences;
@@ -306,7 +307,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
+            if(chapter != null && chapter.getStatus() == ChapterStatus.DOWNLOADED){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 
@@ -437,7 +438,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
+            if(chapter != null && chapter.getStatus() == ChapterStatus.DOWNLOADED ){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 
@@ -550,7 +551,7 @@ public class ReaderNormalView {
         private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
             ChapterContent chapterContent = null;
 
-            if(chapter != null && (chapter.getDownloaded().equals("yes"))){
+            if(chapter != null && chapter.getStatus() == ChapterStatus.DOWNLOADED){
                 DBController db = new DBController(ctx);
                 chapterContent = db.getChapter(chapter.getId());
 

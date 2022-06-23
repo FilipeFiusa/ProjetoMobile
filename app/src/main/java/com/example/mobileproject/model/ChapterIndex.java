@@ -13,7 +13,7 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
 
     private int source_id;
 
-    private String downloaded = "no";
+    private ChapterStatus status = ChapterStatus.EMPTY;
     private String readed = "no";
 
     public boolean selected = false;
@@ -49,7 +49,7 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
     public void updateSelf(ChapterIndex c){
         this.id = c.getId();
         this.readed = c.getReaded();
-        this.downloaded = c.getDownloaded();
+        this.status = c.getStatus();
     }
 
     public String getChapterName() {
@@ -76,12 +76,12 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
         this.id = id;
     }
 
-    public String getDownloaded() {
-        return downloaded;
+    public ChapterStatus getStatus() {
+        return status;
     }
 
-    public void setDownloaded(String downloaded) {
-        this.downloaded = downloaded;
+    public void setStatus(ChapterStatus status) {
+        this.status = status;
     }
 
     public String getReaded() {
