@@ -137,6 +137,11 @@ public class ReaderNormalView {
         initializer.execute(nrc);
     }
 
+    public void reloadChapter(){
+        UpdateCurrentChapter initializer = new UpdateCurrentChapter();
+        initializer.execute(nrc);
+    }
+
     public void loadChapter(int direction){
         if(textViewType == 1){
             GetChapterContentScrollView scrollViewLoader = new GetChapterContentScrollView();
@@ -320,6 +325,123 @@ public class ReaderNormalView {
             return null;
         }
     }
+
+    private class UpdateCurrentChapter extends AsyncTask<NovelReaderController, Void, Boolean> {
+
+        private boolean hasInternet = true;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            loading.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(NovelReaderController... novelReaderControllers) {
+            NovelReaderController nrc = novelReaderControllers[0];
+            DBController db = new DBController(ctx);
+
+            if (!isNetworkAvailable(ctx)){
+                hasInternet = false;
+            }
+
+            ParserInterface parser = ParserFactory.getParserInstance(currentSourceName,ctx);
+            if(parser == null && novelType != 2){
+                return false;
+            }
+
+            Chapter currentChapter = nrc.getCurrentChapter();
+            ChapterContent chapterContent;
+
+            if(hasInternet){
+                chapterContent = parser.getChapterContent(currentChapter.getChapterIndex().getChapterLink());
+                chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
+
+                currentChapter.setChapterContent(chapterContent);
+                db.setChapterContent(currentChapter.getChapterIndex().getId(), chapterContent.getChapterContent(), chapterContent.getRawChapter());
+
+                ctx.setChapterAsDownloaded(currentChapter.getChapterIndex().getId());
+            }else{
+                currentChapter.setExist(false);
+                currentChapter.setInvalidType(2);
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+
+            if(aBoolean){
+                if(textViewType == 1){
+                    if(hasInternet){
+                        scrollViewController.setChapterContent(nrc.getCurrentChapter().getChapterContent());
+                    }else{
+                        Toast.makeText(ctx, "Sem internet", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(hasInternet){
+                        bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterContent().getChapterName());
+                    }else{
+                        bottomChapterNameView.setText(nrc.getCurrentChapter().getChapterIndex().getChapterName());
+                    }
+
+                    loading.setVisibility(View.GONE);
+                }else if (textViewType == 2 && pageViewController != null){
+                    pageViewController.updateChapters();
+                }
+            }
+        }
+
+        public boolean isNetworkAvailable(final Context context) {
+            final ConnectivityManager cm = (ConnectivityManager)
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return false;
+            final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            // if no network is available networkInfo will be null
+            // otherwise check if we are connected
+            return (networkInfo != null && networkInfo.isConnected());
+        }
+
+        private String CleanChapter(String chapterContent){
+            String cleanedChapter = chapterContent;
+
+            if(novelCleaners == null || novelCleaners.isEmpty()){
+                return chapterContent;
+            }
+
+            for(NovelCleaner cleaner : novelCleaners){
+                if(!cleaner.isActive()) continue;
+
+                try{
+                    cleanedChapter = cleanedChapter.replaceAll(cleaner.getFlag(), cleaner.getReplacement());
+                }catch (PatternSyntaxException e){
+                    e.printStackTrace();
+                }
+            }
+
+            return cleanedChapter;
+        }
+
+        private ChapterContent checkIfChapterAlreadyDownloaded(ChapterIndex chapter){
+            ChapterContent chapterContent = null;
+
+            if(chapter != null && chapter.getStatus() == ChapterStatus.DOWNLOADED){
+                DBController db = new DBController(ctx);
+                chapterContent = db.getChapter(chapter.getId());
+
+                if(!chapterContent.getChapterContent().isEmpty()){
+                    chapterContent.setChapterContent(CleanChapter(chapterContent.getChapterContent()));
+                    return chapterContent;
+                }
+            }
+
+            return null;
+        }
+    }
+
 
     private class GetChapterContentPageView extends AsyncTask<Integer, Void, ChapterContent> {
         private boolean hasInternet = true;

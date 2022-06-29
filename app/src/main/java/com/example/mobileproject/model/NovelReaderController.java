@@ -144,6 +144,12 @@ public class NovelReaderController implements Serializable {
         setStartedChapter(currentChapter.getChapterLink());
     }
 
+    public void resetPageCount(){
+        previousChapter.resetTotalPages();
+        currentChapter.resetTotalPages();
+        nextChapter.resetTotalPages();
+    }
+
     public void updateCurrentPreviousChapter(ChapterContent chapterContent) {
         this.previousChapter.setChapterContent(chapterContent);
     }

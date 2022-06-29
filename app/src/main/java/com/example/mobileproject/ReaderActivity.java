@@ -183,6 +183,7 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private void reloadChapter(){
+        normalViewController.reloadChapter();
 
     }
 

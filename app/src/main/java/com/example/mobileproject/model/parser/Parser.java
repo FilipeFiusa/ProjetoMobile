@@ -10,6 +10,7 @@ import com.example.mobileproject.ui.navigate.SourceItemAdapter;
 import com.example.mobileproject.util.HtmlCleaner;
 
 import org.intellij.lang.annotations.Language;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 
@@ -97,8 +98,13 @@ public abstract class Parser implements ParserInterface {
         return HtmlCleaner.CleanText(cleanHTMLEntities(content));
     }
 
-    protected String cleanChapter(String content){
-        return HtmlCleaner.CleanText(cleanHTMLEntities(content).replaceAll("\r", "\n"));
+    protected String cleanChapter(String _content){
+        String content = _content;
+
+        content = cleanHTMLEntities(content);
+        content = removeUselessElements(content);
+
+        return HtmlCleaner.CleanText(content.replaceAll("\r", "\n"));
     }
 
     protected String cleanHTMLEntities(String Content){
@@ -109,6 +115,24 @@ public abstract class Parser implements ParserInterface {
                 .replaceAll("&quot;", "\"")
                 .replaceAll("&apos;", "'")
                 .replaceAll("&nbsp;", " ");
+    }
+
+    protected String removeUselessElements(String content){
+        Document html = Jsoup.parse(content);
+
+        html.select(".google-auto-placed").remove();
+        html.select(".ap_container").remove();
+        html.select(".ads").remove();
+        html.select(".ads-box").remove();
+        html.select(".adsbox").remove();
+        html.select(".ads-holder").remove();
+        html.select(".ads-middle").remove();
+        html.select("ins").remove();
+        html.select("script").remove();
+        html.select("style").remove();
+        html.select("iframe").remove();
+
+        return html.html();
     }
 
     public Languages getLanguage() {

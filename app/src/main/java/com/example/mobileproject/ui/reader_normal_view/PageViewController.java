@@ -296,6 +296,8 @@ public class PageViewController {
         chapters.add(nrc.getCurrentChapter());
         chapters.add(nrc.getCurrentNextChapter());
 
+        nrc.resetPageCount();
+
         startSeparator(chapters.remove(0));
     }
 
