@@ -31,7 +31,7 @@ public class App extends Application {
             NotificationChannel serviceChanel = new NotificationChannel(
                     CHANNEL_ID,
                     "Check Updates Channel",
-                    NotificationManager.IMPORTANCE_LOW
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
 
             NotificationManager manager = getSystemService(NotificationManager.class);

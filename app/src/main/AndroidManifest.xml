@@ -31,7 +31,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.example.mobileproject.NovelDetailsActivity"
+        <activity
+            android:parentActivityName=".MainActivity"
+            android:name="com.example.mobileproject.NovelDetailsActivity"
             android:theme="@style/Theme.MyApplicationTest4.NoActionBar">
         </activity>
         <activity

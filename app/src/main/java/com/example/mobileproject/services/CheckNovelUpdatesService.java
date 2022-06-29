@@ -3,6 +3,8 @@ package com.example.mobileproject.services;
 import static com.example.mobileproject.App.CHANNEL_ID;
 
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
+import com.example.mobileproject.NovelDetailsActivity;
 import com.example.mobileproject.R;
 import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterIndex;
@@ -35,6 +38,8 @@ public class CheckNovelUpdatesService extends JobService {
 
     private NotificationManagerCompat notificationManager;
     private NotificationCompat.Builder notification;
+
+    final long[] DEFAULT_VIBRATE_PATTERN = {0, 250, 250, 250};
 
     int SUMMARY_ID = 0;
     String GROUP_KEY_WORK_EMAIL = "com.android.example.WORK_EMAIL";
@@ -234,13 +239,27 @@ public class CheckNovelUpdatesService extends JobService {
             for (int i = 0; i < checkUpdatesItems.size(); i++) {
                 NovelDetails currentNovel = checkUpdatesItems.get(i).novelDetails;
 
+                // Create an Intent for the activity you want to start
+                Intent resultIntent = new Intent(getApplicationContext(), NovelDetailsActivity.class);
+                resultIntent.putExtra("NovelDetails_name", currentNovel.getNovelName());
+                resultIntent.putExtra("NovelDetails_source", currentNovel.getSource());
+                // Create the TaskStackBuilder and add the intent, which inflates the back stack
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+                stackBuilder.addNextIntentWithParentStack(resultIntent);
+                // Get the PendingIntent containing the entire back stack
+                PendingIntent resultPendingIntent =
+                        stackBuilder.getPendingIntent(i, PendingIntent.FLAG_UPDATE_CURRENT);
+
                 Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_android)
                         .setContentTitle(currentNovel.getNovelName())
                         .setContentText(checkUpdatesItems.get(i).allChaptersToString())
+                        .setContentIntent(resultPendingIntent)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(checkUpdatesItems.get(i).allChaptersToString()))
                         .setLargeIcon(currentNovel.getNovelImage())
-                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setVibrate(DEFAULT_VIBRATE_PATTERN)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                         .setGroup(GROUP_NAME)
                         .build();
 
@@ -256,9 +275,9 @@ public class CheckNovelUpdatesService extends JobService {
             Notification summaryNotification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setStyle(summaryNotificationStyle)
                     .setSmallIcon(R.drawable.ic_baseline_android)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setGroup(GROUP_NAME)
-                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+                    .setVibrate(DEFAULT_VIBRATE_PATTERN)
                     .setGroupSummary(true)
                     .build();
 
