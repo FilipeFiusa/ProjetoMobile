@@ -269,12 +269,6 @@ public class WoopreadParser extends Parser {
         return new WoopreadParser(ctx);
     }
 
-    @Override
-    protected String cleanChapter(String content){
-        return cleanHTMLEntities(content)
-                .replaceAll("<!--(.*?)-->", "");
-    }
-
     private String removeSpaces(String searchValue) {
         return searchValue.replaceAll(" ", "+");
     }

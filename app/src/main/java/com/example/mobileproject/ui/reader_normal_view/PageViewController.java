@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.text.Layout;
 import android.view.View;
@@ -16,7 +17,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.ReaderActivity;
+import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.Chapter;
+import com.example.mobileproject.model.ChapterIndex;
 import com.example.mobileproject.model.NovelReaderController;
 import com.example.mobileproject.model.UserReaderPreferences;
 import com.example.mobileproject.model.ViewPageItem;
@@ -56,6 +59,8 @@ public class PageViewController {
     private boolean menuChangedPage = false;
 
     private PageViewAdapter vpAdapter;
+
+    private int currentPage = 0;
 
     final private UserReaderPreferences userReaderPreferences;
 
@@ -117,6 +122,14 @@ public class PageViewController {
         textTempContainerWithTitle.setText(chapter.getChapterContent().getChapterContent());
     }
 
+    private void updateCurrentPage(){
+        System.out.println("Current page: " + currentPage);
+        System.out.println("Current chapter name: " + currentChapter.getChapterContent().getChapterName());
+
+        UpdateCurrentPageTask task = new UpdateCurrentPageTask();
+        task.execute();
+    }
+
     private void createNextPage(String chapter){
         textTempContainer.setText(chapter);
     }
@@ -145,7 +158,12 @@ public class PageViewController {
             vpAdapter = new PageViewAdapter(separatedChapter, ctx, this, userReaderPreferences);
             viewPager2.setAdapter(vpAdapter);
             int page = nrc.getCurrentPreviousChapter().getTotalPages();
-            viewPager2.setCurrentItem(page, false);
+            if(nrc.getCurrentChapter().getChapterIndex().getLastPageReaded() > 0){
+                viewPager2.setCurrentItem(page + nrc.getCurrentChapter().getChapterIndex().getLastPageReaded() - 1, false);
+            }else{
+                viewPager2.setCurrentItem(page, false);
+            }
+
             firstLoad = false;
 
             currentChapter = nrc.getCurrentChapter();
@@ -156,10 +174,10 @@ public class PageViewController {
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
                     Chapter chapter = separatedChapter.get(position).getChapter();
-
+                    currentPage = separatedChapter.get(position).getCurrentPage();
 
                     if(chapter!= null){
-                        bottomChapterNameView.setText(MessageFormat.format("{0} / {1}", separatedChapter.get(position).getCurrentPage(), chapter.getTotalPages()));
+                        bottomChapterNameView.setText(MessageFormat.format("{0} / {1}", currentPage, chapter.getTotalPages()));
                     }
 
                     if(chapter != null  && chapter.getChapterIndex() != null &&  !currentChapter.equals(chapter)){
@@ -183,6 +201,8 @@ public class PageViewController {
                     if (lastSelectedPage == -1){
                         lastSelectedPage = position;
                     }
+
+                    updateCurrentPage();
                 }
             });
 
@@ -429,4 +449,21 @@ public class PageViewController {
         }
     };
 
+
+    private class UpdateCurrentPageTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            System.out.println("Doing something");
+
+            DBController db = new DBController(ctx);
+            db.updateLastPageReaded(currentChapter.getChapterIndex().getId(), currentPage);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+        }
+    }
 }

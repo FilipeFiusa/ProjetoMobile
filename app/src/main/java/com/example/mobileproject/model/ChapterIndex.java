@@ -16,6 +16,8 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
     private ChapterStatus status = ChapterStatus.EMPTY;
     private String readed = "no";
 
+    private int lastPageReaded = 0;
+
     public boolean selected = false;
     public int position = -1;
 
@@ -98,5 +100,13 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
 
     public void setSourceId(int source_id) {
         this.source_id = source_id;
+    }
+
+    public int getLastPageReaded() {
+        return lastPageReaded;
+    }
+
+    public void setLastPageReaded(int lastPageReaded) {
+        this.lastPageReaded = lastPageReaded;
     }
 }

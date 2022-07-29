@@ -60,7 +60,8 @@
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/font/roboto_medium.xml" value="0.20092592592592592" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout-v24/activity_main.xml" value="0.18840579710144928" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/chapter_grid_button.xml" value="0.33" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/chapter_grid_button.xml" value="0.5" />
+        <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/chapter_grid_button_with_last_readed_page.xml" value="0.5" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/create_source_recycle_view_image_item.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/create_source_web_view.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/filip/prog/mobile/MobileProject/app/src/main/res/layout/create_source_web_view_activity.xml" value="0.33" />

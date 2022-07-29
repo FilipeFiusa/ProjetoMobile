@@ -2,7 +2,7 @@
 <LinearLayout android:id="@+id/chapter_grid_button"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="60dp"
     android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:clickable="true"
@@ -11,22 +11,44 @@
     android:background="@drawable/ripple_effect">
    <!-- android:theme="@style/Theme.MyApplicationTest4.MyRipple" -->
 
-    <TextView
-        android:id="@+id/chapter_name"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+    <LinearLayout
+        android:paddingVertical="5dp"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:textColor="@color/white"
-        android:textSize="17sp"
-        android:gravity="center_vertical"
-        android:text="Capitulo 1"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:clickable="false"
-        android:focusable="false"
-        android:background="@null"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/chapter_name"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textSize="17sp"
+            android:gravity="center_vertical"
+            android:text="Capitulo 1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:clickable="false"
+            android:focusable="false"
+            android:background="@null"/>
+
+        <TextView
+            android:id="@+id/last_page_readed"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textSize="13sp"
+            android:gravity="center_vertical"
+            android:text="Capitulo 1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:clickable="false"
+            android:focusable="false"
+            android:background="@null"/>
+    </LinearLayout>
 
 
     <ImageButton

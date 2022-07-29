@@ -19,6 +19,10 @@ public class HtmlCleaner {
                 continue;
             }
 
+            if(tag.equals("hr")){
+                text = text.replaceAll("<hr>", "*******\n\n");
+            }
+
             if(inLineHtmlTags.contains(tag)){
                 text = text.replaceAll("<" + tag + "(.*?)>", "");
                 text = text.replaceAll("</" + tag + ">", "");

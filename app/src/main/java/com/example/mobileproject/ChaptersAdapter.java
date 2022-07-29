@@ -49,6 +49,7 @@ import java.util.List;
 
 public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private ChapterIndex chapterToUpdate;
     private NovelDetails currentNovel;
     private ArrayList<NovelDetailsAdapterObject> mChapterList;
     private ArrayList<ChapterIndex> selectedChapters = new ArrayList<>();
@@ -68,6 +69,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static class ChapterViewHolder extends RecyclerView.ViewHolder{
         public ImageButton mImageButton;
         public TextView mTextView1;
+        public TextView mTextView2;
         public View mButton;
 
         public ChapterViewHolder(@NonNull View itemView) {
@@ -75,6 +77,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             mImageButton = itemView.findViewById(R.id.downloadButton);
             mTextView1 = itemView.findViewById(R.id.chapter_name);
+            mTextView2 = itemView.findViewById(R.id.last_page_readed);
             mButton = itemView;
         }
     }
@@ -440,6 +443,13 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ChapterIndex currentItem = mChapterList.get(position).getChapterIndex();
             currentItem.position = chapterViewHolder.getAdapterPosition();
 
+            if(currentItem.getLastPageReaded() > 0 && !currentItem.getReaded().equals("yes")){
+                chapterViewHolder.mTextView2.setVisibility(View.VISIBLE);
+                chapterViewHolder.mTextView2.setText("Pagina: " + currentItem.getLastPageReaded());
+                chapterViewHolder.mTextView2.setTextColor(Color.GRAY);
+            }else {
+                chapterViewHolder.mTextView2.setVisibility(View.GONE);
+            }
 
             chapterViewHolder.mTextView1.setText(currentItem.getChapterName());
             if(currentItem.getReaded().equals("yes") && !currentItem.selected){
@@ -612,7 +622,7 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         return;
                     }
 
-
+                    chapterToUpdate = currentItem;
 
                     Intent intent = new Intent(ctx, ReaderActivity.class);
                     intent.putExtra("NovelReaderController", new NovelReaderController(currentNovel.getChapterIndexes()));
@@ -728,6 +738,10 @@ public class ChaptersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 //unsetFavorite();
             }
         });
+
+    }
+
+    public void updatePosition(){
 
     }
 

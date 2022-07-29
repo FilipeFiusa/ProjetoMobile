@@ -574,7 +574,7 @@ public class DBController {
 
         db = database.getReadableDatabase();
 
-        String query = "SELECT id, chapter_link, chapter_name, status, readed, source_id FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
+        String query = "SELECT id, chapter_link, chapter_name, status, readed, source_id, last_page_readed FROM Chapters WHERE Chapters.novel_name=? AND Chapters.novel_source=? ORDER BY source_id ASC";
         result = db.rawQuery(query, new String[]{novelName, novelSource});
 
         if(result.getCount() > 0){
@@ -591,6 +591,7 @@ public class DBController {
                 c.setStatus(status.setValue(result.getInt(result.getColumnIndexOrThrow("status"))));
 
                 c.setReaded(result.getString(result.getColumnIndexOrThrow("readed")));
+                c.setLastPageReaded(result.getInt(result.getColumnIndexOrThrow("last_page_readed")));
 
                 c.setSourceId(result.getInt(result.getColumnIndexOrThrow("source_id")));
 
@@ -601,6 +602,23 @@ public class DBController {
         db.close();
 
         return chapterIndexes;
+    }
+
+    public synchronized boolean updateLastPageReaded(int chapterId, int page){
+        long result;
+        ContentValues values = new ContentValues();
+
+        db = database.getReadableDatabase();
+
+        values.put("last_page_readed", page);
+
+        result = db.update("Chapters", values, "id=?", new String[]{String.valueOf(chapterId)});
+
+        if(result ==  -1){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     public synchronized ArrayList<ChapterInDownload>  getDownloadingChapters(){
