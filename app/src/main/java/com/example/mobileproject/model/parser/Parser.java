@@ -1,7 +1,6 @@
 package com.example.mobileproject.model.parser;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.example.mobileproject.model.ChapterIndex;
@@ -9,15 +8,16 @@ import com.example.mobileproject.model.Languages;
 import com.example.mobileproject.ui.navigate.SourceItemAdapter;
 import com.example.mobileproject.util.HtmlCleaner;
 
-import org.intellij.lang.annotations.Language;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public abstract class Parser implements ParserInterface {
-    protected String URL_BASE = "";
+    protected String urlBase = "";
+    protected String[] alternativeUrls;
     protected String SourceName = "";
     protected Drawable Icon;
     protected Languages language;
@@ -43,11 +43,19 @@ public abstract class Parser implements ParserInterface {
         return SourceName;
     }
 
+    public String[] getAlternativeUrls() {
+        return alternativeUrls;
+    }
+
+    public void setUrlBase(String urlBase) {
+        this.urlBase = urlBase;
+    }
+
     public Drawable getIcon() {
         return Icon;
     }
 
-    public String getURL_BASE(){ return URL_BASE; }
+    public String getUrlBase(){ return urlBase; }
 
     @Override
     public ArrayList<ChapterIndex> checkNewChapters(String novelLink, int page) {

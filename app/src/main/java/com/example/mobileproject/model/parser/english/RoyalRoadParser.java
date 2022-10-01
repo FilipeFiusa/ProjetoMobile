@@ -14,7 +14,6 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.example.mobileproject.util.HtmlCleaner;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,7 +22,6 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
@@ -32,7 +30,7 @@ public class RoyalRoadParser extends Parser {
     public RoyalRoadParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://www.royalroad.com";
+        urlBase = "https://www.royalroad.com";
         SourceName = "RoyalRoad";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_royalroad);
         language = Languages.ENGLISH;
@@ -45,7 +43,7 @@ public class RoyalRoadParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
             String title = document.select("h1").first().text();
@@ -98,7 +96,7 @@ public class RoyalRoadParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             Elements allLinks = d.select("#chapters tbody tr");
 
@@ -132,7 +130,7 @@ public class RoyalRoadParser extends Parser {
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(URL_BASE + url)
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select("#result .fiction-list-item");
@@ -199,7 +197,7 @@ public class RoyalRoadParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

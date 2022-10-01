@@ -14,10 +14,7 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,7 +35,7 @@ public class WoopreadParser extends Parser {
     public WoopreadParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://woopread.com";
+        urlBase = "https://woopread.com";
         SourceName = "WoopRead";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_woopread);
         language = Languages.ENGLISH;
@@ -50,7 +47,7 @@ public class WoopreadParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -97,7 +94,7 @@ public class WoopreadParser extends Parser {
         RequestBody body = new FormBody.Builder()
                 .build();
 
-        String url = URL_BASE + novelLink + "/ajax/chapters/";
+        String url = urlBase + novelLink + "/ajax/chapters/";
         url = url.replaceAll("//", "/");
 
         Request request = new Request.Builder()
@@ -134,7 +131,7 @@ public class WoopreadParser extends Parser {
 
                     ChapterIndex c = new ChapterIndex(
                             chapterLink.text(),
-                            chapterLink.attr("href").replace(URL_BASE, ""),
+                            chapterLink.attr("href").replace(urlBase, ""),
                             tempNovelArr.size());
 
                     tempNovelArr.add(c);
@@ -161,7 +158,7 @@ public class WoopreadParser extends Parser {
 
                 ChapterIndex c = new ChapterIndex(
                         chapterLink.text(),
-                        chapterLink.attr("href").replace(URL_BASE, ""),
+                        chapterLink.attr("href").replace(urlBase, ""),
                         tempNovelArr.size());
 
                 tempNovelArr.add(c);
@@ -186,7 +183,7 @@ public class WoopreadParser extends Parser {
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(URL_BASE + url)
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select(".c-tabs-item .row .page-item-detail");
@@ -201,7 +198,7 @@ public class WoopreadParser extends Parser {
                         novelsArr.size(),
                         imgSrc,
                         novelName.text(),
-                        novelName.attr("href").replace(URL_BASE, "")));
+                        novelName.attr("href").replace(urlBase, "")));
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -230,7 +227,7 @@ public class WoopreadParser extends Parser {
                         novelsArr.size(),
                         imgSrc,
                         e.attr("title"),
-                        e.attr("href").replace(URL_BASE, "")));
+                        e.attr("href").replace(urlBase, "")));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -241,7 +238,7 @@ public class WoopreadParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

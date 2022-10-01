@@ -14,24 +14,21 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.example.mobileproject.util.HtmlCleaner;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class NovelFullParser extends Parser {
     public NovelFullParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://novelfull.com";
+        urlBase = "https://novelfull.com";
         SourceName = "NovelFull";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_novelfull);
         language = Languages.ENGLISH;
@@ -44,7 +41,7 @@ public class NovelFullParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
             String title = document.select(".title").first().text();
@@ -93,11 +90,11 @@ public class NovelFullParser extends Parser {
         Document d;
 
         try {
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
             String data_page = document.select(".last a").first().attr("data-page");
 
             for(int i = 1; i <= (Integer.parseInt(data_page) + 1); i++){
-                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + i).userAgent("Mozilla/5.0").get();
+                d = Jsoup.connect(urlBase + novelLink + "?page=" + i).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select("#list-chapter .row a");
 
@@ -133,7 +130,7 @@ public class NovelFullParser extends Parser {
 
                 Thread.sleep(500);
 
-                d = Jsoup.connect(URL_BASE + novelLink + "?page=" + lastPageSearched).userAgent("Mozilla/5.0").get();
+                d = Jsoup.connect(urlBase + novelLink + "?page=" + lastPageSearched).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select("#list-chapter .row a");
 
@@ -175,7 +172,7 @@ public class NovelFullParser extends Parser {
             Elements novels = document.select(".archive .row h3 a");
 
             for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href"))
+                Document getImage = Jsoup.connect(urlBase + e.attr("href"))
                         .userAgent("Mozilla/5.0").get();
 
                 Element img = getImage.select(".book img").first();
@@ -208,7 +205,7 @@ public class NovelFullParser extends Parser {
             Elements novels = document.select(".archive .row h3 a");
 
             for (Element e : novels){
-                Document getImage = Jsoup.connect(URL_BASE + e.attr("href")).userAgent("Mozilla/5.0").get();
+                Document getImage = Jsoup.connect(urlBase + e.attr("href")).userAgent("Mozilla/5.0").get();
 
                 Element img = getImage.select(".book img").first();
                 java.lang.String imgSrc = img.absUrl("src");
@@ -229,7 +226,7 @@ public class NovelFullParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

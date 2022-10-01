@@ -31,13 +31,19 @@ import java.util.Date;
 
 public class DBController {
     private Context ctx;
-    private SQLiteDatabase db = null;
+    private static SQLiteDatabase db = null;
     private CreateDB database;
 
     public DBController(Context ctx){
         database = CreateDB.getInstance(ctx);
         this.ctx = ctx;
+
+        if(db == null){
+            db = database.getWritableDatabase();
+        }
     }
+
+
 
     public synchronized long insertNovel(NovelDetails n){
         //String novelName, String novelAuthor,String novelDescription, String source, Bitmap novelImage, String novelLink
@@ -45,7 +51,7 @@ public class DBController {
         ContentValues values;
         long result;
 
-        db = database.getWritableDatabase();
+        
         values = new ContentValues();
 
         values.put("last_readed", new Date().getTime());//last_readed
@@ -90,7 +96,7 @@ public class DBController {
             }
         }
 
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -99,7 +105,7 @@ public class DBController {
         ContentValues values;
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
         values = new ContentValues();
 
         values.put("last_readed", new Date().getTime());//last_readed
@@ -153,7 +159,7 @@ public class DBController {
             }
         }
 
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -167,11 +173,11 @@ public class DBController {
         String query = "SELECT * FROM Novels WHERE novel_name=? AND novel_source=?";
         result = db.rawQuery(query, new String[]{b.getBookName(), b.getBookPublisher()});
         if(result.getCount() > 0){
-            db.close();
+            //db.close();
             return true;
         }
 
-        db.close();
+        //db.close();
         return false;
     }
 
@@ -179,13 +185,13 @@ public class DBController {
         ContentValues values = new ContentValues();
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
         values.put("finished_loading", 1);
         values.put("last_page_searched", page);
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -194,13 +200,13 @@ public class DBController {
         ContentValues values = new ContentValues();
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
 
         values.put("on_library", 1);
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -209,13 +215,13 @@ public class DBController {
         ContentValues values = new ContentValues();
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
 
         values.put("readerViewType", newReaderViewType);
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -224,7 +230,7 @@ public class DBController {
         ContentValues values;
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
 
         values = new ContentValues();
@@ -240,7 +246,7 @@ public class DBController {
         values.put("status", ChapterStatus.EMPTY.getNumVal());
 
         result = db.insert("Chapters", null, values);
-        db.close();
+        //db.close();
 
         if(result ==  -1){
             return "Error on insert";
@@ -271,7 +277,7 @@ public class DBController {
             if (cursor == null || !cursor.moveToFirst()) {
                 //Insert new
 
-                db.close();
+                //db.close();
                 insertChapters(novelName, novelSource, c.get(i));
             } else {
                 //Update
@@ -279,7 +285,7 @@ public class DBController {
                 values.put("source_id", c.get(i).getSourceId());
                 db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.get(i).getId())});
             }
-            db.close();
+            //db.close();
         }
     }
 
@@ -297,11 +303,11 @@ public class DBController {
         values.put("last_page_searched", page);
         long result = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
 
-        db.close();
+        //db.close();
     }
 
     public synchronized void deleteNovel(String novelName, String novelSource){
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
         db.beginTransaction();
 
@@ -322,7 +328,7 @@ public class DBController {
             db.endTransaction();
         }
 
-        db.close();
+        //db.close();
     }
 
     public synchronized ArrayList<NovelDetails> selectAllNovels(){
@@ -371,7 +377,7 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return novelDetailsArr;
     }
@@ -420,7 +426,7 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return novelDetailsArr;
     }
@@ -469,7 +475,7 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return novelDetailsArr;
     }
@@ -513,11 +519,11 @@ public class DBController {
 
             novel.setNovelImage(bitmap);
         }else{
-            db.close();
+            //db.close();
             return null;
         }
 
-        db.close();
+        //db.close();
 
         return novel;
     }
@@ -559,11 +565,11 @@ public class DBController {
 
             novel.setNovelImage(bitmap);
         }else{
-            db.close();
+            //db.close();
             return null;
         }
 
-        db.close();
+        //db.close();
 
         return novel;
     }
@@ -599,7 +605,7 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return chapterIndexes;
     }
@@ -655,7 +661,7 @@ public class DBController {
 
         }
 
-        db.close();
+        //db.close();
 
         return chapterIndexes;
     }
@@ -707,7 +713,7 @@ public class DBController {
 
         result = db.insert("DownloadQueue", null, values);
 
-        db.close();
+        //db.close();
 
         if(result ==  -1){
             return false;
@@ -737,7 +743,7 @@ public class DBController {
                 }
             }
 
-            db.close();
+            //db.close();
         }
 
         return haveAnChapterToDownload;
@@ -755,7 +761,7 @@ public class DBController {
             db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.getId())});
         }
 
-        db.close();
+        //db.close();
     }
 
     public synchronized boolean setChapterAsReaded(int id){
@@ -777,11 +783,11 @@ public class DBController {
             long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
 
             if(result2 == -1){
-                db.close();
+                //db.close();
                 return false;
             }
         }else {
-            db.close();
+            //db.close();
             return false;
         }
 
@@ -790,7 +796,7 @@ public class DBController {
         values.put("readed", "yes");
         long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
-        db.close();
+        //db.close();
 
         if(result2 ==  -1){
             return false;
@@ -818,11 +824,11 @@ public class DBController {
             long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
 
             if(result2 == -1){
-                db.close();
+                //db.close();
                 return false;
             }
         }else {
-            db.close();
+            //db.close();
             return false;
         }
 
@@ -831,7 +837,7 @@ public class DBController {
         values.put("readed", "no");
         long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
-        db.close();
+        //db.close();
 
         if(result2 ==  -1){
             return false;
@@ -899,11 +905,11 @@ public class DBController {
             c.setChapterName(result.getString(result.getColumnIndexOrThrow("chapter_name")));
             c.setChapterLink(result.getString(result.getColumnIndexOrThrow("chapter_link")));
 
-            db.close();
+            //db.close();
             return c;
         }
 
-        db.close();
+        //db.close();
         return null;
     }
 
@@ -917,12 +923,12 @@ public class DBController {
         if(result.getCount() > 0){
             result.moveToFirst();
 
-            db.close();
+            //db.close();
             return result.getInt(result.getColumnIndexOrThrow("id"));
 
         }
 
-        db.close();
+        //db.close();
         return -1;
     }
 
@@ -943,7 +949,7 @@ public class DBController {
 
         result = db.delete("DownloadQueue", "chapter_id=?", new String[]{String.valueOf(id)});
 
-        db.close();
+        //db.close();
 
         if(result ==  -1){
             return false;
@@ -967,7 +973,7 @@ public class DBController {
 
         result = db.delete("DownloadQueue", "chapter_id=?", new String[]{String.valueOf(id)});
 
-        db.close();
+        //db.close();
 
         if(result ==  -1){
             return false;
@@ -991,7 +997,7 @@ public class DBController {
 
         result.moveToFirst();
         result.close();
-        db.close();
+        //db.close();
 
         return true;
     }
@@ -1006,7 +1012,7 @@ public class DBController {
         long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
 
         if(result2 == -1){
-            db.close();
+            //db.close();
             return false;
         }
 
@@ -1020,7 +1026,7 @@ public class DBController {
 
         result.moveToFirst();
         result.close();
-        db.close();
+        //db.close();
 
         return true;
     }
@@ -1034,14 +1040,14 @@ public class DBController {
 
         result = db.update("Novels", values, "novel_name=? AND novel_source=? ", new String[]{novelName, novelSource});
 
-        db.close();
+        //db.close();
     }
 
     public synchronized long CreateCleaner(NovelCleaner cleaner){
         ContentValues values;
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
         values = new ContentValues();
 
         values.put("type", cleaner.getType());
@@ -1050,7 +1056,7 @@ public class DBController {
         values.put("replacement", cleaner.getReplacement());
 
         result = db.insert("Cleaners", null, values);
-        db.close();
+        //db.close();
 
         return result;
     }
@@ -1065,7 +1071,7 @@ public class DBController {
         if(cleanerID > -1){
             ArrayList<NovelDetails> allNovels = selectAllNovels();
 
-            db = database.getWritableDatabase();
+            //db = database.getWritableDatabase();
 
             for(NovelDetails n : allNovels){
                 NovelCleaner tempCleaner = new NovelCleaner(
@@ -1093,7 +1099,7 @@ public class DBController {
                 tempCleaner.setConnectionId((int) result);
             }
 
-            db.close();
+            //db.close();
         }
 
         return tempNovelCleaners;
@@ -1108,7 +1114,7 @@ public class DBController {
         if(cleanerID > -1){
             ArrayList<NovelDetails> allNovels = selectAllNovelsFromSource(novelSource);
 
-            db = database.getWritableDatabase();
+            //db = database.getWritableDatabase();
 
             for(NovelDetails n : allNovels){
                 NovelCleaner tempCleaner = new NovelCleaner(
@@ -1134,7 +1140,7 @@ public class DBController {
                 tempCleaner.setConnectionId((int) result);
             }
 
-            db.close();
+            //db.close();
         }
 
         return tempNovelCleaners;
@@ -1154,7 +1160,7 @@ public class DBController {
         tempCleaner.setCleanerId((int) cleanerID);
 
         if(cleanerID > -1){
-            db = database.getWritableDatabase();
+            //db = database.getWritableDatabase();
 
             values = new ContentValues();
 
@@ -1171,7 +1177,7 @@ public class DBController {
 
             tempCleaner.setConnectionId((int) result);
 
-            db.close();
+            //db.close();
         }
 
         return tempCleaner;
@@ -1215,7 +1221,7 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return cleaners;
     }
@@ -1250,14 +1256,14 @@ public class DBController {
             }while (result.moveToNext());
         }
 
-        db.close();
+        //db.close();
 
         return cleaners;
     }
 
 
     public synchronized void deleteCleaner(int cleaner_id){
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
         db.beginTransaction();
 
@@ -1274,7 +1280,7 @@ public class DBController {
             db.endTransaction();
         }
 
-        db.close();
+        //db.close();
     }
 
     public synchronized void ChangeIsActiveConnection(int connection_id, boolean isActive){
@@ -1282,7 +1288,7 @@ public class DBController {
         ContentValues values = new ContentValues();
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
 
         if(isActive){
@@ -1293,14 +1299,14 @@ public class DBController {
 
         result = db.update("CleanerConnection", values, "id=? ", new String[]{String.valueOf(connection_id)});
 
-        db.close();
+        //db.close();
     }
 
     public synchronized void EditCleaner(NovelCleaner cleaner){
         ContentValues values = new ContentValues();
         long result;
 
-        db = database.getWritableDatabase();
+        //db = database.getWritableDatabase();
 
         values.put("cleaner_name", cleaner.getName());
         values.put("flag", cleaner.getFlag());
@@ -1309,6 +1315,6 @@ public class DBController {
 
         result = db.update("Cleaners", values, "id=? ", new String[]{String.valueOf(cleaner.getCleanerId())});
 
-        db.close();
+        //db.close();
     }
 }

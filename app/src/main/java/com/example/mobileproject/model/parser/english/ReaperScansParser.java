@@ -16,23 +16,15 @@ import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -40,7 +32,7 @@ public class ReaperScansParser extends Parser {
     public ReaperScansParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://reaperscans.com";
+        urlBase = "https://reaperscans.com";
         SourceName = "ReaperScans";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_reaperscans);
         language = Languages.ENGLISH;
@@ -54,7 +46,7 @@ public class ReaperScansParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE +  novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase +  novelLink).userAgent("Mozilla/5.0").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -99,7 +91,7 @@ public class ReaperScansParser extends Parser {
         SystemClock.sleep(3000);
 
         try {
-            d = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             d.select(".premium-block").remove();
             Elements allLinks = d.select(".version-chap li");
@@ -114,7 +106,7 @@ public class ReaperScansParser extends Parser {
 
                 ChapterIndex c = new ChapterIndex(
                         chapterName,
-                        chapterLink.attr("href").replace(URL_BASE, ""),
+                        chapterLink.attr("href").replace(urlBase, ""),
                         chapterIndices.size());
 
                 chapterIndices.add(c);
@@ -141,7 +133,7 @@ public class ReaperScansParser extends Parser {
 
 
         try{
-            Document document = Jsoup.connect(URL_BASE + url)
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select(".page-content-listing .page-listing-item .page-item-detail");
@@ -155,7 +147,7 @@ public class ReaperScansParser extends Parser {
                         novelsArr.size(),
                         imgSrc,
                         link.attr("title"),
-                        link.attr("href").replace(URL_BASE, "")));
+                        link.attr("href").replace(urlBase, "")));
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -185,7 +177,7 @@ public class ReaperScansParser extends Parser {
                         novelsArr.size(),
                         imgSrc,
                         e.attr("title"),
-                        e.attr("href").replace(URL_BASE , "")));
+                        e.attr("href").replace(urlBase, "")));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -197,7 +189,7 @@ public class ReaperScansParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

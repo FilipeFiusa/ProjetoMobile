@@ -18,7 +18,6 @@ import com.example.mobileproject.model.parser.ParserInterface;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,10 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +37,7 @@ public class LightNovelReaderParser extends Parser {
     public LightNovelReaderParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://lightnovelreader.org/";
+        urlBase = "https://lightnovelreader.org/";
         SourceName = "LightNovelReader";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_lightnovelreader);
         language = Languages.ENGLISH;
@@ -55,7 +51,7 @@ public class LightNovelReaderParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE +  novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase +  novelLink).userAgent("Mozilla/5.0").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -99,7 +95,7 @@ public class LightNovelReaderParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             Elements allLinks = d.select(".cm-tabs-content li a");
 
@@ -109,7 +105,7 @@ public class LightNovelReaderParser extends Parser {
 
                 ChapterIndex c = new ChapterIndex(
                         chapterName,
-                        element.attr("href").replace(URL_BASE, ""),
+                        element.attr("href").replace(urlBase, ""),
                         chapterIndices.size());
 
                 chapterIndices.add(c);
@@ -135,7 +131,7 @@ public class LightNovelReaderParser extends Parser {
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(URL_BASE + url)
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select(".category-items ul").get(0).children();
@@ -149,7 +145,7 @@ public class LightNovelReaderParser extends Parser {
                         novelsArr.size(),
                         imgSrc,
                         link.text(),
-                        link.attr("href").replace(URL_BASE, "")));
+                        link.attr("href").replace(urlBase, "")));
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -194,7 +190,7 @@ public class LightNovelReaderParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

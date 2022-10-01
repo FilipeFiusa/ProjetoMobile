@@ -12,12 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
-
-import org.w3c.dom.Text;
 
 public class VisitSourceWebViewActivity extends AppCompatActivity {
     Context ctx = this;
@@ -58,7 +55,7 @@ public class VisitSourceWebViewActivity extends AppCompatActivity {
 
         ws.setJavaScriptEnabled(true);
 
-        wv.loadUrl(p.getURL_BASE() + novelLink);
+        wv.loadUrl(p.getUrlBase() + novelLink);
 
     }
 }

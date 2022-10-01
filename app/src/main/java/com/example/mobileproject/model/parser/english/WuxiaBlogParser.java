@@ -30,7 +30,7 @@ public class WuxiaBlogParser extends Parser {
     public WuxiaBlogParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://www.wuxia.blog/";
+        urlBase = "https://www.wuxia.blog/";
         SourceName = "WuxiaBlog";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_wuxiablog);
         language = Languages.ENGLISH;
@@ -42,7 +42,7 @@ public class WuxiaBlogParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
             String title = document.select("div h4").first().text();
@@ -98,7 +98,7 @@ public class WuxiaBlogParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             Elements allLinks = d.select("#chplist tr a");
 
@@ -119,7 +119,7 @@ public class WuxiaBlogParser extends Parser {
             if(chapterIndices.size() >= 100){
                 String dataId = d.select("#more").first().attr("data-nid");
 
-                Document getOtherChaps = Jsoup.connect(URL_BASE + "temphtml/_tempChapterList_all_" + dataId + ".html").userAgent("Mozilla/5.0").get();
+                Document getOtherChaps = Jsoup.connect(urlBase + "temphtml/_tempChapterList_all_" + dataId + ".html").userAgent("Mozilla/5.0").get();
                 Elements otherLinks = getOtherChaps.select("a");
 
                 for(Element e : otherLinks){
@@ -153,15 +153,15 @@ public class WuxiaBlogParser extends Parser {
         int count = 0;
 
         try{
-            Document document = Jsoup.connect(URL_BASE)
+            Document document = Jsoup.connect(urlBase)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select(".panel-body .row .media");
 
             for (Element e : novels){
                 Element img = e.select("img").first();
-                String imgSrc = img.attr("src").replace(URL_BASE, "");
-                imgSrc = URL_BASE + imgSrc;
+                String imgSrc = img.attr("src").replace(urlBase, "");
+                imgSrc = urlBase + imgSrc;
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
@@ -205,14 +205,14 @@ public class WuxiaBlogParser extends Parser {
                 }
 
                 Element img = e.select("img").first();
-                String imgSrc = img.attr("src").replace(URL_BASE, "");
-                imgSrc = URL_BASE + imgSrc;
+                String imgSrc = img.attr("src").replace(urlBase, "");
+                imgSrc = urlBase + imgSrc;
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
                         imgSrc,
                         e.select(".xxxx a").text(),
-                        e.select(".xxxx a").attr("href").replace(URL_BASE, "") ));
+                        e.select(".xxxx a").attr("href").replace(urlBase, "") ));
 
                 count ++;
             }
@@ -327,8 +327,8 @@ public class WuxiaBlogParser extends Parser {
 
         try {
             Element img = element.select("img").first();
-            String imgSrc = img.attr("src").replace(URL_BASE, "");
-            InputStream input = new java.net.URL(URL_BASE + imgSrc).openStream();
+            String imgSrc = img.attr("src").replace(urlBase, "");
+            InputStream input = new java.net.URL(urlBase + imgSrc).openStream();
             bitmap = BitmapFactory.decodeStream(input);
 
             return bitmap;

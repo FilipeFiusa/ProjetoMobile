@@ -3,7 +3,6 @@ package com.example.mobileproject.model.parser.english;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.SystemClock;
 
 import androidx.core.content.ContextCompat;
 
@@ -15,13 +14,7 @@ import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,21 +22,14 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Objects;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class LightNovelPubParser extends Parser {
     public LightNovelPubParser(Context ctx) {
         super(ctx);
 
-        URL_BASE = "https://www.lightnovelpub.com";
+        urlBase = "https://www.lightnovelpub.com";
         SourceName = "LightNovelPub";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_lightnovelpub);
         language = Languages.ENGLISH;
@@ -55,7 +41,7 @@ public class LightNovelPubParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(URL_BASE + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
             String title = document.select(".novel-info .main-head h1").first().text();
@@ -122,7 +108,7 @@ public class LightNovelPubParser extends Parser {
 
         try {
             for(int i = 1; i <= 1000; i++){
-                d = Jsoup.connect(URL_BASE + novelLink + "/chapters/page-" + i).userAgent("Mozilla/5.0").get();
+                d = Jsoup.connect(urlBase + novelLink + "/chapters/page-" + i).userAgent("Mozilla/5.0").get();
 
                 Elements allLinks = d.select(".chapter-list li a");
 
@@ -159,7 +145,7 @@ public class LightNovelPubParser extends Parser {
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
         try{
-            Document document = Jsoup.connect(URL_BASE + url)
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
             Elements novels = document.select(".novel-item");
@@ -246,7 +232,7 @@ public class LightNovelPubParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = URL_BASE + chapterUrl;
+        String URL = urlBase + chapterUrl;
 
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();

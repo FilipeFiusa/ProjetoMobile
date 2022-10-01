@@ -125,8 +125,15 @@ public class NovelDetailsActivity extends AppCompatActivity {
             String novelLink = i.getStringExtra("novelLink");
             String novelName = i.getStringExtra("novelName");
             String novelSource = i.getStringExtra("novelSource");
+            String alternativeUrl = i.getStringExtra("alternativeUrl");
+
+            System.out.println(alternativeUrl);
+            if(alternativeUrl == null){
+                alternativeUrl = "";
+            }
+
             content = new getNovelDetails();
-            content.execute(novelLink, novelName, novelSource);
+            content.execute(novelLink, novelName, novelSource, alternativeUrl);
         }
 
         ImageButton imageButton = findViewById(R.id.shareButton);
@@ -142,7 +149,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 StringBuilder stringBuilder = new StringBuilder().append("Resumo: ")
                         .append(currentNovel.getNovelDescription()).append("\n\n")
                         .append("Acesse já esse novel pelo link: ")
-                        .append( ( (Parser) Objects.requireNonNull(ParserFactory.getParserInstance(novel_source, NovelDetailsActivity.this))).getURL_BASE())
+                        .append( ( (Parser) Objects.requireNonNull(ParserFactory.getParserInstance(novel_source, NovelDetailsActivity.this))).getUrlBase())
                         .append("/").append(currentNovel.getNovelLink());
 
                 String shareTitle = "Leia a Novel " + currentNovel.getNovelName();
@@ -439,8 +446,13 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
                 db.deleteNovel(n.getNovelName(), n.getSource());
             }
+            ParserInterface parser;
 
-            ParserInterface parser = ParserFactory.getParserInstance(novelDetails[2], ctx);
+            if(!novelDetails[3].equals("")){
+                parser = ParserFactory.getParserInstanceWithAlternativeUrl(novelDetails[3], ctx);
+            }else{
+                parser = ParserFactory.getParserInstance(novelDetails[2], ctx);
+            }
 
             if (parser == null) {
                 return null;

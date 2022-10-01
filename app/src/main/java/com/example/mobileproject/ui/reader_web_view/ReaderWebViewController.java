@@ -3,47 +3,25 @@ package com.example.mobileproject.ui.reader_web_view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.example.mobileproject.R;
 import com.example.mobileproject.ReaderActivity;
-import com.example.mobileproject.db.DBController;
 import com.example.mobileproject.model.ChapterContent;
 import com.example.mobileproject.model.ChapterIndex;
-import com.example.mobileproject.model.NovelCleaner;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserFactory;
-import com.example.mobileproject.model.parser.ParserInterface;
 
 import java.util.Objects;
-
-import okhttp3.CookieJar;
 
 public class ReaderWebViewController  {
     private CoordinatorLayout layout;
@@ -80,7 +58,7 @@ public class ReaderWebViewController  {
         }
 
         try{
-            baseUrl = ((Parser) Objects.requireNonNull(ParserFactory.getParserInstance(sourceName, ctx))).getURL_BASE();
+            baseUrl = ((Parser) Objects.requireNonNull(ParserFactory.getParserInstance(sourceName, ctx))).getUrlBase();
         }catch (NullPointerException e){
             baseUrl = "";
             currentChapter.setChapterLink("");

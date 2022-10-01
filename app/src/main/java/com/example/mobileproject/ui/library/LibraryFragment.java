@@ -50,9 +50,11 @@ import com.example.mobileproject.services.CheckNovelUpdatesService;
 import com.example.mobileproject.services.receivers.CheckUpdatesLFReceiver;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -201,6 +203,14 @@ public class LibraryFragment extends Fragment {
                         intent.putExtra("novelLink", currentUrl.getPath());
                         intent.putExtra("novelName", "");
                         intent.putExtra("novelSource", currentParser.getSourceName());
+
+/*
+                        if( Arrays.asList(currentParser.getAlternativeUrls()).contains(currentParser.getUrlBase()) ){
+                            intent.putExtra("alternativeUrl", currentParser.getUrlBase());
+
+                            System.out.println("alternative");
+                        }
+*/
 
                         ctx.startActivityForResult(intent, 1);
 
