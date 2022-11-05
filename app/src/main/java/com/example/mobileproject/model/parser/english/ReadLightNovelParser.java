@@ -24,18 +24,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
-public class FoxaholicParser extends Parser {
-
-    public FoxaholicParser(Context ctx) {
+public class ReadLightNovelParser extends Parser {
+    public ReadLightNovelParser(Context ctx) {
         super(ctx);
 
-        urlBase = "https://www.foxaholic.com";
-
-        SourceName = "Foxaholic";
-        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_foxaholic);
+        urlBase = "https://www.readlightnovel.me/";
+        SourceName = "ReadLightNovel";
+        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_readlightnovel);
         language = Languages.ENGLISH;
     }
+
 
     @Override
     public NovelDetails getNovelDetails(String novelLink) {
@@ -43,39 +43,45 @@ public class FoxaholicParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0").get();
-            cleanDocument(document);
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             //Get the novel name
-            String title = document.select(".post-title h1").first().text();
+            String title = document.select(".block-title").first().text();
 
             // Get novel description
-            String description = document.select(".summary__content").first().html();
-
-            // Cleaning Description
+            String description = document.select(".novel-detail-item .novel-detail-body").get(8).html();
             description = cleanDescription(description);
 
+            // Cleaning Description
+            description = cleanHTMLEntities(description);
+
             // Get status
+            String status = document.select(".novel-detail-item .novel-detail-body").get(7).text();
 
             // Get novel author
-            String author;
-            try {
-                author = document.select(".author-content").first().text();
-            }catch (NullPointerException e){
-                author = "Unknown";
-            }
+            String author = document.select(".novel-detail-item .novel-detail-body").get(4).text();
+            author = author.replace("Author(s) ", "");
 
             //Get the novel image
-            Element img = document.select(".summary_image img").first();
-            java.lang.String imgSrc = img.absUrl("data-src");
+            Element img = document.select(".novel-cover img").first();
+            java.lang.String imgSrc = img.absUrl("src");
             InputStream input = new java.net.URL(imgSrc).openStream();
             Bitmap bitmap = BitmapFactory.decodeStream(input);
+
+            //ArrayList<ChapterIndex> allChapters = getAllChaptersIndex(document, novelLink);
 
             // Instantiating a novelDetails object to return
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource(SourceName);
             novelDetails.setNovelLink(novelLink);
-            novelDetails.setStatus(1);
+
+            if(status.equals("Ongoing")){
+                novelDetails.setStatus(1);
+            }else if(status.equals("COMPLETED")){
+                novelDetails.setStatus(2);
+            }else{
+                novelDetails.setStatus(1);
+            }
 
             return novelDetails;
         } catch (IOException e) {
@@ -91,26 +97,21 @@ public class FoxaholicParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
-            Elements allLinks = d.select(".listing-chapters_wrap .wp-manga-chapter a");
+            Elements allLinks = d.select(".tab-content li a");
 
             for (Element element : allLinks){
-                String chapterName = element.text();
-
-
                 ChapterIndex c = new ChapterIndex(
-                        chapterName,
-                        element.attr("href").replace(urlBase, ""),
+                        element.text(),
+                        element.attr("href"),
                         chapterIndices.size());
 
+                c.setId(chapterIndices.size());
                 chapterIndices.add(c);
             }
 
             Collections.reverse(chapterIndices);
-            for (int i = 0; i < chapterIndices.size(); i++) {
-                chapterIndices.get(i).setSourceId(i);
-            }
 
             return chapterIndices;
         }catch (IOException e){
@@ -122,60 +123,77 @@ public class FoxaholicParser extends Parser {
 
     @Override
     public ArrayList<NovelDetailsMinimum> getHotNovels() {
+        int count = 0;
+        java.lang.String url = "/fictions/rising-stars";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
 
-        try{
-            Document document = Jsoup.connect(urlBase + "/novel/")
+/*        try{
+            Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
-            Elements novels = document.select(".c-tabs-item .row .page-item-detail");
+            Elements novels = document.select("#result .fiction-list-item");
 
             for (Element e : novels){
-                Element link = e.select("a").first();
-                Element img = link.select("img").first();
-                String imgSrc = img.absUrl("data-src");
+                Element img = e.select("img").first();
+                String imgSrc = img.absUrl("src");
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
                         imgSrc,
-                        link.attr("title"),
-                        link.attr("href").replace(urlBase, "")));
+                        Objects.requireNonNull(e.select(".fiction-title a").first()).text(),
+                        Objects.requireNonNull(e.select(".fiction-title a").first()).attr("href")));
+
+                count++;
+                if(count > 20){
+                    break;
+                }
             }
         }catch (IOException e){
             e.printStackTrace();
-        }
+        }*/
 
         return novelsArr;
     }
 
     @Override
     public ArrayList<NovelDetailsMinimum> searchNovels(String searchValue) {
+        int count = 0;
         String _searchValue = removeSpaces(searchValue);
-        String url = "https://www.foxaholic.com/?s=" + _searchValue + "&post_type=wp-manga";
+        String url = "https://www.royalroad.com/fictions/search?title=";
         ArrayList<NovelDetailsMinimum> novelsArr = new ArrayList<>();
+        url = url + _searchValue;
+/*
 
         try {
             Document document = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0")
                     .get();
-            Elements novels = document.select(".search-wrap .row .tab-thumb a");
+            Elements novels = document.select(".search-container .fiction-list .fiction-list-item");
 
-            for (Element e : novels){
+            for (Element e : novels) {
                 Element img = e.select("img").first();
-                String imgSrc = img.absUrl("data-src");
+                String imgSrc = img.absUrl("src");
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
                         imgSrc,
-                        e.attr("title"),
-                        e.attr("href").replace(urlBase + "/novel/", "")));
+                        Objects.requireNonNull(e.select(".fiction-title a").first()).text(),
+                        Objects.requireNonNull(e.select(".fiction-title a").first()).attr("href")));
+
+                count++;
+                if (count > 10) {
+                    break;
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
 
         return novelsArr;
     }
+
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
@@ -184,11 +202,13 @@ public class FoxaholicParser extends Parser {
         try {
             Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
 
-            String title = document.select(".select-view select [selected]").first().text();
+            String title = document.select(".active").first().text();
 
             String rawChapter = document.html();
 
-            String chapterContent = document.select(".text-left").first().html();
+            //document.select(".desc div").remove();
+
+            String chapterContent = document.select(".desc #chapterhidden").first().html();
 
             chapterContent = cleanChapter(chapterContent);
 
@@ -202,7 +222,14 @@ public class FoxaholicParser extends Parser {
 
     @Override
     public ParserInterface getParserInstance() {
-        return new FoxaholicParser(ctx);
+        return new ReadLightNovelParser(ctx);
+    }
+
+    @Override
+    protected String cleanChapter(String _content) {
+        _content = _content.replaceAll("<br><br>", "");
+
+        return super.cleanChapter(_content);
     }
 
     private String removeSpaces(String searchValue) {

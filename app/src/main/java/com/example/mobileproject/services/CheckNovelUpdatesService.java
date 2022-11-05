@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -159,8 +160,18 @@ public class CheckNovelUpdatesService extends JobService {
             DBController db = new DBController(getApplicationContext());
             ParserInterface parser = ParserFactory.getParserInstance(novelDetails.getSource(), getApplicationContext());
 
+            System.out.println(novelDetails.getSource());
+            System.out.println(novelDetails.getNovelLink());
+            System.out.println(novelDetails.getNovelName());
+
             ArrayList<ChapterIndex> chapterList = db.getChaptersFromANovel(novelDetails.getNovelName(), novelDetails.getSource());
-            ArrayList<ChapterIndex> tempList = parser.checkNewChapters(novelDetails.getNovelLink(), novelDetails.getLastPageSearched());
+            ArrayList<ChapterIndex> tempList = new ArrayList<>();
+            try{
+                tempList = parser.checkNewChapters(novelDetails.getNovelLink(), novelDetails.getLastPageSearched());
+            }catch (Exception e){
+                Toast.makeText(CheckNovelUpdatesService.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                return new CheckUpdatesItem(novelDetails, newChapters);
+            }
 
             if(parser.getSourceType() == 1){
                 for (int i = 0; i < tempList.size(); i++) {

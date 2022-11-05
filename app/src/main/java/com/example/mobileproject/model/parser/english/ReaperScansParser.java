@@ -50,10 +50,10 @@ public class ReaperScansParser extends Parser {
             cleanDocument(document);
 
             //Get the novel name
-            String title = document.select(".post-title h1").first().text();
+            String title = document.select(".truncate").first().text();
 
             // Get novel description
-            String description = document.select(".summary__content").first().html();
+            String description = document.select(".prose").first().html();
 
             // Cleaning Description
             description = cleanDescription(description);
@@ -61,11 +61,12 @@ public class ReaperScansParser extends Parser {
             // Get status
 
             // Get novel author
-            String author = document.select(".author-content").first().text();
+            String author = "";
+//            String author = document.select(".author-content").first().text();
 
             //Get the novel image
-            Element img = document.select(".summary_image img").first();
-            String imgSrc = img.absUrl("data-src");
+            Element img = document.select(".h-full img").first();
+            String imgSrc = img.absUrl("src");
             InputStream input = new URL(imgSrc).openStream();
             Bitmap bitmap = BitmapFactory.decodeStream(input);
 
@@ -88,7 +89,7 @@ public class ReaperScansParser extends Parser {
         ArrayList<ChapterIndex> chapterIndices = new ArrayList<>();
         Document d;
 
-        SystemClock.sleep(3000);
+/*        SystemClock.sleep(3000);
 
         try {
             d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
@@ -121,7 +122,7 @@ public class ReaperScansParser extends Parser {
             return chapterIndices;
         } catch(IOException e){
             e.printStackTrace();
-        }
+        }*/
 
         return chapterIndices;
     }
@@ -136,6 +137,9 @@ public class ReaperScansParser extends Parser {
             Document document = Jsoup.connect(urlBase + url)
                     .userAgent("Mozilla/5.0")
                     .get();
+
+            System.out.println(document.html());
+
             Elements novels = document.select(".page-content-listing .page-listing-item .page-item-detail");
 
             for (Element e : novels){

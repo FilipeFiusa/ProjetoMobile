@@ -35,7 +35,7 @@ public class ChapterIndex implements Serializable, Comparable<ChapterIndex> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChapterIndex that = (ChapterIndex) o;
-        return chapterName.equals(that.chapterName) && chapterLink.equals(that.chapterLink);
+        return chapterName.equals(that.chapterName) || chapterLink.equals(that.chapterLink);
     }
 
     @Override

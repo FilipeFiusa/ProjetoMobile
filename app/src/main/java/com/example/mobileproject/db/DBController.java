@@ -248,6 +248,8 @@ public class DBController {
         result = db.insert("Chapters", null, values);
         //db.close();
 
+        updateUnreadiedChaptersFromNovel(novelName, novelSource);
+
         if(result ==  -1){
             return "Error on insert";
         }else{
@@ -285,6 +287,8 @@ public class DBController {
                 values.put("source_id", c.get(i).getSourceId());
                 db.update("Chapters", values, "id=?", new String[]{String.valueOf(c.get(i).getId())});
             }
+
+            updateUnreadiedChaptersFromNovel(novelName, novelSource);
             //db.close();
         }
     }
@@ -455,6 +459,7 @@ public class DBController {
                 novelDetails.setReaderViewType(result.getInt(result.getColumnIndexOrThrow("readerViewType")));
                 novelDetails.setLastPageSearched(result.getInt(result.getColumnIndexOrThrow("last_page_searched")));
                 novelDetails.setNovelType(result.getInt(result.getColumnIndexOrThrow("novel_type")));
+                novelDetails.setChapterToReadQuantity(result.getInt(result.getColumnIndexOrThrow("unreaded_chapters")));
 
 /*                String filePath = result.getString(result.getColumnIndexOrThrow("novel_image"));
                 File mSaveBit = new File(ctx.getFilesDir(), filePath);;
@@ -463,13 +468,13 @@ public class DBController {
 
                 novelDetails.setNovelImage(bitmap);*/
 
-                query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
-                Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
-                if(result2.getCount() > 0) {
-                    result2.moveToFirst();
-
-                    novelDetails.setChapterToReadQuantity(result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
-                }
+//                query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+//                Cursor result2 = db.rawQuery(query, new String[]{novelDetails.getNovelName(), novelDetails.getSource(), "no"});
+//                if(result2.getCount() > 0) {
+//                    result2.moveToFirst();
+//
+//                    novelDetails.setChapterToReadQuantity(result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+//                }
 
                 novelDetailsArr.add(novelDetails);
             }while (result.moveToNext());
@@ -692,6 +697,22 @@ public class DBController {
         return putChapterOnDownload(novelName, source, id);
     }
 
+    public synchronized void updateUnreadiedChaptersFromNovel(String novelName, String novelSource){
+        String query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+        Cursor result2 = db.rawQuery(query, new String[]{novelName, novelSource, "no"});
+
+        if(result2.getCount() > 0) {
+            result2.moveToFirst();
+
+            ContentValues values = new ContentValues();
+
+            values.put("unreaded_chapters", result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+
+            db.update("Novels", values, "novel_name=? AND novel_source=?",
+                    new String[]{novelName, novelSource});
+        }
+    }
+
     public synchronized boolean putChapterOnDownload(String novelName, String novelSource, int id){
         long result;
         ContentValues values = new ContentValues();;
@@ -767,6 +788,7 @@ public class DBController {
     public synchronized boolean setChapterAsReaded(int id){
         Cursor result;
         ContentValues values = new ContentValues();
+        String novelName, novelSource;
 
         db = database.getReadableDatabase();
 
@@ -776,11 +798,15 @@ public class DBController {
         if(result.getCount() > 0){
             result.moveToFirst();
 
-            String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
-            String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
+            novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
+            novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
 
             values.put("last_readed", new Date().getTime());//last_readed
             long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
+
+            Cursor result3 = db.rawQuery("UPDATE Novels SET last_readed=?, unreaded_chapters=unreaded_chapters-1 WHERE novel_name=? AND novel_source=?",
+                    new String[]{novelName, novelSource});
+            result3.moveToFirst();
 
             if(result2 == -1){
                 //db.close();
@@ -798,6 +824,8 @@ public class DBController {
 
         //db.close();
 
+        updateUnreadiedChaptersFromNovel(novelName, novelSource);
+
         if(result2 ==  -1){
             return false;
         }else{
@@ -808,6 +836,7 @@ public class DBController {
     public synchronized boolean setChapterAsUnReaded(int id){
         Cursor result;
         ContentValues values = new ContentValues();
+        String novelName, novelSource;
 
         db = database.getReadableDatabase();
 
@@ -817,8 +846,8 @@ public class DBController {
         if(result.getCount() > 0){
             result.moveToFirst();
 
-            String novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
-            String novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
+            novelName = result.getString(result.getColumnIndexOrThrow("novel_name"));
+            novelSource = result.getString(result.getColumnIndexOrThrow("novel_source"));
 
             values.put("last_readed", new Date().getTime());//last_readed
             long result2 = db.update("Novels", values, "novel_name=? AND novel_source=?", new String[]{novelName, novelSource});
@@ -838,6 +867,8 @@ public class DBController {
         long result2 = db.update("Chapters", values, "id=?", new String[]{String.valueOf(id)});
 
         //db.close();
+
+        updateUnreadiedChaptersFromNovel(novelName, novelSource);
 
         if(result2 ==  -1){
             return false;
@@ -999,6 +1030,8 @@ public class DBController {
         result.close();
         //db.close();
 
+        updateUnreadiedChaptersFromNovel(novelName, novelSource);
+
         return true;
     }
 
@@ -1027,6 +1060,8 @@ public class DBController {
         result.moveToFirst();
         result.close();
         //db.close();
+
+        updateUnreadiedChaptersFromNovel(novelName, novelSource);
 
         return true;
     }

@@ -15,6 +15,7 @@ import com.example.mobileproject.model.NovelDetailsMinimum;
 import com.example.mobileproject.model.parser.Parser;
 import com.example.mobileproject.model.parser.ParserInterface;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,10 +30,11 @@ public class LightNovelPubParser extends Parser {
     public LightNovelPubParser(Context ctx) {
         super(ctx);
 
-        urlBase = "https://www.lightnovelpub.com";
-        SourceName = "LightNovelPub";
+        urlBase = "https://www.webnovelpub.com";
+        SourceName = "WebNovelPub";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_lightnovelpub);
         language = Languages.ENGLISH;
+        sourceType = 2;
     }
 
     @Override
@@ -110,6 +112,12 @@ public class LightNovelPubParser extends Parser {
             for(int i = 1; i <= 1000; i++){
                 d = Jsoup.connect(urlBase + novelLink + "/chapters/page-" + i).userAgent("Mozilla/5.0").get();
 
+                String checkIfItEnds = d.select(".white-boxed h1").text();
+
+                if(checkIfItEnds.equals("Page Not Found")){
+                    return chapterIndices;
+                }
+
                 Elements allLinks = d.select(".chapter-list li a");
 
                 if(allLinks.isEmpty()){
@@ -129,14 +137,77 @@ public class LightNovelPubParser extends Parser {
                     c.setId(chapterIndices.size());
                     chapterIndices.add(c);
                 }
+
+                lastPageSearched = i;
             }
 
             return chapterIndices;
+        }catch (HttpStatusException httpStatusException){
+            if(httpStatusException.getStatusCode() == 404){
+                return chapterIndices;
+            }
         }catch (IOException e){
             e.printStackTrace();
         }
 
         return null;
+    }
+
+    protected ArrayList<ChapterIndex> getPaginatedChapters(String novelLink, int page){
+        ArrayList<ChapterIndex> chapterIndices = new ArrayList<>();
+        Document d;
+
+        lastPageSearched = page;
+
+        try {
+            while (true){
+                ArrayList<ChapterIndex> tempChapterIndices = new ArrayList<>();
+
+                Thread.sleep(500);
+
+                d = Jsoup.connect(urlBase + novelLink + "/chapters/page-" + lastPageSearched).userAgent("Mozilla/5.0").get();
+
+
+                String checkIfItEnds = d.select(".white-boxed h1").text();
+
+                if(checkIfItEnds.equals("Page Not Found")){
+                    return chapterIndices;
+                }
+
+                Elements allLinks = d.select(".chapter-list li a");
+
+                if(allLinks.isEmpty()){
+                    return chapterIndices;
+                }
+
+                for(Element e : allLinks){
+                    if(e.select(".chapter-title").first().text().contains("(empty)")){
+                        continue;
+                    }
+
+                    ChapterIndex c = new ChapterIndex(
+                            e.attr("title"),
+                            e.attr("href"),
+                            chapterIndices.size());
+
+                    c.setId(chapterIndices.size());
+                    chapterIndices.add(c);
+                }
+
+                chapterIndices.addAll(tempChapterIndices);
+
+                lastPageSearched = lastPageSearched + 1;
+            }
+
+        }catch (HttpStatusException httpStatusException){
+            if(httpStatusException.getStatusCode() == 404){
+                return chapterIndices;
+            }
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return chapterIndices;
     }
 
     @Override

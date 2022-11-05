@@ -32,7 +32,7 @@ public class CreateDB extends SQLiteOpenHelper {
     }
 
     public CreateDB(@Nullable Context context) {
-        super(context, db_name, null, 10);
+        super(context, db_name, null, 11);
     }
 
     @Override
@@ -43,6 +43,7 @@ public class CreateDB extends SQLiteOpenHelper {
                 + "on_library" + " integer,"
                 + "readerViewType" + " integer,"
                 + "novel_type" + " integer,"
+                + "unreaded_chapters" + " integer,"
                 + "last_page_searched" + " integer,"
                 + "novel_name" + " text,"
                 + "novel_author" + " text,"
@@ -203,9 +204,44 @@ public class CreateDB extends SQLiteOpenHelper {
 //            System.out.println("Upgrade finalizado");
 //        }
 
+/*
         if(oldVersion <= 10 && newVersion > oldVersion){
             db.execSQL("ALTER TABLE " + Table2 + " ADD COLUMN last_page_readed INTEGER DEFAULT 0");
         }
+*/
+//
+//        if(oldVersion <= 11 && newVersion > oldVersion){
+//            db.execSQL("ALTER TABLE " + Table1 + " ADD COLUMN unreaded_chapters INTEGER DEFAULT 0");
+//
+//
+//            String query = "SELECT novel_name, novel_source FROM Chapters";
+//            try (Cursor result = db.rawQuery(query, new String[]{})) {
+//
+//                if (result.getCount() > 0) {
+//                    result.moveToFirst();
+//
+//                    do {
+//
+//                        String novel_name = result.getString(result.getColumnIndexOrThrow("novel_name"));
+//                        String novel_source = result.getString(result.getColumnIndexOrThrow("novel_source"));
+//
+//                        query = "SELECT Count(*) FROM Chapters WHERE novel_name=? AND novel_source=? AND readed=?";
+//                        Cursor result2 = db.rawQuery(query, new String[]{novel_name, novel_source, "no"});
+//                        if(result2.getCount() > 0) {
+//                            result2.moveToFirst();
+//
+//                            ContentValues values = new ContentValues();
+//
+//                            values.put("unreaded_chapters", result2.getInt(result2.getColumnIndexOrThrow("Count(*)")));
+//
+//
+//                            db.update("Novels", values, "novel_name=? AND novel_source=?",
+//                                    new String[]{novel_name, novel_source});
+//                        }
+//                    }while (result.moveToNext());
+//                }
+//            }
+//        }
     }
 
     private static class tempChap{

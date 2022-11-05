@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 
 import com.example.mobileproject.model.parser.english.FoxaholicParser;
 import com.example.mobileproject.model.parser.english.GenesisTlParser;
+import com.example.mobileproject.model.parser.english.LightNovelPubParser;
 import com.example.mobileproject.model.parser.english.LightNovelReaderParser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
+import com.example.mobileproject.model.parser.english.ReadLightNovelParser;
 import com.example.mobileproject.model.parser.english.ReaperScansParser;
 import com.example.mobileproject.model.parser.english.RoyalRoadParser;
 import com.example.mobileproject.model.parser.english.WoopreadParser;
@@ -53,14 +55,15 @@ public class ParserFactory {
     public static List<Parser> getAllParsers(Context ctx){
         return Arrays.asList(
                 new NovelFullParser(ctx),
-                //new LightNovelPubParser(ctx),
+                new LightNovelPubParser(ctx),
                 new WuxiaBlogParser(ctx),
                 new RoyalRoadParser(ctx),
                 new FoxaholicParser(ctx),
                 new GenesisTlParser(ctx),
                 new LightNovelReaderParser(ctx),
-                new ReaperScansParser(ctx),
-                new WoopreadParser(ctx)
+                //new ReaperScansParser(ctx),
+                new WoopreadParser(ctx),
+                new ReadLightNovelParser(ctx)
         );
     }
 

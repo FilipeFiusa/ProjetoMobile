@@ -51,7 +51,7 @@ public class LightNovelReaderParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(urlBase +  novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(novelLink).userAgent("Mozilla/5.0").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -95,7 +95,7 @@ public class LightNovelReaderParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(novelLink).userAgent("Mozilla/5.0").get();
 
             Elements allLinks = d.select(".cm-tabs-content li a");
 
@@ -190,10 +190,10 @@ public class LightNovelReaderParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = urlBase + chapterUrl;
+        //String URL = urlBase + chapterUrl;
 
         try {
-            Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(chapterUrl).userAgent("Mozilla/5.0").get();
 
             String title = document.select(".chapter-player-options-right .cm-dropdown [selected]").first().text();
 

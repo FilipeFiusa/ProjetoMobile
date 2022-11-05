@@ -116,6 +116,9 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         String novel_name = (String) i.getStringExtra("NovelDetails_name");
+        if(novel_name != null){
+            novel_name = novel_name.replace("'", "");
+        }
         String novel_source = (String) i.getStringExtra("NovelDetails_source");
 
         if(novel_name != null && novel_source != null){
@@ -123,7 +126,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             contentDB.execute(novel_name, novel_source, "");
         }else{
             String novelLink = i.getStringExtra("novelLink");
-            String novelName = i.getStringExtra("novelName");
+            String novelName = i.getStringExtra("novelName").replace("'", "");
             String novelSource = i.getStringExtra("novelSource");
             String alternativeUrl = i.getStringExtra("alternativeUrl");
 
@@ -145,17 +148,11 @@ public class NovelDetailsActivity extends AppCompatActivity {
                 }
 
                 Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-                String shareBody = "Resumo: ";
-                StringBuilder stringBuilder = new StringBuilder().append("Resumo: ")
-                        .append(currentNovel.getNovelDescription()).append("\n\n")
-                        .append("Acesse já esse novel pelo link: ")
-                        .append( ( (Parser) Objects.requireNonNull(ParserFactory.getParserInstance(novel_source, NovelDetailsActivity.this))).getUrlBase())
-                        .append("/").append(currentNovel.getNovelLink());
 
                 String shareTitle = "Leia a Novel " + currentNovel.getNovelName();
                 intent.setType("text/plain");
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareTitle);
-                intent.putExtra(android.content.Intent.EXTRA_TEXT, stringBuilder.toString());
+                intent.putExtra(android.content.Intent.EXTRA_TEXT, currentNovel.getNovelDescription());
                 startActivity(Intent.createChooser(intent, "Share via"));
             }
         });

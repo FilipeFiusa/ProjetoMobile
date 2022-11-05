@@ -31,7 +31,7 @@ public class GenesisTlParser extends Parser {
 
         urlBase = "https://genesistls.com";
         SourceName = "Genesis Translations";
-        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_novelfull);
+        Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_genesistl);
         language = Languages.ENGLISH;
         sourceType = 1;
     }
@@ -154,10 +154,8 @@ public class GenesisTlParser extends Parser {
 
     @Override
     public ChapterContent getChapterContent(String chapterUrl) {
-        String URL = urlBase + chapterUrl;
-
         try {
-            Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(chapterUrl).userAgent("Mozilla/5.0").get();
 
             String rawChapter = document.html();
 
