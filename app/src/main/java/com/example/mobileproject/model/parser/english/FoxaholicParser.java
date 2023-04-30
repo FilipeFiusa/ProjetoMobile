@@ -43,7 +43,7 @@ public class FoxaholicParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -91,7 +91,7 @@ public class FoxaholicParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + "/" + novelLink).userAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36").get();
 
             Elements allLinks = d.select(".listing-chapters_wrap .wp-manga-chapter a");
 
@@ -126,7 +126,7 @@ public class FoxaholicParser extends Parser {
 
         try{
             Document document = Jsoup.connect(urlBase + "/novel/")
-                    .userAgent("Mozilla/5.0")
+                    .userAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36")
                     .get();
             Elements novels = document.select(".c-tabs-item .row .page-item-detail");
 
@@ -156,7 +156,7 @@ public class FoxaholicParser extends Parser {
 
         try {
             Document document = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
+                    .userAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36")
                     .get();
             Elements novels = document.select(".search-wrap .row .tab-thumb a");
 
@@ -182,7 +182,7 @@ public class FoxaholicParser extends Parser {
         String URL = urlBase + chapterUrl;
 
         try {
-            Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(URL).userAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.153 Mobile Safari/537.36").get();
 
             String title = document.select(".select-view select [selected]").first().text();
 

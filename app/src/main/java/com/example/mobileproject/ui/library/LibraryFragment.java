@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.mobileproject.App;
 import com.example.mobileproject.CreateSourceWebViewActivity;
 import com.example.mobileproject.MainActivity;
 import com.example.mobileproject.NovelDetailsActivity;
@@ -102,8 +103,18 @@ public class LibraryFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
-        novelsOnLibrary.execute();
+        ArrayList<NovelDetails> novelsOnLibrary = ((App) ctx.getApplication()).getNovelsOnLibrary();
+        
+        if(novelsOnLibrary != null){
+            mAdapter.updateNovelsList(novelsOnLibrary);
+            mSwipeRefreshLayout.setRefreshing(false);
+
+            GetNovelsOnLibraryTask GetNovelsOnLibraryTask = new GetNovelsOnLibraryTask();
+            GetNovelsOnLibraryTask.execute();
+        }else {
+            GetNovelsOnLibraryTask GetNovelsOnLibraryTask = new GetNovelsOnLibraryTask();
+            GetNovelsOnLibraryTask.execute();
+        }
 
         updatesReceiver = new CheckUpdatesLFReceiver(new Handler(), this);
 
@@ -127,8 +138,8 @@ public class LibraryFragment extends Fragment {
     }
 
     public void UpdateNovels(){
-        NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
-        novelsOnLibrary.execute();
+        GetNovelsOnLibraryTask GetNovelsOnLibraryTask = new GetNovelsOnLibraryTask();
+        GetNovelsOnLibraryTask.execute();
     }
 
     public void SetUpMenu(){
@@ -368,11 +379,11 @@ public class LibraryFragment extends Fragment {
     }
 
     public void checkUpdatesFinished(){
-        NovelsOnLibrary novelsOnLibrary = new NovelsOnLibrary();
-        novelsOnLibrary.execute();
+        GetNovelsOnLibraryTask GetNovelsOnLibraryTask = new GetNovelsOnLibraryTask();
+        GetNovelsOnLibraryTask.execute();
     }
 
-    private class NovelsOnLibrary extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
+    private class GetNovelsOnLibraryTask extends AsyncTask<Void, Void, ArrayList<NovelDetails>> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -397,6 +408,8 @@ public class LibraryFragment extends Fragment {
 
             LoadNovelImageTask loadNovelImageTask = new LoadNovelImageTask();
             loadNovelImageTask.execute(novelDetailsArr.toArray(new NovelDetails[0]));
+
+            ((App) ctx.getApplication()).setNovelsOnLibrary(novelDetailsArr);
         }
     }
 

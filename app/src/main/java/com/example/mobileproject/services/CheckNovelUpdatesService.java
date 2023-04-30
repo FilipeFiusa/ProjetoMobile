@@ -169,7 +169,11 @@ public class CheckNovelUpdatesService extends JobService {
             try{
                 tempList = parser.checkNewChapters(novelDetails.getNovelLink(), novelDetails.getLastPageSearched());
             }catch (Exception e){
-                Toast.makeText(CheckNovelUpdatesService.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                System.out.println(e.getMessage());
+                return new CheckUpdatesItem(novelDetails, newChapters);
+            }
+
+            if(tempList == null || tempList.isEmpty()){
                 return new CheckUpdatesItem(novelDetails, newChapters);
             }
 

@@ -138,8 +138,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        System.out.println(libraryFragment == null);
-
         if(libraryFragment != null && resultCode == RESULT_OK){
             System.out.println("Entrou no 2");
             if (data != null){

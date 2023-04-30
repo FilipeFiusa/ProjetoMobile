@@ -226,7 +226,7 @@ public class PageViewController {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            SystemClock.sleep(500);
+                            SystemClock.sleep(200);
                             viewPager2.setCurrentItem(finalPosition, false);
                         }
                     });
@@ -414,6 +414,7 @@ public class PageViewController {
 
                 int start = l.getLineStart(0);
                 int end = l.getLineEnd(lineCount);
+
 
                 /*
                  * Cut string

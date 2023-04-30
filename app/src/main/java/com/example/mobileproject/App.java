@@ -10,12 +10,25 @@ import android.content.Context;
 import android.os.Build;
 import android.view.View;
 
+import com.example.mobileproject.model.NovelDetails;
 import com.example.mobileproject.services.CheckNovelUpdatesService;
+
+import java.util.ArrayList;
 
 public class App extends Application {
     public static final String CHANNEL_ID = "Check Updates";
     public static final int OLD_CHECK_UPDATES_SERVICE_ID = 123;
     public static final int CHECK_UPDATES_SERVICE_ID = 1234;
+
+    private ArrayList<NovelDetails> novelsOnLibrary;
+
+    public ArrayList<NovelDetails> getNovelsOnLibrary() {
+        return novelsOnLibrary;
+    }
+
+    public void setNovelsOnLibrary(ArrayList<NovelDetails> novelsOnLibrary) {
+        this.novelsOnLibrary = novelsOnLibrary;
+    }
 
     @Override
     public void onCreate() {

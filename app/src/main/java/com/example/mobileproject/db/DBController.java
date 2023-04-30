@@ -54,7 +54,7 @@ public class DBController {
         
         values = new ContentValues();
 
-        values.put("last_readed", new Date().getTime());//last_readed
+        values.put("last_readed", 0);//last_readed
         values.put("novel_type", 1);
         values.put("on_library", 0);//last_readed
         values.put("readerViewType", 1);//last_readed
