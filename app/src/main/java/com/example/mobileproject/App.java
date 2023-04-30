@@ -30,6 +30,10 @@ public class App extends Application {
         this.novelsOnLibrary = novelsOnLibrary;
     }
 
+    public void removeNovelOnLibrary(ArrayList<NovelDetails> deletedNovels) {
+        novelsOnLibrary.removeAll(deletedNovels);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

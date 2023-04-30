@@ -72,10 +72,9 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/selected_quantity"
+                        android:id="@+id/novel_selected_quantity"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="1"
                         android:textSize="20sp"
                         android:textColor="@color/white"
                         android:paddingStart="10dp"

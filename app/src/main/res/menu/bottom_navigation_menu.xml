@@ -5,10 +5,10 @@
         android:icon="@drawable/ic_baseline_library_books_40"
         android:title="Biblioteca"/>
 
-    <item
-        android:id="@+id/nav_download_list"
-        android:icon="@drawable/download"
-        android:title="Downloads"/>
+<!--    <item-->
+<!--        android:id="@+id/nav_download_list"-->
+<!--        android:icon="@drawable/download"-->
+<!--        android:title="Downloads"/>-->
 
     <item
         android:id="@+id/nav_navigate"

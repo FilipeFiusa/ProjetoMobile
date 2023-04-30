@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -312,13 +313,16 @@ public class LibraryFragment extends Fragment {
         readSelected.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SetNovelsAsReadiedTask readiedTask = new SetNovelsAsReadiedTask();
-                readiedTask.execute(new ArrayList<>(selectedNovelsReference));
 
-                mAdapter.setAsReadied();
+                Toast.makeText(ctx, "Não Disponivel ainda", Toast.LENGTH_SHORT).show();
 
-                hideSelectMenu();
-                selectedNovelsReference = null;
+//                SetNovelsAsReadiedTask readiedTask = new SetNovelsAsReadiedTask();
+//                readiedTask.execute(new ArrayList<>(selectedNovelsReference));
+//
+//                mAdapter.setAsReadied();
+//
+//                hideSelectMenu();
+//                selectedNovelsReference = null;
             }
         });
 
@@ -337,6 +341,8 @@ public class LibraryFragment extends Fragment {
                 DeleteNovelTask deleteTask = new DeleteNovelTask();
                 deleteTask.execute(new ArrayList<>(selectedNovelsReference));
 
+                ((App) ctx.getApplication()).removeNovelOnLibrary(selectedNovelsReference);
+
                 mAdapter.removeSelected();
 
                 hideSelectMenu();
@@ -350,6 +356,9 @@ public class LibraryFragment extends Fragment {
     public void update(){
         if(selectedNovelsReference != null && selectedNovelsReference.isEmpty()){
             hideSelectMenu();
+        }else {
+            TextView selectedQuantity = (TextView) root.findViewById(R.id.novel_selected_quantity);
+            selectedQuantity.setText((String.valueOf(selectedNovelsReference.size())));
         }
     }
 

@@ -86,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
                         case R.id.nav_navigate:
                             selectedFragment = new NavigateFragment(MainActivity.this);
                             break;
-                        case R.id.nav_download_list:
-                            selectedFragment = new DownloadsFragment();
-                            break;
+//                        case R.id.nav_download_list:
+//                            selectedFragment = new DownloadsFragment();
+//                            break;
                     }
                     if(selectedFragment == null){
                         return true;

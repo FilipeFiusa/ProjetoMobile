@@ -147,7 +147,6 @@ public class NovelsAdapter extends RecyclerView.Adapter<NovelsAdapter.NovelDetai
 
         mNovelList.removeAll(selectedNovels);
         notifyItemRangeRemoved(0, mNovelList.size());
-        notifyItemRangeChanged(0, mNovelList.size());
         resetSelectedList();
     }
 
