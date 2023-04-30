@@ -7,6 +7,7 @@ import com.example.mobileproject.model.parser.english.FoxaholicParser;
 import com.example.mobileproject.model.parser.english.GenesisTlParser;
 import com.example.mobileproject.model.parser.english.LightNovelPubParser;
 import com.example.mobileproject.model.parser.english.LightNovelReaderParser;
+import com.example.mobileproject.model.parser.english.NovelFullDotNetParser;
 import com.example.mobileproject.model.parser.english.NovelFullParser;
 import com.example.mobileproject.model.parser.english.ReadLightNovelParser;
 import com.example.mobileproject.model.parser.english.ReaperScansParser;
@@ -55,6 +56,7 @@ public class ParserFactory {
     public static List<Parser> getAllParsers(Context ctx){
         return Arrays.asList(
                 new NovelFullParser(ctx),
+                new NovelFullDotNetParser(ctx),
                 new LightNovelPubParser(ctx),
                 new WuxiaBlogParser(ctx),
                 new RoyalRoadParser(ctx),

@@ -27,7 +27,7 @@ public class TopFragment1 extends Fragment {
         simpleButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToSearch();
+                //goToSearch();
             }
         });
 

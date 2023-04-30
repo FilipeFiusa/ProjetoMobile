@@ -3,6 +3,7 @@ package com.example.mobileproject.model.parser.english;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.style.IconMarginSpan;
 
 import androidx.core.content.ContextCompat;
 
@@ -49,7 +50,7 @@ public class RoyalRoadParser extends Parser {
             String title = document.select("h1").first().text();
 
             // Get novel description
-            String description = document.select("[property='description']").first().html();
+            String description = document.select(".description").first().html();
             description = cleanDescription(description);
 
             // Cleaning Description
@@ -59,10 +60,10 @@ public class RoyalRoadParser extends Parser {
             String status = document.select(".margin-bottom-10 span").get(1).text();
 
             // Get novel author
-            String author = document.select("[property='author'] [property='name']").first().text();
+            String author = document.select("h4 span").get(1).text();
 
             //Get the novel image
-            Element img = document.select("[property='image']").first();
+            Element img = document.select(".cover-art-container img").first();
             java.lang.String imgSrc = img.absUrl("src");
             InputStream input = new java.net.URL(imgSrc).openStream();
             Bitmap bitmap = BitmapFactory.decodeStream(input);
@@ -73,6 +74,8 @@ public class RoyalRoadParser extends Parser {
             novelDetails = new NovelDetails(bitmap, title, description, author);
             novelDetails.setSource(SourceName);
             novelDetails.setNovelLink(novelLink);
+
+            System.out.println(novelDetails.getNovelName());
 
             if(status.equals("ONGOING")){
                 novelDetails.setStatus(1);
@@ -102,7 +105,6 @@ public class RoyalRoadParser extends Parser {
 
             for (Element element : allLinks){
                 String chapterName = element.select("td").first().text();
-
 
                 ChapterIndex c = new ChapterIndex(
                         chapterName,
@@ -138,6 +140,9 @@ public class RoyalRoadParser extends Parser {
             for (Element e : novels){
                 Element img = e.select("img").first();
                 String imgSrc = img.absUrl("src");
+
+                System.out.println(Objects.requireNonNull(e.select(".fiction-title a").first()).text());
+                System.out.println(Objects.requireNonNull(e.select(".fiction-title a").first()).attr("href"));
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
@@ -221,6 +226,11 @@ public class RoyalRoadParser extends Parser {
     @Override
     public ParserInterface getParserInstance() {
         return new RoyalRoadParser(ctx);
+    }
+
+    @Override
+    public int getLastPageSearched(){
+        return 0;
     }
 
     private String removeSpaces(String searchValue) {

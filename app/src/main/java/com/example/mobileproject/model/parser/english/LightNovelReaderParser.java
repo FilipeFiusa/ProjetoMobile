@@ -37,7 +37,7 @@ public class LightNovelReaderParser extends Parser {
     public LightNovelReaderParser(Context ctx) {
         super(ctx);
 
-        urlBase = "https://lightnovelreader.org/";
+        urlBase = "https://lnreader.org";
         SourceName = "LightNovelReader";
         Icon = ContextCompat.getDrawable(ctx, R.drawable.favicon_lightnovelreader);
         language = Languages.ENGLISH;
@@ -51,7 +51,7 @@ public class LightNovelReaderParser extends Parser {
 
         try {
             //Connect to website
-            Document document = Jsoup.connect(novelLink).userAgent("Mozilla/5.0").get();
+            Document document = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
             cleanDocument(document);
 
             //Get the novel name
@@ -95,7 +95,7 @@ public class LightNovelReaderParser extends Parser {
         Document d;
 
         try {
-            d = Jsoup.connect(novelLink).userAgent("Mozilla/5.0").get();
+            d = Jsoup.connect(urlBase + novelLink).userAgent("Mozilla/5.0").get();
 
             Elements allLinks = d.select(".cm-tabs-content li a");
 
@@ -137,9 +137,12 @@ public class LightNovelReaderParser extends Parser {
             Elements novels = document.select(".category-items ul").get(0).children();
 
             for (Element e : novels){
+
                 Element link = e.select("a").first();
                 Element img = e.select("img").first();
                 String imgSrc = img.absUrl("src");
+
+                System.out.println(link.attr("href").replace(urlBase, ""));
 
                 novelsArr.add(new NovelDetailsMinimum(
                         novelsArr.size(),
