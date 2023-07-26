@@ -3,6 +3,7 @@ package com.example.mobileproject;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,6 +34,7 @@ import com.example.mobileproject.model.parser.ParserFactory;
 import com.example.mobileproject.model.parser.ParserInterface;
 import com.example.mobileproject.util.ServiceHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -104,7 +106,7 @@ public class NovelDetailsActivity extends AppCompatActivity {
             }
         });
 
-        Button simpleButton3 = (Button) findViewById(R.id.downloadAll);
+        ImageButton simpleButton3 = (ImageButton) findViewById(R.id.downloadAll);
         simpleButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -569,6 +571,14 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             ArrayList<ChapterIndex> c = db.getChaptersFromANovel(novel.getNovelName(), novel.getSource());
 
+            ArrayList<RepeatedChapter> repeatedChaptersToRemove = detectRepeatedClasses(c);
+
+            for (RepeatedChapter rc : repeatedChaptersToRemove){
+                for (ChapterIndex repeatedChapter : rc.repeatedChapters){
+                    c.remove(repeatedChapter);
+                }
+            }
+
             return c;
         }
 
@@ -589,6 +599,59 @@ public class NovelDetailsActivity extends AppCompatActivity {
 
             mAdapter.addChapterIndexes(chapterIndexes);
             mSwipeRefreshLayout.setRefreshing(false);
+        }
+
+        private ArrayList<RepeatedChapter> detectRepeatedClasses(ArrayList<ChapterIndex> chapterIndexes){
+            ArrayList<RepeatedChapter> repeatedChapters = new ArrayList<>();
+
+            for(ChapterIndex c : chapterIndexes){
+                boolean alreadyRepeated = false;
+                RepeatedChapter currentCheckingChapter = new RepeatedChapter(c);
+
+                for(RepeatedChapter rc : repeatedChapters){
+                    if (c.getId() == rc.currentChapter.getId()){
+                        alreadyRepeated = true;
+                        break;
+                    }
+
+                    for(ChapterIndex rc1 : rc.repeatedChapters){
+                        if(c.getId() == rc1.getId()){
+                            alreadyRepeated = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (alreadyRepeated){
+                    continue;
+                }
+
+                for (ChapterIndex c1 : chapterIndexes){
+                    if(c.getId() == c1.getId()){
+                        continue;
+                    }
+
+                    if(
+                            c.getChapterName().equals(c1.getChapterName())
+                            || c.getChapterLink().equals(c1.getChapterLink())
+                    ){
+                        currentCheckingChapter.repeatedChapters.add(c1);
+                    }
+                }
+
+                repeatedChapters.add(currentCheckingChapter);
+            }
+
+            return repeatedChapters;
+        }
+
+        private class RepeatedChapter {
+            public ChapterIndex currentChapter;
+            public ArrayList<ChapterIndex> repeatedChapters = new ArrayList<>();
+
+            public RepeatedChapter(ChapterIndex currentChapter) {
+                this.currentChapter = currentChapter;
+            }
         }
     }
 

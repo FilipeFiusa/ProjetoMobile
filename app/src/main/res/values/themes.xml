@@ -25,12 +25,16 @@
     </style>
 
     <style name="ActivityTheme">
-        <item name="android:windowLayoutInDisplayCutoutMode">
-            shortEdges <!-- default, shortEdges, never -->
-        </item>
+
     </style>
 
     <style name="Theme.MyApplicationTest4.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.MyApplicationTest4.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Theme.AccentSecondary"
+        parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">@color/white</item>
+        <item name="android:colorControlHighlight">@color/white</item>
+    </style>
 </resources>

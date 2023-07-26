@@ -83,11 +83,12 @@
                 android:id="@+id/reader_return"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/secodary_dark_theme"
+                android:backgroundTint="@color/white"
                 android:padding="0dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:theme="@style/Theme.AccentSecondary"
                 android:src="@drawable/ic_baseline_keyboard_arrow_left_40"
                 app:tint="@color/white"/>
 
@@ -176,6 +177,7 @@
                     android:src="@drawable/ic_baseline_chapters"
                     tools:ignore="NestedWeights"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:theme="@style/Theme.AccentSecondary"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
                     android:id="@+id/open_user_cleansers"
@@ -185,6 +187,7 @@
                     android:src="@drawable/ic_mode_edit_white_24dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
+                    android:theme="@style/Theme.AccentSecondary"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
                     android:id="@+id/reload_chapter_content"
@@ -194,6 +197,7 @@
                     android:src="@drawable/ic_baseline_refresh_30"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
+                    android:theme="@style/Theme.AccentSecondary"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
                     android:id="@+id/open_chapter_on_web_view"
@@ -203,6 +207,7 @@
                     android:src="@drawable/ic_iconmonstr_globe_24"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
+                    android:theme="@style/Theme.AccentSecondary"
                     android:background="@color/secodary_dark_theme"/>
                 <ImageButton
                     android:id="@+id/open_reader_settings"
@@ -211,6 +216,7 @@
                     android:layout_width="0dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:foregroundTint="@color/white"
+                    android:theme="@style/Theme.AccentSecondary"
                     android:src="@drawable/ic_outline_more_horiz_40"
                     android:background="@color/secodary_dark_theme"/>
             </LinearLayout>

@@ -67,7 +67,7 @@ public class App extends Application {
         JobInfo info = new JobInfo.Builder(CHECK_UPDATES_SERVICE_ID, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .setPeriodic(3 * 60 * 60 * 1000)
+                .setPeriodic(6 * 60 * 60 * 1000)
                 .build();
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
